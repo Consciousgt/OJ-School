@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — OJ SCHOOLS Portal</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%230a192f%22/><text y=%2224%22 x=%224%22 font-size=%2222%22>🔐</text></svg>">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/custom.css">
+
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1,h2,h3 { font-family: 'Outfit', sans-serif; }
+    .input-field {
+      width: 100%; padding: 12px 16px 12px 42px;
+      border: 1px solid #e2e8f0; border-radius: 12px;
+      font-size: 14px; color: #0f172a; background: #f8fafc;
+      outline: none; transition: border-color .2s, box-shadow .2s;
+      font-weight: 500; font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .input-field:focus {
+      border-color: #059669;
+      box-shadow: 0 0 0 3px rgba(5,150,105,.12);
+      background: #fff;
+    }
+    .input-icon {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%); color: #94a3b8; font-size: 14px;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .login-card { animation: fadeIn .4s ease forwards; }
+    .quick-btn {
+      padding: 7px 14px; border-radius: 9px; font-size: 11px; font-weight: 700;
+      border: 1px solid #e2e8f0; background: #f8fafc; color: #475569;
+      cursor: pointer; transition: all .15s; text-align: center; display: block; width: 100%;
+    }
+    .quick-btn:hover { background: #0a192f; color: #fff; border-color: #0a192f; }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-900 p-4">
+
+  <!-- Background -->
+  <div class="fixed inset-0 z-0">
+    <img src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1920&q=80"
+         alt="OJ Schools Campus" class="w-full h-full object-cover brightness-[0.25]">
+    <div class="absolute inset-0 bg-gradient-to-br from-navy-950/95 via-slate-900/90 to-navy-900/85" style="background: linear-gradient(135deg, rgba(5,12,24,.97) 0%, rgba(10,25,47,.93) 60%, rgba(15,39,68,.85) 100%)"></div>
+    <!-- Dot grid -->
+    <div class="absolute inset-0" style="background-image:radial-gradient(rgba(251,191,36,.15) 1px, transparent 1px);background-size:28px 28px;"></div>
+    <!-- Blobs -->
+    <div class="absolute top-20 right-20 w-72 h-72 rounded-full bg-emerald-600/10 blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-20 left-20 w-56 h-56 rounded-full bg-amber-500/10 blur-3xl pointer-events-none"></div>
+  </div>
+
+  <!-- Main container -->
+  <div class="relative z-10 w-full max-w-[420px] my-8">
+
+    <!-- Back link + clock -->
+    <div class="flex justify-between items-center mb-5 text-xs">
+      <a href="../index.html" class="inline-flex items-center gap-2 text-slate-300 hover:text-white transition font-semibold">
+        <i class="fas fa-arrow-left text-amber-400"></i> Public Website
+      </a>
+      <div class="text-slate-300 font-bold bg-white/10 backdrop-blur px-3 py-1.5 rounded-xl border border-white/20 flex items-center gap-2">
+        <i class="far fa-clock text-amber-400"></i>
+        <span id="login-clock">--:--:--</span>
+      </div>
+    </div>
+
+    <!-- Login Card -->
+    <div class="login-card bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
+
+      <!-- Card Header -->
+      <div class="px-8 py-8 text-center" style="background: linear-gradient(135deg, #0a192f 0%, #0f2744 50%, #16365c 100%)">
+        <div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center font-black text-2xl text-amber-400 shadow-lg mb-4"
+             style="background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.2);font-family:'Outfit',sans-serif">
+          OJ
+        </div>
+        <h1 class="text-xl font-black text-white tracking-tight">OJ SCHOOLS</h1>
+        <p class="text-[11px] text-slate-300 uppercase tracking-widest font-semibold mt-1">Administrative Portal</p>
+        <p class="text-xs text-slate-400 mt-2">Academic Session 2026/2027</p>
+      </div>
+
+      <!-- Card Body -->
+      <div class="px-8 py-7">
+
+        <!-- Error message -->
+        <div id="login-error" class="hidden mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+          <i class="fas fa-exclamation-circle text-red-500"></i>
+          <span id="error-text">Invalid credentials. Please try again.</span>
+        </div>
+
+        <!-- Form -->
+        <form id="login-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Username</label>
+            <div class="relative">
+              <span class="input-icon"><i class="fas fa-user-shield"></i></span>
+              <input type="text" id="login-username" autocomplete="username"
+                     placeholder="Enter your username" value="admin"
+                     class="input-field">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Password</label>
+            <div class="relative">
+              <span class="input-icon"><i class="fas fa-lock"></i></span>
+              <input type="password" id="login-password" autocomplete="current-password"
+                     placeholder="Enter your password" value="ojschools2025"
+                     class="input-field">
+              <button type="button" id="toggle-password"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition p-1">
+                <i class="fas fa-eye text-sm"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="login-btn"
+                  class="w-full py-3.5 rounded-2xl font-black text-sm text-white transition-all shadow-lg flex items-center justify-center gap-2 mt-2"
+                  style="background: linear-gradient(135deg, #0a192f, #16365c)">
+            <i class="fas fa-sign-in-alt text-amber-400"></i>
+            <span id="btn-text">Sign In to Admin Portal</span>
+          </button>
+        </form>
+
+        <!-- Quick login -->
+        <div class="mt-6 pt-5 border-t border-slate-100">
+          <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Quick Access</div>
+          <div class="grid grid-cols-3 gap-2">
+            <button class="quick-btn" onclick="quickLogin('admin','ojschools2025')">
+              <i class="fas fa-crown text-amber-500 block mb-1"></i>Principal
+            </button>
+            <button class="quick-btn" onclick="quickLogin('bursar','bursar123')">
+              <i class="fas fa-coins text-emerald-500 block mb-1"></i>Bursar
+            </button>
+            <button class="quick-btn" onclick="quickLogin('records','records123')">
+              <i class="fas fa-file-alt text-blue-500 block mb-1"></i>Records
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <p class="text-center text-xs text-slate-500 mt-5">
+      &copy; 2026 OJ SCHOOLS. Admin Access Only.
+    </p>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/auth.js"></script>
+
+  <script>
+    // Live clock
+    function tick() {
+      const el = document.getElementById("login-clock");
+      if (el) el.textContent = new Date().toLocaleTimeString("en-US", { hour12: true, hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    }
+    tick();
+    setInterval(tick, 1000);
+
+    // Toggle password visibility
+    document.getElementById("toggle-password")?.addEventListener("click", () => {
+      const inp  = document.getElementById("login-password");
+      const icon = document.querySelector("#toggle-password i");
+      if (inp.type === "password") {
+        inp.type = "text";
+        icon.className = "fas fa-eye-slash text-sm";
+      } else {
+        inp.type = "password";
+        icon.className = "fas fa-eye text-sm";
+      }
+    });
+
+    // Form submission
+    document.getElementById("login-form")?.addEventListener("submit", doLogin);
+
+    function quickLogin(username, password) {
+      document.getElementById("login-username").value = username;
+      document.getElementById("login-password").value = password;
+      doLogin(new Event("submit"));
+    }
+
+    function doLogin(e) {
+      e?.preventDefault();
+      const username = document.getElementById("login-username").value.trim();
+      const password = document.getElementById("login-password").value;
+      const errorEl  = document.getElementById("login-error");
+      const errorText= document.getElementById("error-text");
+      const btn      = document.getElementById("login-btn");
+      const btnText  = document.getElementById("btn-text");
+
+      // Show loading state
+      btn.disabled = true;
+      btnText.textContent = "Authenticating…";
+
+      // Inline credential check (auth.js fallback)
+      const CREDS = [
+        { username: "admin",   password: "ojschools2025", role: "Super Administrator",    name: "Principal Administrator" },
+        { username: "bursar",  password: "bursar123",     role: "Chief Bursary Officer",  name: "OJ Schools Bursar"       },
+        { username: "records", password: "records123",    role: "Academic Records Officer",name: "Academic Secretary"     }
+      ];
+
+      setTimeout(() => {
+        const user = CREDS.find(u => u.username === username.toLowerCase() && u.password === password);
+        if (user) {
+          const session = { username: user.username, role: user.role, name: user.name, loginTime: new Date().toISOString() };
+          sessionStorage.setItem("oj_schools_admin_session", JSON.stringify(session));
+          sessionStorage.setItem("oj_schools_admin_name", user.name);
+          sessionStorage.setItem("oj_schools_admin_role", user.role);
+
+          btnText.textContent = "Access Granted ✓";
+          btn.style.background = "linear-gradient(135deg, #059669, #047857)";
+
+          setTimeout(() => {
+            window.location.href = "../dashboard.html";
+          }, 600);
+        } else {
+          btn.disabled = false;
+          btnText.textContent = "Sign In to Admin Portal";
+          if (errorEl) { errorEl.classList.remove("hidden"); errorText.textContent = "Invalid username or password. Please check your credentials."; }
+        }
+      }, 700);
+    }
+  </script>
+</body>
+</html>

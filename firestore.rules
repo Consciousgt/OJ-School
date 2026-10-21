@@ -1,0 +1,448 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Application: OJ Schools Management System
+// Project ID: oj-schools
+// Academic Session: 2026/2027
+//
+// Collections:
+//
+// 1. Collection: students
+//    Document ID: {studentId}
+//    Fields:
+//      - id: string (optional, 1-50 chars)
+//      - regNo: string (required, 1-30 chars, immutable on update)
+//      - firstName: string (required, 1-50 chars)
+//      - lastName: string (required, 1-50 chars)
+//      - currentClass: string (required, 1-30 chars)
+//      - section: string (required, enum: ['primary', 'junior', 'senior', 'tutorial'])
+//      - termFee: number (required, >= 0, <= 100,000,000)
+//      - arrears: number (required, >= 0, <= 100,000,000)
+//      - enrolledDate: string / timestamp (optional, <= 50 chars)
+//      - status: string (required, enum: ['Active', 'Suspended', 'Withdrawn', 'Graduated'])
+//      - clearanceStatus: string (required, enum: ['Cleared', 'Pending'])
+//      - parentName: string (optional, 1-100 chars)
+//      - parentPhone: string (optional, 5-25 chars)
+//      - parentEmail: string (optional, valid email format, <= 100 chars)
+//      - address: string (optional, 1-200 chars)
+//      - gender: string (optional, enum: ['Male', 'Female', 'Other', 'male', 'female'])
+//      - dob: string (optional, 1-30 chars)
+//      - academicSession: string (optional, 1-20 chars)
+//      - passportUrl: string (optional, 1-500 chars)
+//      - createdAt: timestamp / string (optional, immutable)
+//      - updatedAt: timestamp / string (optional)
+//
+// 2. Collection: payments
+//    Document ID: {paymentId}
+//    Fields:
+//      - id: string (optional, 1-50 chars)
+//      - receiptNumber: string (required, 1-50 chars, immutable on update)
+//      - studentId: string (required, 1-50 chars, immutable on update)
+//      - studentName: string (required, 1-100 chars)
+//      - studentClass: string (optional, 1-30 chars)
+//      - studentRegNo: string (optional, 1-30 chars)
+//      - section: string (optional, enum: ['primary', 'junior', 'senior', 'tutorial'])
+//      - amount: number (required, > 0, <= 100,000,000)
+//      - arrearsDeducted: number (optional, >= 0, <= 100,000,000)
+//      - termFeePaid: number (optional, >= 0, <= 100,000,000)
+//      - otherFeesPaid: number (optional, >= 0, <= 100,000,000)
+//      - method: string (required, 1-30 chars)
+//      - date: string / timestamp (required, <= 50 chars)
+//      - category: string (optional, 1-50 chars)
+//      - recordedBy: string (required, 1-100 chars)
+//      - notes: string (optional, 0-500 chars)
+//      - academicSession: string (optional, 1-20 chars)
+//      - term: string (optional, 1-20 chars)
+//      - createdAt: timestamp / string (optional, immutable)
+//      - updatedAt: timestamp / string (optional)
+//
+// 3. Collection: expenses
+//    Document ID: {expenseId}
+//    Fields:
+//      - id: string (optional, 1-50 chars)
+//      - title: string (required, 1-100 chars)
+//      - description: string (optional, 0-500 chars)
+//      - amount: number (required, > 0, <= 100,000,000)
+//      - category: string (required, 1-50 chars)
+//      - period: string (required, enum: ['daily', 'weekly', 'monthly', 'termly', 'session', 'one_time'])
+//      - section: string (required, enum: ['general', 'primary', 'junior', 'senior', 'tutorial'])
+//      - date: string / timestamp (required, <= 50 chars)
+//      - recordedBy: string (required, 1-100 chars)
+//      - approvedBy: string (optional, 1-100 chars)
+//      - receiptUrl: string (optional, 1-500 chars)
+//      - status: string (optional, 1-30 chars)
+//      - academicSession: string (optional, 1-20 chars)
+//      - term: string (optional, 1-20 chars)
+//      - createdAt: timestamp / string (optional, immutable)
+//      - updatedAt: timestamp / string (optional)
+//
+// 4. Collection: auditLogs (Append-Only)
+//    Document ID: {logId}
+//    Fields:
+//      - id: string (optional, 1-50 chars)
+//      - action: string (required, 1-50 chars)
+//      - entity: string (required, 1-50 chars)
+//      - entityId: string (optional, 1-100 chars)
+//      - performedBy: string (required, 1-100 chars)
+//      - timestamp: string / timestamp (required, <= 50 chars)
+//      - details: string / map (optional, max 1,000 chars if string)
+//      - metadata: map (optional)
+//      - createdAt: timestamp / string (optional)
+//
+// 5. Collection: clearance
+//    Document ID: {clearanceId}
+//    Fields:
+//      - id: string (optional, 1-50 chars)
+//      - studentId: string (required, 1-50 chars, immutable on update)
+//      - studentName: string (optional, 1-100 chars)
+//      - regNo: string (required, 1-30 chars)
+//      - currentClass: string (optional, 1-30 chars)
+//      - section: string (optional, enum: ['primary', 'junior', 'senior', 'tutorial'])
+//      - status: string (required, enum: ['Cleared', 'Pending', 'Blocked'])
+//      - term: string (optional, 1-20 chars)
+//      - academicSession: string (optional, 1-20 chars)
+//      - clearedBy: string (optional, 1-100 chars)
+//      - clearanceDate: string / timestamp (optional, <= 50 chars)
+//      - arrears: number (optional, >= 0, <= 100,000,000)
+//      - remarks: string (optional, 0-500 chars)
+//      - createdAt: timestamp / string (optional, immutable)
+//      - updatedAt: timestamp / string (optional)
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Global Configuration & Mode Switch
+    // ===============================================================
+    //
+    // Environment switch:
+    // When false: Prototype / development mode. Allows authenticated client testing
+    // while strictly enforcing data schema validation, string lengths, and numeric bounds.
+    // When true: Production mode. Enforces verified staff email domains
+    // (@oj-schools.firebaseapp.com) and custom token claims (admin, bursar, records).
+    function isProductionMode() {
+      return false;
+    }
+
+    // ===============================================================
+    // Helper Functions: Authentication & Role-Based Access Control
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // General staff access check
+    function isStaff() {
+      return isAuthenticated() && (
+        !isProductionMode() ||
+        (request.auth.token.email != null &&
+         request.auth.token.email.matches('.*@oj-schools\\.firebaseapp\\.com$') &&
+         request.auth.token.email_verified == true) ||
+        (request.auth.token.role in ['admin', 'bursar', 'records']) ||
+        (request.auth.token.admin == true)
+      );
+    }
+
+    // Administrator role check
+    function isAdmin() {
+      return isAuthenticated() && (
+        !isProductionMode() ||
+        request.auth.token.role == 'admin' ||
+        request.auth.token.admin == true
+      );
+    }
+
+    // Bursar / Financial role check (Bursar or Admin)
+    function isBursar() {
+      return isAuthenticated() && (
+        !isProductionMode() ||
+        request.auth.token.role in ['admin', 'bursar'] ||
+        request.auth.token.admin == true
+      );
+    }
+
+    // Academic records role check (Records officer or Admin)
+    function isRecords() {
+      return isAuthenticated() && (
+        !isProductionMode() ||
+        request.auth.token.role in ['admin', 'records'] ||
+        request.auth.token.admin == true
+      );
+    }
+
+    // ===============================================================
+    // General Validation Helpers
+    // ===============================================================
+
+    function hasRequiredFields(data, fields) {
+      return data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(data, fields) {
+      return data.keys().hasOnly(fields);
+    }
+
+    function isValidString(val, minLen, maxLen) {
+      return val is string && val.size() >= minLen && val.size() <= maxLen;
+    }
+
+    function isValidOptionalString(data, field, minLen, maxLen) {
+      return !(field in data) ||
+        (data[field] is string && data[field].size() >= minLen && data[field].size() <= maxLen);
+    }
+
+    function isValidOptionalNumber(data, field, minVal, maxVal) {
+      return !(field in data) ||
+        (data[field] is number && data[field] >= minVal && data[field] <= maxVal);
+    }
+
+    function isValidTimestampOrString(val, maxLen) {
+      return (val is timestamp) || (val is string && val.size() <= maxLen);
+    }
+
+    function isValidOptionalEmail(data, field) {
+      return !(field in data) ||
+        data[field] == '' ||
+        (data[field] is string && data[field].size() <= 100 &&
+         data[field].matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"));
+    }
+
+    // ===============================================================
+    // Domain Validators (Validator Function Pattern)
+    // ===============================================================
+
+    // --- Students Validator ---
+    function isValidStudent(data) {
+      let allowedFields = [
+        'id', 'regNo', 'firstName', 'lastName', 'currentClass', 'section',
+        'termFee', 'arrears', 'enrolledDate', 'status', 'clearanceStatus',
+        'parentName', 'parentPhone', 'parentEmail', 'address', 'gender',
+        'dob', 'academicSession', 'passportUrl', 'createdAt', 'updatedAt'
+      ];
+      let requiredFields = [
+        'regNo', 'firstName', 'lastName', 'currentClass', 'section',
+        'termFee', 'arrears', 'status', 'clearanceStatus'
+      ];
+
+      return hasOnlyAllowedFields(data, allowedFields) &&
+             hasRequiredFields(data, requiredFields) &&
+             isValidString(data.regNo, 1, 30) &&
+             isValidString(data.firstName, 1, 50) &&
+             isValidString(data.lastName, 1, 50) &&
+             isValidString(data.currentClass, 1, 30) &&
+             (data.section in ['primary', 'junior', 'senior', 'tutorial']) &&
+             (data.termFee is number && data.termFee >= 0 && data.termFee <= 100000000) &&
+             (data.arrears is number && data.arrears >= 0 && data.arrears <= 100000000) &&
+             (data.status in ['Active', 'Suspended', 'Withdrawn', 'Graduated']) &&
+             (data.clearanceStatus in ['Cleared', 'Pending']) &&
+             isValidOptionalString(data, 'parentName', 1, 100) &&
+             isValidOptionalString(data, 'parentPhone', 5, 25) &&
+             isValidOptionalEmail(data, 'parentEmail') &&
+             isValidOptionalString(data, 'address', 1, 200) &&
+             (!('gender' in data) || (data.gender in ['Male', 'Female', 'Other', 'male', 'female'])) &&
+             isValidOptionalString(data, 'dob', 1, 30) &&
+             (!('enrolledDate' in data) || isValidTimestampOrString(data.enrolledDate, 50)) &&
+             isValidOptionalString(data, 'academicSession', 1, 20) &&
+             isValidOptionalString(data, 'passportUrl', 1, 500) &&
+             isValidOptionalString(data, 'id', 1, 50) &&
+             (!('createdAt' in data) || isValidTimestampOrString(data.createdAt, 50)) &&
+             (!('updatedAt' in data) || isValidTimestampOrString(data.updatedAt, 50));
+    }
+
+    function areStudentImmutableFieldsUnchanged() {
+      return (!('createdAt' in resource.data) || !('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt) &&
+             (!('id' in resource.data) || !('id' in request.resource.data) || request.resource.data.id == resource.data.id) &&
+             (!('regNo' in resource.data) || request.resource.data.regNo == resource.data.regNo);
+    }
+
+    // --- Payments Validator ---
+    function isValidPayment(data) {
+      let allowedFields = [
+        'id', 'receiptNumber', 'studentId', 'studentName', 'studentClass',
+        'studentRegNo', 'section', 'amount', 'arrearsDeducted', 'termFeePaid',
+        'otherFeesPaid', 'method', 'date', 'category', 'recordedBy', 'notes',
+        'academicSession', 'term', 'createdAt', 'updatedAt'
+      ];
+      let requiredFields = [
+        'receiptNumber', 'studentId', 'studentName', 'amount',
+        'method', 'date', 'recordedBy'
+      ];
+
+      return hasOnlyAllowedFields(data, allowedFields) &&
+             hasRequiredFields(data, requiredFields) &&
+             isValidString(data.receiptNumber, 1, 50) &&
+             isValidString(data.studentId, 1, 50) &&
+             isValidString(data.studentName, 1, 100) &&
+             (data.amount is number && data.amount > 0 && data.amount <= 100000000) &&
+             isValidString(data.method, 1, 30) &&
+             isValidTimestampOrString(data.date, 50) &&
+             isValidString(data.recordedBy, 1, 100) &&
+             isValidOptionalString(data, 'studentClass', 1, 30) &&
+             isValidOptionalString(data, 'studentRegNo', 1, 30) &&
+             (!('section' in data) || (data.section in ['primary', 'junior', 'senior', 'tutorial'])) &&
+             isValidOptionalNumber(data, 'arrearsDeducted', 0, 100000000) &&
+             isValidOptionalNumber(data, 'termFeePaid', 0, 100000000) &&
+             isValidOptionalNumber(data, 'otherFeesPaid', 0, 100000000) &&
+             isValidOptionalString(data, 'category', 1, 50) &&
+             isValidOptionalString(data, 'notes', 0, 500) &&
+             isValidOptionalString(data, 'academicSession', 1, 20) &&
+             isValidOptionalString(data, 'term', 1, 20) &&
+             isValidOptionalString(data, 'id', 1, 50) &&
+             (!('createdAt' in data) || isValidTimestampOrString(data.createdAt, 50)) &&
+             (!('updatedAt' in data) || isValidTimestampOrString(data.updatedAt, 50));
+    }
+
+    function arePaymentImmutableFieldsUnchanged() {
+      return (!('createdAt' in resource.data) || !('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt) &&
+             (!('id' in resource.data) || !('id' in request.resource.data) || request.resource.data.id == resource.data.id) &&
+             (!('receiptNumber' in resource.data) || request.resource.data.receiptNumber == resource.data.receiptNumber) &&
+             (!('studentId' in resource.data) || request.resource.data.studentId == resource.data.studentId);
+    }
+
+    // --- Expenses Validator ---
+    function isValidExpense(data) {
+      let allowedFields = [
+        'id', 'title', 'description', 'amount', 'category', 'period',
+        'section', 'date', 'recordedBy', 'approvedBy', 'receiptUrl',
+        'status', 'academicSession', 'term', 'createdAt', 'updatedAt'
+      ];
+      let requiredFields = [
+        'title', 'amount', 'category', 'period', 'section', 'date', 'recordedBy'
+      ];
+
+      return hasOnlyAllowedFields(data, allowedFields) &&
+             hasRequiredFields(data, requiredFields) &&
+             isValidString(data.title, 1, 100) &&
+             (data.amount is number && data.amount > 0 && data.amount <= 100000000) &&
+             isValidString(data.category, 1, 50) &&
+             (data.period in ['daily', 'weekly', 'monthly', 'termly', 'session', 'one_time']) &&
+             (data.section in ['general', 'primary', 'junior', 'senior', 'tutorial']) &&
+             isValidTimestampOrString(data.date, 50) &&
+             isValidString(data.recordedBy, 1, 100) &&
+             isValidOptionalString(data, 'description', 0, 500) &&
+             isValidOptionalString(data, 'approvedBy', 1, 100) &&
+             isValidOptionalString(data, 'receiptUrl', 1, 500) &&
+             isValidOptionalString(data, 'status', 1, 30) &&
+             isValidOptionalString(data, 'academicSession', 1, 20) &&
+             isValidOptionalString(data, 'term', 1, 20) &&
+             isValidOptionalString(data, 'id', 1, 50) &&
+             (!('createdAt' in data) || isValidTimestampOrString(data.createdAt, 50)) &&
+             (!('updatedAt' in data) || isValidTimestampOrString(data.updatedAt, 50));
+    }
+
+    function areExpenseImmutableFieldsUnchanged() {
+      return (!('createdAt' in resource.data) || !('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt) &&
+             (!('id' in resource.data) || !('id' in request.resource.data) || request.resource.data.id == resource.data.id);
+    }
+
+    // --- Audit Logs Validator ---
+    function isValidAuditLog(data) {
+      let allowedFields = [
+        'id', 'action', 'entity', 'entityId', 'performedBy',
+        'timestamp', 'details', 'metadata', 'createdAt'
+      ];
+      let requiredFields = ['action', 'entity', 'performedBy', 'timestamp'];
+
+      return hasOnlyAllowedFields(data, allowedFields) &&
+             hasRequiredFields(data, requiredFields) &&
+             isValidString(data.action, 1, 50) &&
+             isValidString(data.entity, 1, 50) &&
+             isValidString(data.performedBy, 1, 100) &&
+             isValidTimestampOrString(data.timestamp, 50) &&
+             isValidOptionalString(data, 'entityId', 1, 100) &&
+             (!('details' in data) || (data.details is string && data.details.size() <= 1000) || (data.details is map)) &&
+             (!('metadata' in data) || (data.metadata is map)) &&
+             isValidOptionalString(data, 'id', 1, 50) &&
+             (!('createdAt' in data) || isValidTimestampOrString(data.createdAt, 50));
+    }
+
+    // --- Clearance Validator ---
+    function isValidClearance(data) {
+      let allowedFields = [
+        'id', 'studentId', 'studentName', 'regNo', 'currentClass',
+        'section', 'status', 'term', 'academicSession', 'clearedBy',
+        'clearanceDate', 'arrears', 'remarks', 'createdAt', 'updatedAt'
+      ];
+      let requiredFields = ['studentId', 'regNo', 'status'];
+
+      return hasOnlyAllowedFields(data, allowedFields) &&
+             hasRequiredFields(data, requiredFields) &&
+             isValidString(data.studentId, 1, 50) &&
+             isValidString(data.regNo, 1, 30) &&
+             (data.status in ['Cleared', 'Pending', 'Blocked']) &&
+             isValidOptionalString(data, 'studentName', 1, 100) &&
+             isValidOptionalString(data, 'currentClass', 1, 30) &&
+             (!('section' in data) || (data.section in ['primary', 'junior', 'senior', 'tutorial'])) &&
+             isValidOptionalString(data, 'term', 1, 20) &&
+             isValidOptionalString(data, 'academicSession', 1, 20) &&
+             isValidOptionalString(data, 'clearedBy', 1, 100) &&
+             (!('clearanceDate' in data) || isValidTimestampOrString(data.clearanceDate, 50)) &&
+             isValidOptionalNumber(data, 'arrears', 0, 100000000) &&
+             isValidOptionalString(data, 'remarks', 0, 500) &&
+             isValidOptionalString(data, 'id', 1, 50) &&
+             (!('createdAt' in data) || isValidTimestampOrString(data.createdAt, 50)) &&
+             (!('updatedAt' in data) || isValidTimestampOrString(data.updatedAt, 50));
+    }
+
+    function areClearanceImmutableFieldsUnchanged() {
+      return (!('createdAt' in resource.data) || !('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt) &&
+             (!('id' in resource.data) || !('id' in request.resource.data) || request.resource.data.id == resource.data.id) &&
+             (!('studentId' in resource.data) || request.resource.data.studentId == resource.data.studentId);
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    // Default Deny Root
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 1. Students Collection
+    match /students/{studentId} {
+      allow read: if isStaff();
+      allow create: if isStaff() && isValidStudent(request.resource.data);
+      allow update: if isStaff() && isValidStudent(request.resource.data) && areStudentImmutableFieldsUnchanged();
+      allow delete: if isAdmin();
+    }
+
+    // 2. Payments Collection
+    match /payments/{paymentId} {
+      allow read: if isStaff();
+      allow create: if isBursar() && isValidPayment(request.resource.data);
+      allow update: if isBursar() && isValidPayment(request.resource.data) && arePaymentImmutableFieldsUnchanged();
+      allow delete: if isAdmin(); // Admin can purge or execute cascading deletions
+    }
+
+    // 3. Expenses Collection
+    match /expenses/{expenseId} {
+      allow read: if isStaff();
+      allow create: if isBursar() && isValidExpense(request.resource.data);
+      allow update: if isBursar() && isValidExpense(request.resource.data) && areExpenseImmutableFieldsUnchanged();
+      allow delete: if isAdmin();
+    }
+
+    // 4. Audit Logs Collection (Append-only security log)
+    match /auditLogs/{logId} {
+      allow read: if isStaff();
+      allow create: if isStaff() && isValidAuditLog(request.resource.data);
+      allow update: if false; // Append-only: updates strictly forbidden
+      allow delete: if false; // Append-only: deletions strictly forbidden
+    }
+
+    // 5. Examination Clearance Collection
+    match /clearance/{clearanceId} {
+      allow read: if isStaff();
+      allow create: if isStaff() && isValidClearance(request.resource.data);
+      allow update: if isStaff() && isValidClearance(request.resource.data) && areClearanceImmutableFieldsUnchanged();
+      allow delete: if isAdmin();
+    }
+  }
+}

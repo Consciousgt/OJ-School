@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OJ SCHOOLS — Knowledge, Diligence & Distinction | Admissions 2026/2027</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%230a192f%22/><text y=%2224%22 x=%224%22 font-size=%2222%22>🏫</text></svg>">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              950: '#050c18', 900: '#0a192f', 800: '#0f2744',
+              700: '#16365c', 600: '#1e4a7a', 500: '#25608e'
+            },
+            emerald: {
+              50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0',
+              500: '#10b981', 600: '#059669', 700: '#047857'
+            },
+            gold: {
+              50: '#fffbeb', 100: '#fef3c7',
+              400: '#fbbf24', 500: '#f59e0b', 600: '#d97706'
+            }
+          },
+          fontFamily: {
+            sans:    ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+            heading: ['Outfit', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Custom Design System -->
+  <link rel="stylesheet" href="css/custom.css">
+
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1,h2,h3,h4 { font-family: 'Outfit', sans-serif; }
+
+    /* Gradient text utility */
+    .text-gradient-gold {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b, #d97706);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .text-gradient-emerald {
+      background: linear-gradient(135deg, #10b981, #059669, #047857);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Hero dot grid overlay */
+    .hero-dot-grid {
+      background-image: radial-gradient(rgba(251,191,36,0.2) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    /* Animated beacon */
+    @keyframes beacon {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.5); }
+    }
+    .beacon { animation: beacon 1.8s ease-in-out infinite; }
+
+    /* Section card hover */
+    .section-card {
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .section-card:hover {
+      transform: translateY(-6px);
+    }
+
+    /* Number counter shimmer */
+    .stat-shimmer {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Marquee ticker */
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .marquee-inner { animation: marquee 28s linear infinite; }
+
+    /* Testimonial card */
+    .testimonial-card {
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .testimonial-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(10,25,47,.12);
+    }
+
+    /* CTA pulse ring */
+    @keyframes pulse-ring {
+      0% { box-shadow: 0 0 0 0 rgba(5,150,105,.4); }
+      70% { box-shadow: 0 0 0 14px rgba(5,150,105,0); }
+      100% { box-shadow: 0 0 0 0 rgba(5,150,105,0); }
+    }
+    .cta-pulse { animation: pulse-ring 2.5s ease-out infinite; }
+
+    /* Mobile nav drawer */
+    #mobile-menu { transition: max-height .35s ease, opacity .25s ease; }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-navy-900 antialiased">
+
+  <!-- ═══════════════ TOP ANNOUNCEMENT TICKER ═══════════════ -->
+  <div class="bg-navy-900 text-white py-2 overflow-hidden">
+    <div class="marquee-inner whitespace-nowrap inline-flex gap-12 text-xs text-slate-300 font-medium">
+      <span class="inline-flex items-center gap-2"><span class="w-1.5 h-1.5 bg-gold-400 rounded-full inline-block"></span> 2026/2027 Admissions Now Open — 4 Sections Available</span>
+      <span class="inline-flex items-center gap-2"><i class="fas fa-phone-alt text-gold-400 text-[10px]"></i> Call / WhatsApp: 08031234567</span>
+      <span class="inline-flex items-center gap-2"><i class="fas fa-award text-gold-400 text-[10px]"></i> Primary Section &bull; Junior Secondary &bull; Senior Secondary &bull; Tutorial</span>
+      <span class="inline-flex items-center gap-2"><i class="fas fa-star text-gold-400 text-[10px]"></i> Excellent WAEC, NECO &amp; UTME Track Records</span>
+      <!-- duplicate for seamless loop -->
+      <span class="inline-flex items-center gap-2"><span class="w-1.5 h-1.5 bg-gold-400 rounded-full inline-block"></span> 2026/2027 Admissions Now Open — 4 Sections Available</span>
+      <span class="inline-flex items-center gap-2"><i class="fas fa-phone-alt text-gold-400 text-[10px]"></i> Call / WhatsApp: 08031234567</span>
+      <span class="inline-flex items-center gap-2"><i class="fas fa-award text-gold-400 text-[10px]"></i> Primary Section &bull; Junior Secondary &bull; Senior Secondary &bull; Tutorial</span>
+      <span class="inline-flex items-center gap-2"><i class="fas fa-star text-gold-400 text-[10px]"></i> Excellent WAEC, NECO &amp; UTME Track Records</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════ HEADER / NAVIGATION ═══════════════ -->
+  <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+
+      <!-- Brand -->
+      <a href="index.html" class="flex items-center gap-3 group flex-shrink-0">
+        <div class="w-11 h-11 rounded-2xl bg-navy-900 flex items-center justify-center text-white font-black text-lg shadow-md group-hover:bg-navy-700 transition-colors">
+          OJ
+        </div>
+        <div>
+          <div class="text-xl font-black text-navy-900 tracking-tight leading-none">
+            OJ <span class="text-emerald-600">SCHOOLS</span>
+          </div>
+          <div class="text-[10px] font-semibold text-slate-400 tracking-widest uppercase mt-0.5">
+            Knowledge · Diligence · Distinction
+          </div>
+        </div>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center gap-7 text-sm font-semibold text-slate-600">
+        <a href="#about"    class="hover:text-navy-900 hover:border-b-2 hover:border-emerald-500 pb-1 transition-all">About Us</a>
+        <a href="#sections" class="hover:text-navy-900 hover:border-b-2 hover:border-emerald-500 pb-1 transition-all">Our Sections</a>
+        <a href="#why-oj"   class="hover:text-navy-900 hover:border-b-2 hover:border-emerald-500 pb-1 transition-all">Why OJ Schools</a>
+        <a href="#tutorial" class="hover:text-navy-900 hover:border-b-2 hover:border-emerald-500 pb-1 transition-all">Tutorial Centre</a>
+        <a href="#contact"  class="hover:text-navy-900 hover:border-b-2 hover:border-emerald-500 pb-1 transition-all">Contact</a>
+      </nav>
+
+      <!-- CTA -->
+      <div class="hidden md:flex items-center gap-3">
+        <a href="#contact"
+           class="cta-pulse inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/30 transition">
+          <i class="fas fa-paper-plane text-xs"></i> Apply Now
+        </a>
+      </div>
+
+      <!-- Mobile Hamburger -->
+      <button id="nav-toggle" class="md:hidden p-2 rounded-xl text-navy-900 hover:bg-slate-100 transition" aria-label="Menu">
+        <i class="fas fa-bars text-xl" id="nav-icon"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Dropdown -->
+    <div id="mobile-menu" class="md:hidden max-h-0 overflow-hidden opacity-0 bg-white border-t border-slate-100">
+      <div class="px-4 py-4 space-y-1">
+        <a href="#about"    class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50"><i class="fas fa-info-circle w-5 text-emerald-600"></i> About Us</a>
+        <a href="#sections" class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50"><i class="fas fa-school w-5 text-emerald-600"></i> Our Sections</a>
+        <a href="#why-oj"   class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50"><i class="fas fa-star w-5 text-emerald-600"></i> Why OJ Schools</a>
+        <a href="#tutorial" class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50"><i class="fas fa-book-open-reader w-5 text-emerald-600"></i> Tutorial Centre</a>
+        <a href="#contact"  class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50"><i class="fas fa-phone w-5 text-emerald-600"></i> Contact</a>
+        <a href="#contact"  class="flex items-center justify-center gap-2 px-4 py-3 mt-2 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700"><i class="fas fa-paper-plane text-xs"></i> Apply for Admission</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════ HERO SECTION ═══════════════ -->
+  <section class="relative min-h-[680px] flex items-center overflow-hidden bg-navy-950">
+    <!-- Background -->
+    <div class="absolute inset-0 z-0">
+      <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1920&q=80"
+           alt="OJ Schools Campus"
+           class="w-full h-full object-cover object-center opacity-30">
+      <div class="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy-900/95 to-navy-800/80"></div>
+      <div class="absolute inset-0 hero-dot-grid"></div>
+    </div>
+
+    <!-- Decorative blobs -->
+    <div class="absolute top-20 right-20 w-64 h-64 rounded-full bg-emerald-600/10 blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-10 left-10 w-48 h-48 rounded-full bg-gold-500/10 blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-white w-full">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+
+        <!-- Hero Content -->
+        <div class="lg:col-span-7 space-y-7">
+          <!-- Pill badge -->
+          <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-gold-300 text-xs font-bold backdrop-blur-sm">
+            <span class="beacon w-2 h-2 rounded-full bg-gold-400 inline-block"></span>
+            <span>2026/2027 Academic Session — Now Enrolling</span>
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.07]">
+            Where <span class="text-gradient-gold">Brilliant</span> Minds<br>
+            Find Their <span class="text-gradient-emerald">Purpose</span>
+          </h1>
+
+          <p class="text-slate-300 text-base sm:text-lg max-w-xl font-light leading-relaxed">
+            OJ Schools is a full-spectrum educational institution offering <strong class="text-white">Primary</strong>,
+            <strong class="text-white">Junior Secondary</strong>, <strong class="text-white">Senior Secondary</strong>,
+            and a dedicated <strong class="text-gold-300">Tutorial Centre</strong> — built to take every child from
+            foundation to distinction.
+          </p>
+
+          <!-- Quick stats -->
+          <div class="flex flex-wrap gap-x-10 gap-y-4 pt-2 border-t border-white/10">
+            <div>
+              <div class="text-2xl font-black text-gold-400">100%</div>
+              <div class="text-xs text-slate-400 font-medium">WAEC / NECO Pass Rate</div>
+            </div>
+            <div>
+              <div class="text-2xl font-black text-white">4</div>
+              <div class="text-xs text-slate-400 font-medium">Distinct School Sections</div>
+            </div>
+            <div>
+              <div class="text-2xl font-black text-emerald-400">2026/2027</div>
+              <div class="text-xs text-slate-400 font-medium">Current Academic Session</div>
+            </div>
+          </div>
+
+          <!-- Hero CTAs -->
+          <div class="flex flex-wrap gap-4 pt-1">
+            <a href="#sections"
+               class="px-7 py-3.5 rounded-2xl font-bold text-navy-900 bg-gold-400 hover:bg-gold-300 shadow-lg shadow-gold-500/25 transition flex items-center gap-2">
+              <i class="fas fa-compass"></i> Explore Our Sections
+            </a>
+            <a href="#contact"
+               class="px-7 py-3.5 rounded-2xl font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-sm transition flex items-center gap-2">
+              <i class="fas fa-graduation-cap"></i> Apply for Admission
+            </a>
+          </div>
+        </div>
+
+        <!-- Hero Admissions Card -->
+        <div class="lg:col-span-5">
+          <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-7 shadow-2xl text-white">
+            <div class="flex items-center justify-between border-b border-white/15 pb-5 mb-5">
+              <div>
+                <div class="text-xs font-bold text-gold-300 uppercase tracking-widest">Admissions Office</div>
+                <div class="text-lg font-black mt-1">Quick Enrolment Guide</div>
+              </div>
+              <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                <i class="fas fa-award text-gold-400"></i>
+              </div>
+            </div>
+
+            <div class="space-y-3 mb-6">
+              <div class="flex items-start gap-3 bg-white/8 border border-white/15 rounded-xl p-3.5">
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/25 flex items-center justify-center flex-shrink-0">
+                  <i class="fas fa-child text-emerald-300 text-xs"></i>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-emerald-300">Primary Section</div>
+                  <div class="text-[11px] text-slate-300 mt-0.5">Creche · Nursery · Basic 1–6</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-3 bg-white/8 border border-white/15 rounded-xl p-3.5">
+                <div class="w-8 h-8 rounded-lg bg-blue-500/25 flex items-center justify-center flex-shrink-0">
+                  <i class="fas fa-school text-blue-300 text-xs"></i>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-blue-300">Junior Secondary</div>
+                  <div class="text-[11px] text-slate-300 mt-0.5">JSS 1 – JSS 3 (Junior WAEC)</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-3 bg-white/8 border border-white/15 rounded-xl p-3.5">
+                <div class="w-8 h-8 rounded-lg bg-purple-500/25 flex items-center justify-center flex-shrink-0">
+                  <i class="fas fa-graduation-cap text-purple-300 text-xs"></i>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-purple-300">Senior Secondary</div>
+                  <div class="text-[11px] text-slate-300 mt-0.5">SSS 1–3: Science · Art · Commercial</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-3 bg-white/8 border border-white/15 rounded-xl p-3.5">
+                <div class="w-8 h-8 rounded-lg bg-gold-500/25 flex items-center justify-center flex-shrink-0">
+                  <i class="fas fa-book-open-reader text-gold-300 text-xs"></i>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-gold-300">Tutorial Section</div>
+                  <div class="text-[11px] text-slate-300 mt-0.5">WAEC · NECO · JAMB/UTME · GCE Prep</div>
+                </div>
+              </div>
+            </div>
+
+            <a href="#contact"
+               class="block w-full py-3.5 text-center rounded-2xl font-bold text-sm text-navy-900 bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-300 hover:to-gold-400 shadow-lg transition">
+              Begin Your Application <i class="fas fa-arrow-right ml-2 text-xs"></i>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ ABOUT SECTION ═══════════════ -->
+  <section id="about" class="py-20 bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <!-- Content -->
+        <div class="space-y-6">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-navy-900 text-gold-400 text-xs font-bold uppercase tracking-widest">
+            <i class="fas fa-school text-[10px]"></i> About OJ Schools
+          </div>
+          <h2 class="text-3xl lg:text-4xl font-black text-navy-900 leading-tight">
+            A Complete Educational<br>Ecosystem Under One Roof
+          </h2>
+          <p class="text-slate-600 leading-relaxed">
+            OJ Schools is more than an institution — it is a lifelong learning community. From the earliest
+            creche years through Senior Secondary and our intensive Tutorial Centre, we provide every student
+            with world-class teaching, a safe learning environment, and the academic firepower needed to excel
+            in Nigeria's most competitive examinations.
+          </p>
+          <p class="text-slate-600 leading-relaxed">
+            Our curriculum is grounded in the Nigerian National Curriculum while incorporating modern
+            pedagogical innovations — equipping students for WAEC, NECO, JAMB, and global tertiary admissions.
+          </p>
+
+          <div class="grid grid-cols-2 gap-4 pt-2">
+            <div class="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+              <div class="w-9 h-9 rounded-xl bg-navy-900 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-users text-gold-400 text-sm"></i>
+              </div>
+              <div>
+                <div class="text-sm font-bold text-navy-900">Small Class Sizes</div>
+                <div class="text-xs text-slate-500 mt-0.5">Personalized teacher attention</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+              <div class="w-9 h-9 rounded-xl bg-navy-900 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-laptop-code text-gold-400 text-sm"></i>
+              </div>
+              <div>
+                <div class="text-sm font-bold text-navy-900">ICT & CBT Labs</div>
+                <div class="text-xs text-slate-500 mt-0.5">Modern digital infrastructure</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+              <div class="w-9 h-9 rounded-xl bg-navy-900 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-trophy text-gold-400 text-sm"></i>
+              </div>
+              <div>
+                <div class="text-sm font-bold text-navy-900">Award-Winning Results</div>
+                <div class="text-xs text-slate-500 mt-0.5">Top WAEC & NECO performances</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+              <div class="w-9 h-9 rounded-xl bg-navy-900 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-shield-halved text-gold-400 text-sm"></i>
+              </div>
+              <div>
+                <div class="text-sm font-bold text-navy-900">Safe Environment</div>
+                <div class="text-xs text-slate-500 mt-0.5">Secure and nurturing campus</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual -->
+        <div class="relative">
+          <div class="relative rounded-3xl overflow-hidden shadow-2xl">
+            <img src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80"
+                 alt="OJ Schools Learning Environment" class="w-full h-80 object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-navy-900/60 to-transparent"></div>
+            <div class="absolute bottom-5 left-5 right-5">
+              <div class="bg-white/95 backdrop-blur rounded-2xl p-4 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 text-lg font-black flex-shrink-0">✓</div>
+                <div>
+                  <div class="text-sm font-bold text-navy-900">Registered with NERDC & WAEC Board</div>
+                  <div class="text-xs text-slate-500">Fully certified Nigerian school institution</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Floating stat card -->
+          <div class="absolute -top-5 -right-5 bg-navy-900 text-white rounded-2xl px-5 py-4 shadow-xl text-center">
+            <div class="text-2xl font-black text-gold-400">4</div>
+            <div class="text-[10px] text-slate-300 font-semibold tracking-wider uppercase mt-0.5">Sections</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ SCHOOL SECTIONS ═══════════════ -->
+  <section id="sections" class="py-20 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-14">
+        <span class="text-xs font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+          Our School Sections
+        </span>
+        <h2 class="text-3xl lg:text-4xl font-black text-navy-900 mt-4 leading-tight">
+          Four Sections, One Vision — Your Child's Complete Education
+        </h2>
+        <p class="text-slate-500 text-sm mt-3 leading-relaxed">
+          Every stage of learning is covered under OJ Schools, with dedicated teachers, tailored curriculum, and clear pathways to academic excellence.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        <!-- Primary Section -->
+        <div class="section-card bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-emerald-500/10">
+          <div class="h-3 bg-gradient-to-r from-emerald-500 to-emerald-400"></div>
+          <div class="p-7">
+            <div class="flex items-start justify-between mb-5">
+              <div class="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-2xl">
+                <i class="fas fa-child text-emerald-600"></i>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">PRIMARY</span>
+            </div>
+            <h3 class="text-xl font-black text-navy-900 mb-2">Primary Section</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-5">
+              From Creche and Nursery through Basic 1 to 6, our Primary Section gives children the strongest academic,
+              social, and moral foundation in a nurturing environment designed for young learners.
+            </p>
+            <div class="space-y-2 mb-6">
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-emerald-500 text-xs"></i> Creche &amp; Day Care</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-emerald-500 text-xs"></i> Kindergarten &amp; Nursery 1–2</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-emerald-500 text-xs"></i> Basic 1 through Basic 6</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-emerald-500 text-xs"></i> Phonics, Numeracy &amp; Discovery Labs</div>
+            </div>
+            <a href="#contact" class="inline-flex items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition">
+              Enrol for Primary <i class="fas fa-arrow-right text-xs"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Junior Secondary -->
+        <div class="section-card bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-blue-500/10">
+          <div class="h-3 bg-gradient-to-r from-blue-500 to-blue-400"></div>
+          <div class="p-7">
+            <div class="flex items-start justify-between mb-5">
+              <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-2xl">
+                <i class="fas fa-school text-blue-600"></i>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200">JUNIOR SEC.</span>
+            </div>
+            <h3 class="text-xl font-black text-navy-900 mb-2">Junior Secondary School</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-5">
+              Our Junior Secondary prepares students for the Basic Education Certificate Examination (BECE/Junior WAEC)
+              with disciplined academic coaching and character formation from JSS 1 through JSS 3.
+            </p>
+            <div class="space-y-2 mb-6">
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-blue-500 text-xs"></i> JSS 1A, 1B — Foundation Year</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-blue-500 text-xs"></i> JSS 2A, 2B — Core Development</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-blue-500 text-xs"></i> JSS 3A, 3B — BECE Examination Prep</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-blue-500 text-xs"></i> Mock Exams &amp; Intensive Coaching</div>
+            </div>
+            <a href="#contact" class="inline-flex items-center gap-2 text-sm font-bold text-blue-600 hover:text-blue-700 transition">
+              Enrol for Junior Secondary <i class="fas fa-arrow-right text-xs"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Senior Secondary -->
+        <div class="section-card bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-purple-500/10">
+          <div class="h-3 bg-gradient-to-r from-purple-500 to-purple-400"></div>
+          <div class="p-7">
+            <div class="flex items-start justify-between mb-5">
+              <div class="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-2xl">
+                <i class="fas fa-graduation-cap text-purple-600"></i>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-bold border border-purple-200">SENIOR SEC.</span>
+            </div>
+            <h3 class="text-xl font-black text-navy-900 mb-2">Senior Secondary School</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-5">
+              OJ Schools' Senior Secondary offers Science, Art, and Commercial tracks with intensive WAEC, NECO
+              and UTME preparation — consistently achieving outstanding results nationwide.
+            </p>
+            <div class="space-y-2 mb-6">
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-purple-500 text-xs"></i> SSS 1–3: Science Track</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-purple-500 text-xs"></i> SSS 1–3: Arts Track</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-purple-500 text-xs"></i> SSS 1–3: Commercial Track</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-purple-500 text-xs"></i> WAEC, NECO &amp; UTME Support</div>
+            </div>
+            <a href="#contact" class="inline-flex items-center gap-2 text-sm font-bold text-purple-600 hover:text-purple-700 transition">
+              Enrol for Senior Secondary <i class="fas fa-arrow-right text-xs"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Tutorial Section -->
+        <div id="tutorial" class="section-card bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-orange-500/10">
+          <div class="h-3 bg-gradient-to-r from-orange-500 to-amber-400"></div>
+          <div class="p-7">
+            <div class="flex items-start justify-between mb-5">
+              <div class="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-2xl">
+                <i class="fas fa-book-open-reader text-orange-600"></i>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-bold border border-orange-200">TUTORIAL</span>
+            </div>
+            <h3 class="text-xl font-black text-navy-900 mb-2">OJ Tutorial Centre</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-5">
+              Our specialist Tutorial Section offers intensive coaching programmes for students targeting WAEC, NECO,
+              GCE, and JAMB/UTME — with CBT mock drills, Post-UTME clinics, and accelerated revision courses.
+            </p>
+            <div class="space-y-2 mb-6">
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-orange-500 text-xs"></i> WAEC &amp; NECO Intensive Prep</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-orange-500 text-xs"></i> JAMB / UTME CBT Drill &amp; Masterclass</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-orange-500 text-xs"></i> Post-UTME Screening Clinic</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-orange-500 text-xs"></i> GCE &amp; Evening Tutoring Programs</div>
+            </div>
+            <a href="#contact" class="inline-flex items-center gap-2 text-sm font-bold text-orange-600 hover:text-orange-700 transition">
+              Register for Tutorial <i class="fas fa-arrow-right text-xs"></i>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ WHY OJ SCHOOLS ═══════════════ -->
+  <section id="why-oj" class="py-20 bg-navy-900 relative overflow-hidden">
+    <!-- Decorative elements -->
+    <div class="absolute inset-0 hero-dot-grid opacity-30"></div>
+    <div class="absolute top-0 right-0 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-14">
+        <span class="text-xs font-bold uppercase tracking-widest text-gold-400 bg-white/10 px-3 py-1.5 rounded-full border border-white/20">
+          Why Choose OJ Schools
+        </span>
+        <h2 class="text-3xl lg:text-4xl font-black text-white mt-4 leading-tight">
+          Built Different, Results Unmatched
+        </h2>
+        <p class="text-slate-400 text-sm mt-3 leading-relaxed">
+          Thousands of families across Lagos and Ogun State choose OJ Schools for a reason.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Feature cards -->
+        <div class="bg-white/8 border border-white/15 rounded-2xl p-6 hover:bg-white/12 transition">
+          <div class="w-12 h-12 rounded-xl bg-gold-500/20 flex items-center justify-center text-xl mb-5">
+            <i class="fas fa-user-tie text-gold-400"></i>
+          </div>
+          <h3 class="text-base font-bold text-white mb-2">Expert & Dedicated Teachers</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Qualified, experienced, and passionate educators committed to every student's breakthrough.</p>
+        </div>
+
+        <div class="bg-white/8 border border-white/15 rounded-2xl p-6 hover:bg-white/12 transition">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center text-xl mb-5">
+            <i class="fas fa-chart-line text-emerald-400"></i>
+          </div>
+          <h3 class="text-base font-bold text-white mb-2">Consistent Top Results</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Our students consistently record outstanding performances in WAEC, NECO, BECE, and JAMB/UTME.</p>
+        </div>
+
+        <div class="bg-white/8 border border-white/15 rounded-2xl p-6 hover:bg-white/12 transition">
+          <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-xl mb-5">
+            <i class="fas fa-laptop text-blue-400"></i>
+          </div>
+          <h3 class="text-base font-bold text-white mb-2">ICT & CBT Infrastructure</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">State-of-the-art computer labs for real exam simulation and digital skills development.</p>
+        </div>
+
+        <div class="bg-white/8 border border-white/15 rounded-2xl p-6 hover:bg-white/12 transition">
+          <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-xl mb-5">
+            <i class="fas fa-flask text-purple-400"></i>
+          </div>
+          <h3 class="text-base font-bold text-white mb-2">Practical Science Labs</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Fully equipped Physics, Chemistry, and Biology laboratories for hands-on experiments and practical exams.</p>
+        </div>
+
+        <div class="bg-white/8 border border-white/15 rounded-2xl p-6 hover:bg-white/12 transition">
+          <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center text-xl mb-5">
+            <i class="fas fa-shield-heart text-orange-400"></i>
+          </div>
+          <h3 class="text-base font-bold text-white mb-2">Safe & Moral Campus</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">A structured, disciplined and morally grounded environment that shapes character alongside academics.</p>
+        </div>
+
+        <div class="bg-white/8 border border-white/15 rounded-2xl p-6 hover:bg-white/12 transition">
+          <div class="w-12 h-12 rounded-xl bg-gold-500/20 flex items-center justify-center text-xl mb-5">
+            <i class="fas fa-book-open-reader text-gold-400"></i>
+          </div>
+          <h3 class="text-base font-bold text-white mb-2">Dedicated Tutorial Centre</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">The only school offering a standalone Tutorial Section for exam repeaters, private candidates, and JAMB aspirants.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ TESTIMONIALS ═══════════════ -->
+  <section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-xl mx-auto mb-12">
+        <span class="text-xs font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">Parent Testimonials</span>
+        <h2 class="text-3xl font-black text-navy-900 mt-4">Families Love OJ Schools</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="testimonial-card bg-slate-50 border border-slate-200 rounded-2xl p-6">
+          <div class="flex gap-1 text-gold-400 mb-4 text-sm">★★★★★</div>
+          <p class="text-slate-600 text-sm leading-relaxed italic mb-5">"My daughter moved from OJ Schools' Primary Section into Junior Secondary seamlessly. The academic standard here is truly different. The teachers genuinely care."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-navy-900 flex items-center justify-center text-gold-400 font-bold text-sm flex-shrink-0">AA</div>
+            <div><div class="text-sm font-bold text-navy-900">Mrs. Adeyemi Afolabi</div><div class="text-xs text-slate-400">Parent — Primary Section</div></div>
+          </div>
+        </div>
+
+        <div class="testimonial-card bg-slate-50 border border-slate-200 rounded-2xl p-6">
+          <div class="flex gap-1 text-gold-400 mb-4 text-sm">★★★★★</div>
+          <p class="text-slate-600 text-sm leading-relaxed italic mb-5">"My son scored A's in all science subjects in WAEC after attending OJ Schools. The SSS3 extra lessons and mock exams were the game-changer."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-navy-900 flex items-center justify-center text-gold-400 font-bold text-sm flex-shrink-0">BO</div>
+            <div><div class="text-sm font-bold text-navy-900">Mr. Babatunde Okonkwo</div><div class="text-xs text-slate-400">Parent — Senior Secondary</div></div>
+          </div>
+        </div>
+
+        <div class="testimonial-card bg-slate-50 border border-slate-200 rounded-2xl p-6">
+          <div class="flex gap-1 text-gold-400 mb-4 text-sm">★★★★★</div>
+          <p class="text-slate-600 text-sm leading-relaxed italic mb-5">"I registered my daughter for the Tutorial Section and she scored 312 in JAMB. The CBT mocks and UTME drills were exactly what she needed. Highly recommended!"</p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-navy-900 flex items-center justify-center text-gold-400 font-bold text-sm flex-shrink-0">FK</div>
+            <div><div class="text-sm font-bold text-navy-900">Mrs. Funmi Kehinde</div><div class="text-xs text-slate-400">Parent — Tutorial Section</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ CONTACT SECTION ═══════════════ -->
+  <section id="contact" class="py-20 bg-slate-50 border-t border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-14 items-start">
+
+        <!-- Contact Info -->
+        <div class="space-y-8">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+              Contact & Admissions
+            </span>
+            <h2 class="text-3xl font-black text-navy-900 mt-4 leading-tight">
+              Ready to Join OJ Schools?<br>Let's Talk.
+            </h2>
+            <p class="text-slate-500 text-sm mt-3 leading-relaxed">
+              Our admissions office is available Monday–Saturday. Contact us today to schedule a school tour,
+              get a fee schedule, or begin your child's enrollment process.
+            </p>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <div class="w-11 h-11 rounded-xl bg-navy-900 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-phone-alt text-gold-400"></i>
+              </div>
+              <div>
+                <div class="text-xs text-slate-400 font-semibold uppercase tracking-wide">Phone / WhatsApp</div>
+                <div class="text-sm font-bold text-navy-900 mt-0.5">08031234567</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <div class="w-11 h-11 rounded-xl bg-navy-900 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-envelope text-gold-400"></i>
+              </div>
+              <div>
+                <div class="text-xs text-slate-400 font-semibold uppercase tracking-wide">Email</div>
+                <div class="text-sm font-bold text-navy-900 mt-0.5">info@oj-schools.firebaseapp.com</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <div class="w-11 h-11 rounded-xl bg-navy-900 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-map-marker-alt text-gold-400"></i>
+              </div>
+              <div>
+                <div class="text-xs text-slate-400 font-semibold uppercase tracking-wide">Location</div>
+                <div class="text-sm font-bold text-navy-900 mt-0.5">OJ Schools Educational Complex, Lagos / Ogun State</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <div class="w-11 h-11 rounded-xl bg-navy-900 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-clock text-gold-400"></i>
+              </div>
+              <div>
+                <div class="text-xs text-slate-400 font-semibold uppercase tracking-wide">Office Hours</div>
+                <div class="text-sm font-bold text-navy-900 mt-0.5">Monday – Saturday: 7:30am – 5:00pm</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admission Enquiry Form -->
+        <div class="bg-white border border-slate-200 rounded-3xl p-7 shadow-sm">
+          <h3 class="text-lg font-black text-navy-900 mb-1">Send an Admission Enquiry</h3>
+          <p class="text-sm text-slate-500 mb-6">Fill in the form and our team will respond within 24 hours.</p>
+
+          <form class="space-y-4" id="enquiry-form">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">Parent/Guardian Name</label>
+                <input type="text" placeholder="Full Name" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition bg-slate-50 font-medium">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">Phone Number</label>
+                <input type="tel" placeholder="08012345678" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition bg-slate-50 font-medium">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">Child's Name</label>
+              <input type="text" placeholder="Student's Full Name" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition bg-slate-50 font-medium">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">Section of Interest</label>
+              <select class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition bg-slate-50 font-medium">
+                <option value="">-- Select a Section --</option>
+                <option>Primary Section (Creche, Nursery, Basic 1–6)</option>
+                <option>Junior Secondary (JSS 1–3)</option>
+                <option>Senior Secondary (SSS 1–3: Science / Art / Commercial)</option>
+                <option>Tutorial Section (WAEC, NECO, JAMB / UTME)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">Message / Additional Information</label>
+              <textarea rows="3" placeholder="Any special requests, questions, or information about your child..." class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition bg-slate-50 font-medium resize-none"></textarea>
+            </div>
+            <button type="submit"
+              class="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-navy-900 hover:bg-navy-800 transition shadow-lg flex items-center justify-center gap-2">
+              <i class="fas fa-paper-plane text-gold-400 text-xs"></i> Submit Admission Enquiry
+            </button>
+            <p class="text-center text-xs text-slate-400">We respect your privacy. Your data is kept confidential.</p>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer class="bg-navy-950 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10 pb-10 border-b border-white/10">
+        <!-- Brand -->
+        <div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-gold-400 font-black text-base">OJ</div>
+            <div>
+              <div class="font-black text-white">OJ SCHOOLS</div>
+              <div class="text-[10px] text-slate-400 tracking-widest uppercase mt-0.5">Knowledge · Diligence · Distinction</div>
+            </div>
+          </div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            A complete educational ecosystem for Nigerian families — Primary through Senior Secondary and an unrivalled Tutorial Centre.
+          </p>
+        </div>
+
+        <!-- Quick Links -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-4">Our Sections</h4>
+          <ul class="space-y-2 text-sm text-slate-400">
+            <li><a href="#sections" class="hover:text-gold-400 transition flex items-center gap-2"><i class="fas fa-child text-xs text-emerald-500"></i> Primary Section</a></li>
+            <li><a href="#sections" class="hover:text-gold-400 transition flex items-center gap-2"><i class="fas fa-school text-xs text-blue-500"></i> Junior Secondary</a></li>
+            <li><a href="#sections" class="hover:text-gold-400 transition flex items-center gap-2"><i class="fas fa-graduation-cap text-xs text-purple-500"></i> Senior Secondary</a></li>
+            <li><a href="#tutorial" class="hover:text-gold-400 transition flex items-center gap-2"><i class="fas fa-book-open-reader text-xs text-orange-500"></i> Tutorial Section</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-4">Contact</h4>
+          <ul class="space-y-3 text-sm text-slate-400">
+            <li class="flex items-start gap-2"><i class="fas fa-phone-alt text-gold-400 mt-0.5 text-xs"></i> 08031234567</li>
+            <li class="flex items-start gap-2"><i class="fas fa-envelope text-gold-400 mt-0.5 text-xs"></i> info@oj-schools.firebaseapp.com</li>
+            <li class="flex items-start gap-2"><i class="fas fa-map-marker-alt text-gold-400 mt-0.5 text-xs"></i> OJ Schools Educational Complex, Lagos / Ogun State</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pt-7 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+        <span>&copy; 2026 OJ Schools. All Rights Reserved.</span>
+        <span>Academic Session 2026/2027</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile nav toggle script -->
+  <script>
+    const navToggle = document.getElementById("nav-toggle");
+    const mobileMenu = document.getElementById("mobile-menu");
+    const navIcon = document.getElementById("nav-icon");
+    let menuOpen = false;
+    navToggle?.addEventListener("click", () => {
+      menuOpen = !menuOpen;
+      if (menuOpen) {
+        mobileMenu.style.maxHeight = mobileMenu.scrollHeight + "px";
+        mobileMenu.style.opacity = "1";
+        navIcon.className = "fas fa-times text-xl";
+      } else {
+        mobileMenu.style.maxHeight = "0";
+        mobileMenu.style.opacity = "0";
+        navIcon.className = "fas fa-bars text-xl";
+      }
+    });
+
+    // Close menu on link click
+    mobileMenu?.querySelectorAll("a").forEach(a => {
+      a.addEventListener("click", () => {
+        menuOpen = false;
+        mobileMenu.style.maxHeight = "0";
+        mobileMenu.style.opacity = "0";
+        navIcon.className = "fas fa-bars text-xl";
+      });
+    });
+
+    // Enquiry form handler
+    document.getElementById("enquiry-form")?.addEventListener("submit", e => {
+      e.preventDefault();
+      const btn = e.target.querySelector("button[type=submit]");
+      btn.innerHTML = '<i class="fas fa-check text-green-300 text-xs"></i> Enquiry Sent! We\'ll be in touch.';
+      btn.disabled = true;
+      btn.style.background = "#059669";
+    });
+  </script>
+</body>
+</html>

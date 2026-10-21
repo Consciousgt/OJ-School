@@ -1,0 +1,171 @@
+/* ===================================================================
+   OJ SCHOOLS - BESPOKE MODERN DESIGN SYSTEM
+   Color Palette:
+   - Primary: Deep Midnight Navy (#0a192f, #0f172a, #1e293b)
+   - Secondary / Success: Royal Emerald (#059669, #10b981, #047857)
+   - Accent / Prestige: Imperial Amber Gold (#f59e0b, #d97706, #b45309)
+   - Section Accents:
+       • Primary: Royal Emerald (#059669)
+       • Junior Secondary: Marine Blue (#2563eb)
+       • Senior Secondary: Royal Violet (#7c3aed)
+       • Tutorial Section: Warm Amber / Sunset (#ea580c)
+   - Neutral: Crisp Porcelain White (#ffffff), Warm Slate (#f8fafc, #f1f5f9, #e2e8f0)
+   =================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Brand Palette */
+  --oj-navy-950: #050c18;
+  --oj-navy-900: #0a192f;
+  --oj-navy-800: #0f2744;
+  --oj-navy-700: #16365c;
+  --oj-navy-600: #1e4a7a;
+  
+  --oj-emerald-50: #ecfdf5;
+  --oj-emerald-100: #d1fae5;
+  --oj-emerald-200: #a7f3d0;
+  --oj-emerald-500: #10b981;
+  --oj-emerald-600: #059669;
+  --oj-emerald-700: #047857;
+
+  --oj-gold-50: #fffbeb;
+  --oj-gold-100: #fef3c7;
+  --oj-gold-400: #fbbf24;
+  --oj-gold-500: #f59e0b;
+  --oj-gold-600: #d97706;
+
+  --oj-blue-500: #2563eb;
+  --oj-blue-600: #1d4ed8;
+  --oj-purple-500: #7c3aed;
+  --oj-purple-600: #6d28d9;
+  --oj-amber-500: #ea580c;
+
+  /* Neutrals */
+  --oj-white: #ffffff;
+  --oj-gray-50: #f8fafc;
+  --oj-gray-100: #f1f5f9;
+  --oj-gray-200: #e2e8f0;
+  --oj-gray-300: #cbd5e1;
+  --oj-gray-400: #94a3b8;
+  --oj-gray-500: #64748b;
+  --oj-gray-600: #475569;
+  --oj-gray-700: #334155;
+  --oj-gray-800: #1e293b;
+  --oj-gray-900: #0f172a;
+
+  /* Semantic UI Tokens */
+  --color-primary: #0a192f;
+  --color-accent: #059669;
+  --color-gold: #f59e0b;
+  --color-danger: #dc2626;
+  --color-info: #0284c7;
+
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-pill: 9999px;
+
+  --shadow-subtle: 0 1px 3px rgba(10, 25, 47, 0.05);
+  --shadow-card: 0 4px 20px -2px rgba(10, 25, 47, 0.07), 0 2px 6px -1px rgba(10, 25, 47, 0.04);
+  --shadow-float: 0 20px 40px -10px rgba(10, 25, 47, 0.12), 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-glow-emerald: 0 0 25px -4px rgba(5, 150, 105, 0.35);
+  --shadow-glow-gold: 0 0 25px -4px rgba(245, 158, 11, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--oj-gray-50);
+  color: var(--oj-gray-800);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* Glassmorphism Styles */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.glass-card-dark {
+  background: rgba(10, 25, 47, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: var(--oj-gray-100);
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--oj-emerald-600);
+}
+
+/* Badges for Sections */
+.badge-section-primary {
+  background: var(--oj-emerald-50);
+  color: var(--oj-emerald-700);
+  border: 1px solid var(--oj-emerald-200);
+}
+.badge-section-junior {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+.badge-section-senior {
+  background: #f5f3ff;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+.badge-section-tutorial {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #ffedd5;
+}
+
+/* Print Optimization for Receipts and Passes */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  #sidebar, #header, #mobile-bottom-nav, .no-print, .btn-logout, #sidebar-toggle {
+    display: none !important;
+  }
+  #main {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .modal-overlay {
+    position: static !important;
+    background: transparent !important;
+  }
+}
