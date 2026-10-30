@@ -953,7 +953,8 @@ const OJSchoolsApp = (() => {
     }
   }
 
-  function saveEnrollment() {
+  function saveEnrollment(e) {
+    if (e && typeof e.preventDefault === "function") e.preventDefault();
     const editId = document.getElementById("enroll-edit-id")?.value;
     const get    = id => document.getElementById(id)?.value?.trim() || "";
 
@@ -1282,7 +1283,8 @@ const OJSchoolsApp = (() => {
     modal.classList.remove("hidden");
   }
 
-  function saveExpense() {
+  function saveExpense(e) {
+    if (e && typeof e.preventDefault === "function") e.preventDefault();
     const title  = document.getElementById("exp-title")?.value?.trim() || "";
     const amount = parseAmount(document.getElementById("exp-amount")?.value || "0");
     const account= document.getElementById("exp-account")?.value || "general";

@@ -1,24 +1,16 @@
-/**
- * OJ SCHOOLS - Firebase Cloud Sync Bridge v2
- * Firebase Project: oj-schools
- * Academic Session: 2026/2027
- *
- * Bi-directional real-time sync with Cloud Firestore:
- * Collections: students, payments, expenses, auditLogs, config
- */
+// =============================================================================
+// OJ SCHOOLS — Firebase Firestore Integration Layer (v2 Live)
+// Project ID: oj-schools
+// Academic Session: 2026/2027
+// =============================================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
-import { getAnalytics }  from "https://www.gstatic.com/firebasejs/13.0.0/firebase-analytics.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
 import {
-  getFirestore,
-  doc,
-  setDoc,
-  deleteDoc,
-  collection,
-  getDocs,
-  onSnapshot
+  getFirestore, collection, doc, getDocs, setDoc, deleteDoc, onSnapshot
 } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+import {
+  getAuth, signInAnonymously
+} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey:            "AIzaSyBGKHdkZoTt06ySkSx1jBrKr94P5IMQqDM",
@@ -30,28 +22,28 @@ const firebaseConfig = {
   measurementId:     "G-JHPLML8JPS"
 };
 
-// 1. Initialize Firebase Core
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-
-// 2. Optional Analytics with safe guard
+let app, db, auth;
 try {
-  getAnalytics(app);
-} catch (_) {
-  // Analytics optional or blocked by ad-blocker/local environment
+  app  = initializeApp(firebaseConfig);
+  db   = getFirestore(app);
+  auth = getAuth(app);
+  console.info("[OJ Firebase] Firebase initialized successfully for project: oj-schools");
+} catch (e) {
+  console.warn("[OJ Firebase] Initialization error:", e.message);
 }
 
-// 3. Optional Anonymous Auth Bridge
-try {
-  const auth = getAuth(app);
+// Sign in anonymously to satisfy Firestore rules
+if (auth) {
   signInAnonymously(auth).then(() => {
-    console.info("[OJ Firebase] Authenticated anonymously to oj-schools");
-  }).catch(e => {
-    console.info("[OJ Firebase] Auth notice (continuing in standard mode):", e.message);
+    console.info("[OJ Firebase] Auth session active (uid:", auth.currentUser?.uid, ")");
+    if (window.OJSchoolsFirebase) {
+      window.OJSchoolsFirebase.syncWithCloud();
+    }
+  }).catch((err) => {
+    console.warn("[OJ Firebase] Anonymous auth notice:", err.message);
   });
-} catch (_) {}
+}
 
-// ─── Global Cloud Bridge ─────────────────────────────────────────────────────
 window.OJSchoolsFirebase = {
   ready: false,
   _syncing: false,
@@ -62,7 +54,12 @@ window.OJSchoolsFirebase = {
     const clean = {};
     for (const [k, v] of Object.entries(obj)) {
       if (v === undefined || v === null) continue;
-      else if (Array.isArray(v)) {
+      // Strip empty optional strings so Firestore min-length validations don't reject
+      if (typeof v === "string" && v.trim() === "" &&
+          !["id", "regNo", "firstName", "lastName", "currentClass", "status", "clearanceStatus", "receiptNumber", "studentId", "studentName", "method", "title", "action", "entity", "performedBy"].includes(k)) {
+        continue;
+      }
+      if (Array.isArray(v)) {
         clean[k] = v.map(item =>
           item && typeof item === "object"
             ? this._sanitize(item, "")
@@ -75,13 +72,20 @@ window.OJSchoolsFirebase = {
       }
     }
 
-    // Ensure schema defaults per collection
+    // Ensure mandatory schema defaults per collection
     if (colName === "students") {
       clean.status          = clean.status || "Active";
       clean.clearanceStatus = clean.clearanceStatus || "Pending";
       clean.termFee         = Number(clean.termFee) || 0;
       clean.arrears         = Number(clean.arrears) || 0;
-      clean.section         = clean.section || (typeof getSectionByClass === "function" ? (getSectionByClass(clean.currentClass) || { id: "primary" }).id : "primary");
+      if (!clean.section) {
+        clean.section = (typeof getSectionByClass === "function" && clean.currentClass)
+          ? (getSectionByClass(clean.currentClass) || { id: "primary" }).id
+          : "primary";
+      }
+      if (!clean.enrolledDate) {
+        clean.enrolledDate = new Date().toISOString().split("T")[0];
+      }
     } else if (colName === "payments") {
       clean.amount          = Number(clean.amount) || 0;
       clean.method          = clean.method || "Cash";
@@ -113,8 +117,8 @@ window.OJSchoolsFirebase = {
     const styles = {
       synced:  { bg: "#f0fdf4", border: "#bbf7d0", color: "#166534", icon: "fas fa-cloud",               label: "Cloud Synced"  },
       syncing: { bg: "#eff6ff", border: "#bfdbfe", color: "#1e40af", icon: "fas fa-sync fa-spin",         label: "Syncing..."    },
-      offline: { bg: "#fffbeb", border: "#fde68a", color: "#92400e", icon: "fas fa-cloud-slash",          label: "Offline"       },
-      error:   { bg: "#fef2f2", border: "#fecaca", color: "#991b1b", icon: "fas fa-exclamation-triangle", label: "Sync Error"    }
+      error:   { bg: "#fef2f2", border: "#fecaca", color: "#991b1b", icon: "fas fa-exclamation-triangle", label: "Sync Notice"   },
+      offline: { bg: "#f8fafc", border: "#e2e8f0", color: "#64748b", icon: "fas fa-cloud-slash",          label: "Offline Mode"  }
     };
 
     const style = styles[status] || styles.error;
@@ -125,7 +129,7 @@ window.OJSchoolsFirebase = {
     textEl.textContent = text || style.label;
   },
 
-  // Full two-way reconciliation
+  // Full two-way reconciliation with safe local persistence
   async syncWithCloud() {
     if (this._syncing) return;
     this._syncing = true;
@@ -133,12 +137,11 @@ window.OJSchoolsFirebase = {
 
     try {
       const collections = ["students", "payments", "expenses", "auditLogs"];
-      const localDb = OJSchoolsDB.get();
-      let changed = false;
 
       // 1. Push pending local deletions to Firestore
-      if (localDb._deleted) {
-        for (const [colName, ids] of Object.entries(localDb._deleted)) {
+      const deleteDb = OJSchoolsDB.get();
+      if (deleteDb._deleted) {
+        for (const [colName, ids] of Object.entries(deleteDb._deleted)) {
           if (!Array.isArray(ids)) continue;
           for (const id of ids) {
             try { await deleteDoc(doc(db, colName, id)); } catch (_) {}
@@ -149,15 +152,18 @@ window.OJSchoolsFirebase = {
         OJSchoolsDB.save(cleared, false);
       }
 
-      // 2. Pull all Firestore records; merge into local if newer
+      // 2. Pull all Firestore records; merge safely into fresh local state per collection
       for (const colName of collections) {
         try {
           const snap = await getDocs(collection(db, colName));
+          const freshDb = OJSchoolsDB.get();
+          let colChanged = false;
+
           snap.forEach(docSnap => {
             const cloudRecord = docSnap.data();
             if (!cloudRecord || !cloudRecord.id) return;
 
-            const arr = localDb[colName];
+            const arr = freshDb[colName];
             if (!Array.isArray(arr)) return;
 
             const localIdx = arr.findIndex(r => r.id === cloudRecord.id);
@@ -166,12 +172,16 @@ window.OJSchoolsFirebase = {
 
             if (localIdx < 0) {
               arr.unshift(cloudRecord);
-              changed = true;
+              colChanged = true;
             } else if (cloudTs > localTs) {
               arr[localIdx] = cloudRecord;
-              changed = true;
+              colChanged = true;
             }
           });
+
+          if (colChanged) {
+            OJSchoolsDB.save(freshDb, false);
+          }
         } catch (colErr) {
           console.warn(`[OJ Firebase] Pull ${colName} notice:`, colErr.message);
         }
@@ -180,23 +190,26 @@ window.OJSchoolsFirebase = {
       // Also pull config if present
       try {
         const configSnap = await getDocs(collection(db, "config"));
+        const freshDb = OJSchoolsDB.get();
+        let cfgChanged = false;
         configSnap.forEach(d => {
           if (d.id === "school_config" && d.data()) {
-            localDb.config = { ...localDb.config, ...d.data() };
-            changed = true;
+            freshDb.config = { ...freshDb.config, ...d.data() };
+            cfgChanged = true;
           }
         });
+        if (cfgChanged) {
+          OJSchoolsDB.save(freshDb, false);
+        }
       } catch (_) {}
 
-      if (changed) OJSchoolsDB.save(localDb, false);
-
       // 3. Push local records to Firestore individually (safe against single-item failure)
-      const freshDb = OJSchoolsDB.get();
+      const pushDb = OJSchoolsDB.get();
       let pushedCount = 0;
 
       for (const colName of collections) {
-        if (!Array.isArray(freshDb[colName])) continue;
-        for (const record of freshDb[colName]) {
+        if (!Array.isArray(pushDb[colName])) continue;
+        for (const record of pushDb[colName]) {
           if (!record || !record.id) continue;
           try {
             const ref = doc(db, colName, record.id);
@@ -210,8 +223,8 @@ window.OJSchoolsFirebase = {
 
       // Push school config
       try {
-        if (freshDb.config) {
-          await setDoc(doc(db, "config", "school_config"), this._sanitize(freshDb.config, ""), { merge: true });
+        if (pushDb.config) {
+          await setDoc(doc(db, "config", "school_config"), this._sanitize(pushDb.config, ""), { merge: true });
         }
       } catch (_) {}
 
@@ -231,20 +244,24 @@ window.OJSchoolsFirebase = {
   },
 
   // Real-time live listener for multi-device sync
+  // IMPORTANT: Only merges new/updated cloud records into local state.
+  // NEVER deletes local records on rollback or network rejection!
   startLiveSync() {
     const syncCollections = ["students", "payments", "expenses"];
     syncCollections.forEach(colName => {
       try {
         onSnapshot(collection(db, colName), (snap) => {
-          const localDb = OJSchoolsDB.get();
+          const freshDb = OJSchoolsDB.get();
           let changed = false;
 
           snap.docChanges().forEach(change => {
             const record = change.doc.data();
             if (!record || !record.id) return;
-            const arr = localDb[colName];
+            const arr = freshDb[colName];
             if (!Array.isArray(arr)) return;
 
+            // Only process additions and modifications from cloud.
+            // Never delete local records automatically when a local write is rolled back!
             if (change.type === "added" || change.type === "modified") {
               const idx = arr.findIndex(r => r.id === record.id);
               if (idx < 0) {
@@ -254,15 +271,11 @@ window.OJSchoolsFirebase = {
                 arr[idx] = record;
                 changed = true;
               }
-            } else if (change.type === "removed") {
-              const before = arr.length;
-              localDb[colName] = arr.filter(r => r.id !== record.id);
-              if (localDb[colName].length !== before) changed = true;
             }
           });
 
           if (changed) {
-            OJSchoolsDB.save(localDb, false);
+            OJSchoolsDB.save(freshDb, false);
             if (window.OJSchoolsApp && typeof window.OJSchoolsApp.refreshCurrentTab === "function") {
               window.OJSchoolsApp.refreshCurrentTab();
             }

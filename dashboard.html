@@ -1031,7 +1031,7 @@
     </div>
     <div class="modal-body">
       <input type="hidden" id="enroll-edit-id">
-      <form id="enroll-form">
+      <form id="enroll-form" onsubmit="event.preventDefault(); OJSchoolsApp.saveEnrollment();">
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">First Name <span style="color:red">*</span></label>
@@ -1230,7 +1230,7 @@
       <button class="modal-close" onclick="document.getElementById('modal-expense').classList.add('hidden')">✕</button>
     </div>
     <div class="modal-body">
-      <form id="expense-form">
+      <form id="expense-form" onsubmit="event.preventDefault(); OJSchoolsApp.saveExpense();">
         <div class="form-group">
           <label class="form-label">Expense Title <span style="color:red">*</span></label>
           <input type="text" id="exp-title" class="form-control" style="width:100%" placeholder="e.g. Staff Salaries — October" required>
@@ -1350,19 +1350,6 @@
 <script src="js/reports.js"></script>
 <script src="js/app.js"></script>
 <script type="module" src="js/firebase-config.js"></script>
-<script type="module">
-  window.addEventListener("DOMContentLoaded", () => {
-    let syncAttempts = 0;
-    const interval = setInterval(() => {
-      syncAttempts++;
-      if (window.OJSchoolsFirebase && typeof window.OJSchoolsFirebase.syncWithCloud === "function") {
-        clearInterval(interval);
-        window.OJSchoolsFirebase.syncWithCloud();
-      }
-      if (syncAttempts > 15) clearInterval(interval);
-    }, 500);
-  });
-</script>
 
 </body>
 </html>

@@ -198,6 +198,7 @@ service cloud.firestore {
 
     function isValidOptionalString(data, field, minLen, maxLen) {
       return !(field in data) ||
+        data[field] == '' ||
         (data[field] is string && data[field].size() >= minLen && data[field].size() <= maxLen);
     }
 
@@ -249,7 +250,7 @@ service cloud.firestore {
              isValidOptionalString(data, 'parentPhone', 5, 25) &&
              isValidOptionalEmail(data, 'parentEmail') &&
              isValidOptionalString(data, 'address', 1, 200) &&
-             (!('gender' in data) || (data.gender in ['Male', 'Female', 'Other', 'male', 'female'])) &&
+             (!('gender' in data) || data.gender == '' || (data.gender in ['Male', 'Female', 'Other', 'male', 'female'])) &&
              isValidOptionalString(data, 'dob', 1, 30) &&
              (!('enrolledDate' in data) || isValidTimestampOrString(data.enrolledDate, 50)) &&
              isValidOptionalString(data, 'academicSession', 1, 20) &&

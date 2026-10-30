@@ -323,14 +323,32 @@ class OJSchoolsDB {
       studentData.section = sec ? sec.id : "primary";
     }
 
+    let action = "ENROLL_STUDENT";
+    let details = "";
     if (idx >= 0) {
       data.students[idx] = { ...data.students[idx], ...studentData };
-      this.logAction("UPDATE_STUDENT", "Admin", `Updated ${studentData.firstName} ${studentData.lastName} (${studentData.regNo})`);
+      action = "UPDATE_STUDENT";
+      details = `Updated ${studentData.firstName} ${studentData.lastName} (${studentData.regNo})`;
     } else {
-      if (!studentData.id) studentData.id = "STU-" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2,5).toUpperCase();
-      data.students.push(studentData);
-      this.logAction("ENROLL_STUDENT", "Admin", `Enrolled ${studentData.firstName} ${studentData.lastName} into ${studentData.currentClass}`);
+      if (!studentData.id) studentData.id = "STU-" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2,6).toUpperCase();
+      data.students.unshift(studentData);
+      details = `Enrolled ${studentData.firstName} ${studentData.lastName} into ${studentData.currentClass}`;
     }
+
+    if (!data.auditLogs) data.auditLogs = [];
+    data.auditLogs.unshift({
+      id:          "LOG-" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2,5).toUpperCase(),
+      timestamp:   Date.now(),
+      date:        new Date().toLocaleString("en-GB"),
+      action,
+      entity:      "students",
+      entityId:    studentData.id,
+      performedBy: "Admin",
+      user:        "Admin",
+      details
+    });
+    if (data.auditLogs.length > 500) data.auditLogs.pop();
+
     this.save(data);
     return studentData;
   }
@@ -350,7 +368,20 @@ class OJSchoolsDB {
     data.students = data.students.filter(s => s.id !== studentId);
     data.payments = data.payments.filter(p => p.studentId !== studentId);
 
-    this.logAction("DELETE_STUDENT","Admin",`Deleted ${stu.firstName} ${stu.lastName} + ${assoc.length} payment(s)`);
+    if (!data.auditLogs) data.auditLogs = [];
+    data.auditLogs.unshift({
+      id:          "LOG-" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2,5).toUpperCase(),
+      timestamp:   Date.now(),
+      date:        new Date().toLocaleString("en-GB"),
+      action:      "DELETE_STUDENT",
+      entity:      "students",
+      entityId:    studentId,
+      performedBy: "Admin",
+      user:        "Admin",
+      details:     `Deleted ${stu.firstName} ${stu.lastName} + ${assoc.length} payment(s)`
+    });
+    if (data.auditLogs.length > 500) data.auditLogs.pop();
+
     this.save(data);
     return true;
   }
@@ -571,7 +602,7 @@ class OJSchoolsDB {
     const data = this.get();
     if (!data.auditLogs) data.auditLogs = [];
     data.auditLogs.unshift({
-      id:          "LOG-" + Date.now().toString(36).toUpperCase(),
+      id:          "LOG-" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2,5).toUpperCase(),
       timestamp:   Date.now(),
       date:        new Date().toLocaleString("en-GB"),
       action,
@@ -581,7 +612,7 @@ class OJSchoolsDB {
       details
     });
     if (data.auditLogs.length > 500) data.auditLogs.pop();
-    localStorage.setItem(this.KEY, JSON.stringify(data));
+    this.save(data, false);
   }
 }
 
