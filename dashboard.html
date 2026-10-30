@@ -374,11 +374,16 @@
     <button data-tab="learners"><i class="fas fa-user-graduate"></i> All Learners</button>
     <button data-tab="class-hub"><i class="fas fa-school"></i> Class Hub</button>
     <button data-tab="clearance"><i class="fas fa-id-badge"></i> Clearance</button>
+    <button data-tab="debtors"><i class="fas fa-hand-holding-dollar"></i> Debtors List</button>
 
     <div class="nav-label">Finance</div>
     <button data-tab="payments"><i class="fas fa-receipt"></i> Payments</button>
     <button data-tab="expenses"><i class="fas fa-file-invoice-dollar"></i> Expenses</button>
     <button data-tab="reports"><i class="fas fa-chart-bar"></i> Reports</button>
+    <button data-tab="audit-logs"><i class="fas fa-shield-halved"></i> Audit Trail</button>
+
+    <div class="nav-label">System</div>
+    <button data-tab="settings"><i class="fas fa-sliders"></i> School Settings</button>
   </nav>
 
   <div class="sidebar-footer">
@@ -850,6 +855,168 @@
           <i class="fas fa-id-badge"></i> Go to Clearance
         </button>
       </div>
+
+      <div class="report-card">
+        <div class="report-card-icon" style="background:#fee2e2;color:var(--red)"><i class="fas fa-hand-holding-dollar"></i></div>
+        <h4>Debtors Schedule</h4>
+        <p>Print or export a complete schedule of all students with outstanding balances across all 4 sections.</p>
+        <div style="display:flex;gap:6px">
+          <button class="btn-primary btn-sm" style="flex:1;background:var(--red)" onclick="OJSchoolsReports.printDebtorsReport()">
+            <i class="fas fa-print"></i> Print
+          </button>
+          <button class="btn-secondary btn-sm" style="flex:1" onclick="OJSchoolsReports.exportDebtorsCSV()">
+            <i class="fas fa-download"></i> CSV
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── DEBTORS LIST ─── -->
+  <section id="view-debtors" class="tab-section hidden">
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Debtors Schedule</h3>
+          <p style="font-size:12px;color:var(--gray-400);margin-top:2px">
+            <span id="debtors-total-count" style="font-weight:800;color:var(--red)">0</span> learners with outstanding debt totaling <span id="debtors-total-sum" style="font-weight:800;color:var(--red)">₦0</span>
+          </p>
+        </div>
+        <div class="filters-bar">
+          <select class="form-control" id="debtors-filter-section" style="min-width:150px">
+            <option value="">All Sections</option>
+            <option value="primary">Primary Section</option>
+            <option value="junior">Junior Secondary</option>
+            <option value="senior">Senior Secondary</option>
+            <option value="tutorial">Tutorial Section</option>
+          </select>
+          <input type="text" id="debtors-search" class="form-control" placeholder="Search debtor / reg no…" style="min-width:180px">
+          <button class="btn-primary" style="background:var(--red)" onclick="OJSchoolsReports.printDebtorsReport(document.getElementById('debtors-filter-section').value)">
+            <i class="fas fa-print"></i> Print Debtors
+          </button>
+          <button class="btn-secondary" onclick="OJSchoolsReports.exportDebtorsCSV(document.getElementById('debtors-filter-section').value)">
+            <i class="fas fa-download"></i> Export CSV
+          </button>
+        </div>
+      </div>
+      <div class="panel-body table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Learner</th>
+              <th>Class</th>
+              <th>Section</th>
+              <th style="text-align:right">Term Fee</th>
+              <th style="text-align:right">Arrears Due</th>
+              <th style="text-align:right">Paid So Far</th>
+              <th style="text-align:right">Total Outstanding</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="debtors-tbody">
+            <tr><td colspan="8" class="empty-cell">Loading debtors…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── AUDIT TRAIL ─── -->
+  <section id="view-audit-logs" class="tab-section hidden">
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>System Audit Trail</h3>
+          <p style="font-size:12px;color:var(--gray-400);margin-top:2px">Immutable activity log of payments, enrollments, expenses, and clearance changes.</p>
+        </div>
+        <div class="filters-bar">
+          <input type="text" id="audit-search" class="form-control" placeholder="Search user, action, details…" style="min-width:220px">
+        </div>
+      </div>
+      <div class="panel-body table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date &amp; Time</th>
+              <th>User</th>
+              <th>Action</th>
+              <th>Activity Details</th>
+            </tr>
+          </thead>
+          <tbody id="audit-logs-tbody">
+            <tr><td colspan="4" class="empty-cell">Loading audit logs…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SETTINGS & FEE TARIFFS ─── -->
+  <section id="view-settings" class="tab-section hidden">
+    <div class="panel">
+      <div class="panel-header">
+        <h3>School Profile &amp; Academic Settings</h3>
+      </div>
+      <div class="panel-body">
+        <form id="settings-form" onsubmit="event.preventDefault(); OJSchoolsApp.saveSettings();">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">School Name</label>
+              <input type="text" id="cfg-school-name" class="form-control" style="width:100%">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Motto / Tagline</label>
+              <input type="text" id="cfg-motto" class="form-control" style="width:100%">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Current Academic Session</label>
+              <input type="text" id="cfg-session" class="form-control" style="width:100%" placeholder="e.g. 2026/2027">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Current Academic Term</label>
+              <select id="cfg-term" class="form-control" style="width:100%">
+                <option value="1st Term">1st Term</option>
+                <option value="2nd Term">2nd Term</option>
+                <option value="3rd Term">3rd Term</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Official Phone</label>
+              <input type="text" id="cfg-phone" class="form-control" style="width:100%">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contact Email</label>
+              <input type="email" id="cfg-email" class="form-control" style="width:100%">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Currency Symbol</label>
+              <input type="text" id="cfg-currency" class="form-control" style="width:100%" value="₦">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Campus Address</label>
+              <input type="text" id="cfg-address" class="form-control" style="width:100%">
+            </div>
+          </div>
+          <div style="margin-top:14px;text-align:right">
+            <button type="submit" class="btn-primary btn-emerald">
+              <i class="fas fa-save"></i> Save Settings
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Class Fee Tariffs Reference -->
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Standard Class Fee Tariffs Reference</h3>
+          <p style="font-size:12px;color:var(--gray-400);margin-top:2px">Configured fee rates per class. These auto-populate when recording multi-item payments or enrolling learners.</p>
+        </div>
+      </div>
+      <div class="panel-body" id="settings-fee-matrix">
+        <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading fee schedule matrix…</p></div>
+      </div>
     </div>
   </section>
 
@@ -910,7 +1077,8 @@
           </div>
           <div class="form-group">
             <label class="form-label">Term School Fee (₦)</label>
-            <input type="text" id="enroll-term-fee" class="form-control" style="width:100%" placeholder="e.g. 75,000">
+            <input type="text" id="enroll-term-fee" class="form-control" style="width:100%" placeholder="e.g. 37,000">
+            <small id="enroll-fee-helper" style="display:block;margin-top:4px;color:var(--emerald);font-weight:600;font-size:11px"></small>
           </div>
           <div class="form-group">
             <label class="form-label">Opening Arrears (₦)</label>
@@ -944,33 +1112,78 @@
   </div>
 </div>
 
-<!-- ═══════════════════ PAYMENT MODAL ═══════════════════ -->
+<!-- ═══════════════════ PAYMENT MODAL (MULTI-ITEM CAPABLE) ═══════════════════ -->
 <div id="modal-payment" class="modal-overlay hidden">
-  <div class="modal-box">
+  <div class="modal-box modal-xl">
     <div class="modal-header">
-      <h3>Record Fee Payment</h3>
+      <div>
+        <h3>Record Fee Payment</h3>
+        <p style="font-size:11px;color:var(--gray-400);margin-top:2px">Multi-item payment recording with automatic arrears priority deduction</p>
+      </div>
       <button class="modal-close" onclick="document.getElementById('modal-payment').classList.add('hidden')">✕</button>
     </div>
     <div class="modal-body">
-      <form id="payment-form">
-        <div class="form-group">
-          <label class="form-label">Select Student <span style="color:red">*</span></label>
-          <select id="pay-student" class="form-control" style="width:100%">
-            <option value="">-- Select Student --</option>
-          </select>
+      <form id="payment-form" onsubmit="event.preventDefault(); OJSchoolsApp.savePayment();">
+        <div class="form-row" style="margin-bottom:12px">
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Select Student <span style="color:red">*</span></label>
+            <select id="pay-student" class="form-control" style="width:100%" required>
+              <option value="">-- Select Student --</option>
+            </select>
+          </div>
         </div>
-        <div id="pay-outstanding-info" style="padding:10px 14px;border-radius:9px;font-size:12px;font-weight:600;margin-bottom:14px;background:var(--gray-50);color:var(--gray-500)">
+
+        <div id="pay-outstanding-info" style="padding:12px 16px;border-radius:10px;font-size:12px;font-weight:600;margin-bottom:16px;background:var(--gray-50);color:var(--gray-500)">
           Select a student to see their outstanding balance.
         </div>
+
+        <!-- Line Items Table -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <label class="form-label" style="margin:0">Payment Line Items Breakdown</label>
+          <div style="display:flex;gap:6px">
+            <button type="button" class="btn-secondary btn-sm" id="pay-load-defaults-btn" onclick="const sel=document.getElementById('pay-student'); const opt=sel.options[sel.selectedIndex]; if(opt?.dataset?.class) OJSchoolsApp.loadClassDefaultItems(opt.dataset.class);" title="Auto-fill default standard fees for this learner's class">
+              <i class="fas fa-magic"></i> Load Class Tariff
+            </button>
+            <button type="button" class="btn-primary btn-emerald btn-sm" onclick="OJSchoolsApp.addPaymentItemRow()">
+              <i class="fas fa-plus"></i> Add Line Item
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrap" style="background:#f8fafc;border:1px solid var(--gray-200);border-radius:10px;padding:6px;margin-bottom:14px;max-height:220px;overflow-y:auto">
+          <table style="font-size:12px">
+            <thead>
+              <tr>
+                <th>Fee Category</th>
+                <th>Remarks / Line Note</th>
+                <th style="text-align:right">Amount (₦)</th>
+                <th style="width:30px"></th>
+              </tr>
+            </thead>
+            <tbody id="pay-items-tbody">
+              <tr><td colspan="4" style="text-align:center;padding:16px;color:var(--gray-400)">Select a learner to populate fee items.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Real-time Priority Breakdown Cards -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;background:#f1f5f9;border-radius:10px;padding:12px">
+          <div style="text-align:center">
+            <span style="font-size:10px;text-transform:uppercase;color:var(--gray-500);font-weight:700">Total Items Sum</span>
+            <div id="pay-summary-total" style="font-size:17px;font-weight:900;color:var(--navy);font-family:'Outfit',sans-serif">₦0.00</div>
+          </div>
+          <div style="text-align:center;border-left:1px solid #cbd5e1;border-right:1px solid #cbd5e1">
+            <span style="font-size:10px;text-transform:uppercase;color:#b45309;font-weight:700">Arrears Deducted 1st</span>
+            <div id="pay-summary-arrears" style="font-size:17px;font-weight:900;color:#b45309;font-family:'Outfit',sans-serif">₦0.00</div>
+          </div>
+          <div style="text-align:center">
+            <span style="font-size:10px;text-transform:uppercase;color:#047857;font-weight:700">Applied to Term Fees</span>
+            <div id="pay-summary-current" style="font-size:17px;font-weight:900;color:#047857;font-family:'Outfit',sans-serif">₦0.00</div>
+          </div>
+        </div>
+
+        <!-- Payment Meta -->
         <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Amount Paid (₦) <span style="color:red">*</span></label>
-            <input type="text" id="pay-amount" class="form-control" style="width:100%" placeholder="e.g. 50,000" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Fee Category</label>
-            <select id="pay-fee-cat" class="form-control" style="width:100%"></select>
-          </div>
           <div class="form-group">
             <label class="form-label">Payment Method</label>
             <select id="pay-method" class="form-control" style="width:100%">
@@ -990,19 +1203,20 @@
             <input type="text" id="pay-recorded-by" class="form-control" style="width:100%" placeholder="Bursar's name">
           </div>
           <div class="form-group">
-            <label class="form-label">Notes (Optional)</label>
-            <input type="text" id="pay-notes" class="form-control" style="width:100%" placeholder="Any remarks…">
+            <label class="form-label">Overall Notes / Memo</label>
+            <input type="text" id="pay-notes" class="form-control" style="width:100%" placeholder="Optional payment remarks…">
           </div>
         </div>
-        <div class="arrears-info">
-          ⚠️ <strong>Arrears Priority Rule:</strong> Outstanding arrears will automatically be deducted first before the term fee is credited.
+
+        <div class="arrears-info" style="margin-top:4px">
+          ⚠️ <strong>Automatic Arrears Deduction:</strong> Any outstanding arrears from past sessions/terms are satisfied first before current term fees are credited.
         </div>
       </form>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" onclick="document.getElementById('modal-payment').classList.add('hidden')">Cancel</button>
-      <button class="btn-primary btn-emerald" onclick="OJSchoolsApp.savePayment()">
-        <i class="fas fa-receipt"></i> Save Payment
+      <button type="button" class="btn-secondary" onclick="document.getElementById('modal-payment').classList.add('hidden')">Cancel</button>
+      <button type="button" class="btn-primary btn-emerald" onclick="OJSchoolsApp.savePayment()">
+        <i class="fas fa-receipt"></i> Save &amp; Generate Receipt
       </button>
     </div>
   </div>

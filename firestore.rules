@@ -267,7 +267,7 @@ service cloud.firestore {
         'id', 'receiptNumber', 'studentId', 'studentName', 'studentClass',
         'studentRegNo', 'section', 'amount', 'arrearsDeducted', 'termFeePaid',
         'otherFeesPaid', 'method', 'date', 'category', 'recordedBy', 'notes',
-        'academicSession', 'term', 'createdAt', 'updatedAt'
+        'academicSession', 'term', 'items', 'description', 'createdAt', 'updatedAt'
       ];
       let requiredFields = [
         'receiptNumber', 'studentId', 'studentName', 'amount',
@@ -290,10 +290,12 @@ service cloud.firestore {
              isValidOptionalNumber(data, 'termFeePaid', 0, 100000000) &&
              isValidOptionalNumber(data, 'otherFeesPaid', 0, 100000000) &&
              isValidOptionalString(data, 'category', 1, 50) &&
+             isValidOptionalString(data, 'description', 0, 500) &&
              isValidOptionalString(data, 'notes', 0, 500) &&
              isValidOptionalString(data, 'academicSession', 1, 20) &&
              isValidOptionalString(data, 'term', 1, 20) &&
              isValidOptionalString(data, 'id', 1, 50) &&
+             (!('items' in data) || data.items is list) &&
              (!('createdAt' in data) || isValidTimestampOrString(data.createdAt, 50)) &&
              (!('updatedAt' in data) || isValidTimestampOrString(data.updatedAt, 50));
     }
@@ -443,6 +445,12 @@ service cloud.firestore {
       allow create: if isStaff() && isValidClearance(request.resource.data);
       allow update: if isStaff() && isValidClearance(request.resource.data) && areClearanceImmutableFieldsUnchanged();
       allow delete: if isAdmin();
+    }
+
+    // 6. School Configuration & Settings
+    match /config/{configId} {
+      allow read: if isStaff();
+      allow write: if isAdmin();
     }
   }
 }

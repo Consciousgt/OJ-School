@@ -1,15 +1,24 @@
 /**
- * OJ SCHOOLS — Reports, Receipts & CSV Export Module v1
- * Handles: payment receipts, CSV exports, P&L reports, clearance passes
+ * OJ SCHOOLS — Reports, Receipts & CSV Export Module v2
+ * Handles: multi-item payment receipts, CSV exports, P&L reports, clearance passes, debtors reports
  */
 
 const OJSchoolsReports = (() => {
-  const currency   = "₦";
-  const schoolName = "OJ SCHOOLS";
-  const session    = "2026/2027";
-  const address    = "OJ Schools Educational Complex, Lagos / Ogun State, Nigeria";
-  const phone      = "08031234567";
-  const email      = "info@oj-schools.firebaseapp.com";
+  function getCfg() {
+    if (typeof OJSchoolsDB !== "undefined" && typeof OJSchoolsDB.getConfig === "function") {
+      return OJSchoolsDB.getConfig();
+    }
+    return {
+      schoolName:     "OJ SCHOOLS",
+      motto:          "Knowledge, Diligence & Distinction",
+      address:        "OJ Schools Educational Complex, Lagos / Ogun State, Nigeria",
+      contactEmail:   "info@oj-schools.firebaseapp.com",
+      phone:          "08031234567",
+      currentSession: "2026/2027",
+      currentTerm:    "1st Term",
+      currency:       "\u20a6"
+    };
+  }
 
   function fmt(n) {
     return Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -63,59 +72,59 @@ const OJSchoolsReports = (() => {
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #0f172a; print-color-adjust: exact; }
-      .receipt-page { max-width: 640px; margin: 40px auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.1); }
-      .receipt-header { background: linear-gradient(135deg, #0a192f 0%, #0f2744 60%, #1e4a7a 100%); color: white; padding: 32px; display: flex; justify-content: space-between; align-items: flex-start; }
-      .receipt-logo { width: 54px; height: 54px; border-radius: 14px; background: rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: #fbbf24; border: 2px solid rgba(255,255,255,.2); margin-bottom: 12px; }
+      body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #0f172a; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .receipt-page { max-width: 640px; margin: 30px auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.1); border: 1px solid #e2e8f0; }
+      .receipt-header { background: linear-gradient(135deg, #0a192f 0%, #0f2744 60%, #1e4a7a 100%); color: white; padding: 28px 32px; display: flex; justify-content: space-between; align-items: flex-start; }
+      .receipt-logo { width: 50px; height: 50px; border-radius: 14px; background: rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: #fbbf24; border: 2px solid rgba(255,255,255,.2); margin-bottom: 10px; }
       .receipt-school-name { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
-      .receipt-school-sub  { font-size: 11px; color: rgba(255,255,255,.7); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 3px; }
-      .receipt-school-addr { font-size: 10px; color: rgba(255,255,255,.55); margin-top: 8px; line-height: 1.5; }
+      .receipt-school-sub  { font-size: 11px; color: rgba(255,255,255,.75); letter-spacing: 1px; text-transform: uppercase; margin-top: 3px; }
+      .receipt-school-addr { font-size: 10px; color: rgba(255,255,255,.6); margin-top: 8px; line-height: 1.5; }
       .receipt-badge-area  { text-align: right; }
       .receipt-badge       { background: #fbbf24; color: #0a192f; font-size: 11px; font-weight: 800; padding: 6px 14px; border-radius: 9999px; letter-spacing: 1px; text-transform: uppercase; display: inline-block; }
-      .receipt-no-label    { font-size: 10px; color: rgba(255,255,255,.5); margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
-      .receipt-no-value    { font-size: 16px; font-weight: 800; color: #fff; }
-      .receipt-body        { padding: 28px 32px; }
-      .receipt-student-bar { display: flex; gap: 14px; align-items: center; background: #f8fafc; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
-      .receipt-avatar      { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #0a192f, #1e4a7a); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fbbf24; flex-shrink: 0; }
-      .receipt-student-name{ font-size: 16px; font-weight: 700; }
+      .receipt-no-label    { font-size: 10px; color: rgba(255,255,255,.6); margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
+      .receipt-no-value    { font-size: 16px; font-weight: 800; color: #fff; font-family: monospace; }
+      .receipt-body        { padding: 26px 32px; }
+      .receipt-student-bar { display: flex; gap: 14px; align-items: center; background: #f8fafc; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+      .receipt-avatar      { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #0a192f, #1e4a7a); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fbbf24; flex-shrink: 0; }
+      .receipt-student-name{ font-size: 16px; font-weight: 700; color: #0f172a; }
       .receipt-student-meta{ font-size: 12px; color: #64748b; margin-top: 2px; }
       .receipt-section-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 10px; border-radius: 9999px; margin-top: 4px; }
       .section-primary  { background: #d1fae5; color: #047857; }
       .section-junior   { background: #dbeafe; color: #1d4ed8; }
       .section-senior   { background: #ede9fe; color: #6d28d9; }
       .section-tutorial { background: #ffedd5; color: #c2410c; }
-      .receipt-divider  { border: none; border-top: 1px dashed #e2e8f0; margin: 18px 0; }
-      .receipt-label    { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #94a3b8; margin-bottom: 12px; }
-      .receipt-table    { width: 100%; border-collapse: collapse; font-size: 13px; }
+      .receipt-label    { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #64748b; margin-bottom: 10px; }
+      .receipt-table    { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 12px; }
       .receipt-table th { background: #f1f5f9; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: .5px; padding: 8px 12px; text-align: left; }
-      .receipt-table td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #1e293b; }
+      .receipt-table td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; color: #1e293b; }
       .receipt-table tr:last-child td { border-bottom: none; }
-      .arrears-row td   { background: #fff7ed; color: #92400e; font-weight: 600; }
-      .receipt-total-bar { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #0a192f, #1e4a7a); color: white; border-radius: 12px; padding: 16px 22px; margin-top: 20px; }
-      .receipt-total-label { font-size: 13px; opacity: .8; }
-      .receipt-total-amount { font-size: 26px; font-weight: 900; color: #fbbf24; }
-      .balance-grid     { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
-      .balance-item     { background: #f8fafc; border-radius: 10px; padding: 12px 16px; border: 1px solid #e2e8f0; }
-      .balance-item-label{ font-size: 10px; text-transform: uppercase; letter-spacing: .6px; color: #94a3b8; margin-bottom: 4px; }
-      .balance-item-value{ font-size: 16px; font-weight: 800; }
-      .receipt-footer   { background: #f8fafc; padding: 18px 32px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-      .receipt-footer-note { font-size: 10px; color: #94a3b8; max-width: 280px; line-height: 1.5; }
+      .arrears-row td   { background: #fffbeb; color: #b45309; font-weight: 700; }
+      .receipt-total-bar { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #0a192f, #1e4a7a); color: white; border-radius: 12px; padding: 14px 20px; margin-top: 14px; }
+      .receipt-total-label { font-size: 12px; opacity: .85; }
+      .receipt-total-amount { font-size: 24px; font-weight: 900; color: #fbbf24; }
+      .balance-grid     { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+      .balance-item     { background: #f8fafc; border-radius: 10px; padding: 10px 14px; border: 1px solid #e2e8f0; }
+      .balance-item-label{ font-size: 10px; text-transform: uppercase; letter-spacing: .6px; color: #64748b; margin-bottom: 3px; font-weight: 700; }
+      .balance-item-value{ font-size: 15px; font-weight: 800; }
+      .receipt-footer   { background: #f8fafc; padding: 16px 32px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+      .receipt-footer-note { font-size: 10px; color: #64748b; max-width: 300px; line-height: 1.5; }
       .receipt-footer-stamp { text-align: right; }
       .stamp-label      { font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: #94a3b8; }
       .stamp-name       { font-size: 12px; font-weight: 700; color: #0a192f; margin-top: 4px; }
       @media print {
         body { background: white; }
-        .receipt-page { box-shadow: none; border-radius: 0; margin: 0; max-width: 100%; }
-        @page { size: A5 portrait; margin: 10mm; }
+        .receipt-page { box-shadow: none; border-radius: 0; margin: 0; max-width: 100%; border: none; }
+        @page { size: A5 portrait; margin: 8mm; }
       }
     </style>
   `;
 
-  // ── Print Payment Receipt ─────────────────────────────────────────────────────
+  // ── Print Payment Receipt (Multi-Item Aware) ──────────────────────────────────
   function printReceipt(paymentId) {
     const payment = OJSchoolsDB.getPayments().find(p => p.id === paymentId);
-    if (!payment) return alert("Payment not found.");
+    if (!payment) return alert("Payment record not found.");
 
+    const cfg     = getCfg();
     const student = OJSchoolsDB.getStudentById(payment.studentId);
     const bal     = student ? OJSchoolsDB.getStudentBalance(student.id) : null;
 
@@ -123,34 +132,63 @@ const OJSchoolsReports = (() => {
     const termFeePaid     = Number(payment.termFeePaid)     || 0;
     const otherFeesPaid   = Number(payment.otherFeesPaid)   || 0;
     const totalPaid       = Number(payment.amount)          || 0;
+    const currency        = cfg.currency || "\u20a6";
 
     const sec = student ? getSectionByClass(student.currentClass) : null;
-    const secName  = sec ? sec.name : "";
+    const secName  = sec ? sec.name : (payment.section || "");
     const secClass = sec ? `section-${sec.id}` : "";
     const initials = student
       ? `${(student.firstName || "?")[0]}${(student.lastName || "?")[0]}`
       : "OJ";
 
-    const arrearsRow = arrearsDeducted > 0 ? `
-      <tr class="arrears-row">
-        <td>Priority Arrears Deducted</td>
-        <td style="text-align:right;font-weight:700">${currency}${fmt(arrearsDeducted)}</td>
-      </tr>
-    ` : "";
+    let itemsTableRows = "";
 
-    const termFeeRow = termFeePaid > 0 ? `
-      <tr>
-        <td>${payment.category?.replace(/_/g, " ") || "School Fees / Tuition"}</td>
-        <td style="text-align:right">${currency}${fmt(termFeePaid)}</td>
-      </tr>
-    ` : "";
-
-    const otherRow = otherFeesPaid > 0 ? `
-      <tr>
-        <td>Other Fees</td>
-        <td style="text-align:right">${currency}${fmt(otherFeesPaid)}</td>
-      </tr>
-    ` : "";
+    // If multi-item list exists on payment
+    if (Array.isArray(payment.items) && payment.items.length > 0) {
+      itemsTableRows = payment.items.map(it => `
+        <tr>
+          <td>
+            <strong>${it.name || it.category?.replace(/_/g, " ") || it.id}</strong>
+            ${it.description ? `<br><small style="color:#64748b">${it.description}</small>` : ""}
+          </td>
+          <td style="text-align:right;font-weight:600">${currency}${fmt(it.amount)}</td>
+        </tr>
+      `).join("");
+    } else {
+      // Single-item fallback
+      if (arrearsDeducted > 0) {
+        itemsTableRows += `
+          <tr class="arrears-row">
+            <td>⚠️ Priority Arrears Deducted</td>
+            <td style="text-align:right;font-weight:700">${currency}${fmt(arrearsDeducted)}</td>
+          </tr>
+        `;
+      }
+      if (termFeePaid > 0) {
+        itemsTableRows += `
+          <tr>
+            <td>${payment.category?.replace(/_/g, " ") || "School Fees / Tuition"}</td>
+            <td style="text-align:right">${currency}${fmt(termFeePaid)}</td>
+          </tr>
+        `;
+      }
+      if (otherFeesPaid > 0) {
+        itemsTableRows += `
+          <tr>
+            <td>Other Fees / Miscellaneous</td>
+            <td style="text-align:right">${currency}${fmt(otherFeesPaid)}</td>
+          </tr>
+        `;
+      }
+      if (!itemsTableRows) {
+        itemsTableRows = `
+          <tr>
+            <td>${payment.description || payment.category?.replace(/_/g, " ") || "Fee Payment"}</td>
+            <td style="text-align:right;font-weight:700">${currency}${fmt(totalPaid)}</td>
+          </tr>
+        `;
+      }
+    }
 
     const outstandingAfter = bal ? bal.totalOutstanding : 0;
 
@@ -158,7 +196,6 @@ const OJSchoolsReports = (() => {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>OJ Schools Receipt - ${payment.receiptNumber}</title>
   ${receiptCSS}
 </head>
@@ -167,23 +204,23 @@ const OJSchoolsReports = (() => {
   <div class="receipt-header">
     <div>
       <div class="receipt-logo">OJ</div>
-      <div class="receipt-school-name">${schoolName}</div>
-      <div class="receipt-school-sub">Established for Academic Excellence</div>
-      <div class="receipt-school-addr">${address}<br>${phone} &bull; ${email}</div>
+      <div class="receipt-school-name">${cfg.schoolName}</div>
+      <div class="receipt-school-sub">${cfg.motto || "Knowledge, Diligence & Distinction"}</div>
+      <div class="receipt-school-addr">${cfg.address}<br>${cfg.phone} &bull; ${cfg.contactEmail}</div>
     </div>
     <div class="receipt-badge-area">
-      <div class="receipt-badge">✓ Payment Receipt</div>
-      <div style="margin-top:12px">
+      <div class="receipt-badge">✓ Official Receipt</div>
+      <div style="margin-top:10px">
         <div class="receipt-no-label">Receipt No.</div>
         <div class="receipt-no-value">${payment.receiptNumber || payment.id}</div>
       </div>
-      <div style="margin-top:8px">
-        <div class="receipt-no-label">Session</div>
-        <div style="font-size:12px;color:#fff;font-weight:600">${session}</div>
+      <div style="margin-top:6px">
+        <div class="receipt-no-label">Session / Term</div>
+        <div style="font-size:11px;color:#fff;font-weight:600">${cfg.currentSession} — ${cfg.currentTerm}</div>
       </div>
-      <div style="margin-top:8px">
+      <div style="margin-top:6px">
         <div class="receipt-no-label">Date</div>
-        <div style="font-size:12px;color:#fff;font-weight:600">${fmtDate(payment.date)}</div>
+        <div style="font-size:11px;color:#fff;font-weight:600">${fmtDate(payment.date)}</div>
       </div>
     </div>
   </div>
@@ -194,35 +231,34 @@ const OJSchoolsReports = (() => {
       <div class="receipt-avatar">${initials}</div>
       <div>
         <div class="receipt-student-name">${student.firstName} ${student.lastName}</div>
-        <div class="receipt-student-meta">${student.regNo} &bull; ${student.currentClass}</div>
+        <div class="receipt-student-meta">Reg No: <strong>${student.regNo}</strong> &bull; Class: <strong>${student.currentClass}</strong></div>
         <span class="receipt-section-badge ${secClass}">${secName}</span>
       </div>
-    </div>` : ""}
+    </div>` : `
+    <div class="receipt-student-bar">
+      <div>
+        <div class="receipt-student-name">${payment.studentName}</div>
+        <div class="receipt-student-meta">Class: ${payment.studentClass || "—"} &bull; Reg: ${payment.studentRegNo || "—"}</div>
+      </div>
+    </div>`}
 
     <div class="receipt-label">Payment Breakdown</div>
     <table class="receipt-table">
       <thead>
         <tr>
-          <th>Fee Description</th>
+          <th>Description</th>
           <th style="text-align:right">Amount</th>
         </tr>
       </thead>
       <tbody>
-        ${arrearsRow}
-        ${termFeeRow}
-        ${otherRow}
-        ${(!termFeeRow && !arrearsRow && !otherRow) ? `
-        <tr>
-          <td>${payment.description || payment.category || "Payment"}</td>
-          <td style="text-align:right">${currency}${fmt(totalPaid)}</td>
-        </tr>` : ""}
+        ${itemsTableRows}
       </tbody>
     </table>
 
     <div class="receipt-total-bar">
       <div>
         <div class="receipt-total-label">Total Amount Paid</div>
-        <div style="font-size:11px;opacity:.6;margin-top:2px">${payment.method || "Cash"} &bull; ${fmtDate(payment.date)}</div>
+        <div style="font-size:11px;opacity:.75;margin-top:2px">${payment.method || "Cash"} &bull; ${fmtDate(payment.date)}</div>
       </div>
       <div class="receipt-total-amount">${currency}${fmt(totalPaid)}</div>
     </div>
@@ -238,34 +274,33 @@ const OJSchoolsReports = (() => {
         <div class="balance-item-value" style="color:${bal.termFeeRemaining > 0 ? "#dc2626" : "#059669"}">${currency}${fmt(bal.termFeeRemaining)}</div>
       </div>
       <div class="balance-item" style="grid-column:1/-1">
-        <div class="balance-item-label">Total Outstanding After This Payment</div>
+        <div class="balance-item-label">Total Outstanding Balance</div>
         <div class="balance-item-value" style="color:${outstandingAfter > 0 ? "#dc2626" : "#059669"}">
-          ${outstandingAfter > 0 ? currency + fmt(outstandingAfter) : "✓ FULLY CLEARED"}
+          ${outstandingAfter > 0 ? currency + fmt(outstandingAfter) : "✓ FULLY SETTLED / NO OUTSTANDING"}
         </div>
       </div>
     </div>` : ""}
 
     ${payment.notes ? `
-    <div style="margin-top:16px;font-size:12px;color:#64748b;background:#f8fafc;padding:12px;border-radius:8px;border:1px solid #e2e8f0">
-      <strong>Notes:</strong> ${payment.notes}
+    <div style="margin-top:14px;font-size:12px;color:#64748b;background:#f8fafc;padding:10px 14px;border-radius:8px;border:1px solid #e2e8f0">
+      <strong>Remarks:</strong> ${payment.notes}
     </div>` : ""}
   </div>
 
   <div class="receipt-footer">
     <div class="receipt-footer-note">
-      This is an official payment receipt issued by OJ Schools.
-      Keep this receipt as proof of payment. For enquiries, contact the bursary office.
+      This is an authentic computer-generated receipt from ${cfg.schoolName}. Please retain for record and examination clearance verification.
     </div>
     <div class="receipt-footer-stamp">
-      <div class="stamp-label">Processed By</div>
+      <div class="stamp-label">Recorded By</div>
       <div class="stamp-name">${payment.recordedBy || "Bursar"}</div>
-      <div style="margin-top:6px;font-size:10px;color:#94a3b8">OJ Schools Bursary Dept.</div>
+      <div style="margin-top:4px;font-size:10px;color:#94a3b8">Bursary Dept.</div>
     </div>
   </div>
 </div>
 
-<div style="text-align:center;margin:24px 0;font-size:11px;color:#94a3b8">
-  Printed on ${new Date().toLocaleString("en-GB")} &bull; OJ SCHOOLS Admin Portal
+<div style="text-align:center;margin:18px 0;font-size:11px;color:#94a3b8">
+  Printed on ${new Date().toLocaleString("en-GB")} &bull; ${cfg.schoolName} Bursary System
 </div>
 <script>window.onload = () => { window.print(); };<\/script>
 </body>
@@ -278,8 +313,9 @@ const OJSchoolsReports = (() => {
   function printClearancePass(studentId) {
     const stu = OJSchoolsDB.getStudentById(studentId);
     if (!stu) return alert("Student not found.");
-    if (stu.clearanceStatus !== "Cleared") return alert("This learner has not been cleared.");
+    if (stu.clearanceStatus !== "Cleared") return alert("This learner has not been cleared yet. Outstanding balance must be settled or clearance granted by admin.");
 
+    const cfg = getCfg();
     const bal = OJSchoolsDB.getStudentBalance(studentId);
     const sec = getSectionByClass(stu.currentClass) || SCHOOL_SECTIONS.primary;
     const initials = `${(stu.firstName || "?")[0]}${(stu.lastName || "?")[0]}`;
@@ -288,61 +324,55 @@ const OJSchoolsReports = (() => {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>OJ Schools Clearance Pass - ${stu.firstName} ${stu.lastName}</title>
+  <title>Clearance Pass - ${stu.firstName} ${stu.lastName}</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Outfit:wght@700;800;900&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; print-color-adjust: exact; }
-    .pass-card { max-width: 480px; margin: 40px auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,.1); border: 2px solid #0a192f; }
-    .pass-header { background: linear-gradient(135deg, #0a192f, #1e4a7a); color: white; padding: 24px 28px; display: flex; justify-content: space-between; align-items: center; }
-    .pass-logo   { width: 48px; height: 48px; border-radius: 12px; background: rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #fbbf24; }
-    .pass-school-name { font-size: 18px; font-weight: 900; }
-    .pass-school-sub  { font-size: 10px; color: rgba(255,255,255,.6); letter-spacing: 1px; text-transform: uppercase; }
-    .pass-badge  { background: #059669; color: white; padding: 6px 14px; border-radius: 9999px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; }
-    .pass-body   { padding: 24px 28px; }
-    .pass-title  { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #94a3b8; margin-bottom: 16px; text-align: center; }
-    .pass-avatar-row { display: flex; gap: 16px; align-items: center; background: #f8fafc; border-radius: 12px; padding: 16px 20px; margin-bottom: 18px; border: 1px solid #e2e8f0; }
-    .pass-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #0a192f, #1e4a7a); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: #fbbf24; flex-shrink: 0; }
-    .pass-stu-name { font-size: 18px; font-weight: 800; }
-    .pass-stu-meta { font-size: 12px; color: #64748b; margin-top: 2px; }
-    .pass-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .pass-info-item { background: #f8fafc; border-radius: 8px; padding: 10px 14px; border: 1px solid #e2e8f0; }
-    .pass-info-label{ font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: #94a3b8; margin-bottom: 3px; }
-    .pass-info-value{ font-size: 13px; font-weight: 700; color: #0f172a; }
-    .pass-cleared-bar { background: #d1fae5; border: 2px solid #059669; border-radius: 12px; padding: 14px 20px; text-align: center; }
-    .pass-cleared-icon { font-size: 28px; color: #059669; }
-    .pass-cleared-text { font-size: 15px; font-weight: 800; color: #047857; margin-top: 4px; }
-    .pass-cleared-sub  { font-size: 11px; color: #059669; margin-top: 2px; }
-    .pass-footer { background: #f8fafc; padding: 14px 28px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #94a3b8; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .pass-card { max-width: 480px; margin: 40px auto; background: white; border-radius: 18px; overflow: hidden; box-shadow: 0 14px 40px rgba(0,0,0,.12); border: 2px solid #0a192f; }
+    .pass-header { background: linear-gradient(135deg, #0a192f, #1e4a7a); color: white; padding: 22px 26px; display: flex; justify-content: space-between; align-items: center; }
+    .pass-logo   { width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #fbbf24; font-family: 'Outfit'; }
+    .pass-school-name { font-size: 18px; font-weight: 900; font-family: 'Outfit'; }
+    .pass-school-sub  { font-size: 10px; color: rgba(255,255,255,.7); letter-spacing: 1px; text-transform: uppercase; }
+    .pass-badge  { background: #059669; color: white; font-size: 10px; font-weight: 800; padding: 5px 12px; border-radius: 9999px; text-transform: uppercase; letter-spacing: .5px; }
+    .pass-body   { padding: 24px 26px; }
+    .pass-student-box { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; background: #f8fafc; border-radius: 12px; padding: 14px 16px; border: 1px solid #e2e8f0; }
+    .pass-avatar { width: 52px; height: 52px; border-radius: 50%; background: #0a192f; color: #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; font-family: 'Outfit'; flex-shrink: 0; }
+    .pass-name   { font-size: 16px; font-weight: 800; color: #0f172a; }
+    .pass-reg    { font-size: 12px; color: #64748b; font-weight: 600; margin-top: 2px; }
+    .pass-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+    .pass-info-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9px; padding: 9px 12px; }
+    .pass-info-label { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 2px; }
+    .pass-info-value { font-size: 13px; font-weight: 700; color: #0f172a; }
+    .pass-cleared-bar { background: #ecfdf5; border: 2px solid #059669; border-radius: 12px; padding: 14px 16px; text-align: center; }
+    .pass-cleared-icon { font-size: 24px; color: #059669; }
+    .pass-cleared-text { font-size: 13px; font-weight: 900; color: #065f46; letter-spacing: .5px; margin-top: 4px; }
+    .pass-cleared-sub  { font-size: 11px; color: #047857; margin-top: 2px; }
+    .pass-footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 12px 26px; display: flex; justify-content: space-between; font-size: 10px; color: #64748b; }
     @media print {
       body { background: white; }
-      .pass-card { box-shadow: none; border-radius: 0; margin: 0; max-width: 100%; }
-      @page { size: A5 portrait; margin: 10mm; }
+      .pass-card { box-shadow: none; margin: 0 auto; max-width: 100%; border: 1.5px solid #0a192f; }
+      @page { size: A5 landscape; margin: 10mm; }
     }
   </style>
 </head>
 <body>
 <div class="pass-card">
   <div class="pass-header">
-    <div style="display:flex;align-items:center;gap:12px">
+    <div>
       <div class="pass-logo">OJ</div>
-      <div>
-        <div class="pass-school-name">${schoolName}</div>
-        <div class="pass-school-sub">Examination Clearance Pass</div>
-      </div>
+      <div class="pass-school-name">${cfg.schoolName}</div>
+      <div class="pass-school-sub">Academic Clearance Pass</div>
     </div>
-    <div class="pass-badge">✓ Cleared</div>
+    <div class="pass-badge">✓ CLEARED</div>
   </div>
 
   <div class="pass-body">
-    <div class="pass-title">Official Examination Clearance Pass — ${session}</div>
-
-    <div class="pass-avatar-row">
+    <div class="pass-student-box">
       <div class="pass-avatar">${initials}</div>
       <div>
-        <div class="pass-stu-name">${stu.firstName} ${stu.lastName}</div>
-        <div class="pass-stu-meta">${stu.regNo} &bull; ${stu.currentClass}</div>
-        <div class="pass-stu-meta" style="color:${sec.color}">${sec.name}</div>
+        <div class="pass-name">${stu.firstName} ${stu.lastName}</div>
+        <div class="pass-reg">Reg No: ${stu.regNo}</div>
       </div>
     </div>
 
@@ -352,28 +382,28 @@ const OJSchoolsReports = (() => {
         <div class="pass-info-value">${stu.currentClass}</div>
       </div>
       <div class="pass-info-item">
-        <div class="pass-info-label">School Section</div>
+        <div class="pass-info-label">Section</div>
         <div class="pass-info-value">${sec.name}</div>
       </div>
       <div class="pass-info-item">
-        <div class="pass-info-label">Session</div>
-        <div class="pass-info-value">${session}</div>
+        <div class="pass-info-label">Session / Term</div>
+        <div class="pass-info-value">${cfg.currentSession} — ${cfg.currentTerm}</div>
       </div>
       <div class="pass-info-item">
-        <div class="pass-info-label">Outstanding</div>
-        <div class="pass-info-value" style="color:#059669">${bal && bal.totalOutstanding <= 0 ? "₦0.00 — Settled" : "₦" + bal.totalOutstanding.toLocaleString()}</div>
+        <div class="pass-info-label">Outstanding Balance</div>
+        <div class="pass-info-value" style="color:#059669">${bal && bal.totalOutstanding <= 0 ? "₦0.00 — Settled" : "₦" + fmt(bal.totalOutstanding)}</div>
       </div>
     </div>
 
     <div class="pass-cleared-bar">
-      <div class="pass-cleared-icon">✅</div>
-      <div class="pass-cleared-text">EXAMINATION CLEARANCE GRANTED</div>
-      <div class="pass-cleared-sub">This student is financially cleared to sit for examinations.</div>
+      <div class="pass-cleared-icon">✓</div>
+      <div class="pass-cleared-text">EXAMINATION CLEARANCE CERTIFICATE</div>
+      <div class="pass-cleared-sub">The above learner has fulfilled all financial obligations and is officially cleared for all term assessments.</div>
     </div>
   </div>
 
   <div class="pass-footer">
-    <span>${address}</span>
+    <span>${cfg.address}</span>
     <span>Issued: ${new Date().toLocaleDateString("en-GB")}</span>
   </div>
 </div>
@@ -381,7 +411,139 @@ const OJSchoolsReports = (() => {
 </body>
 </html>`;
 
-    printHtmlDocument(html, `OJ Schools Clearance Pass - ${stu.firstName} ${stu.lastName}`);
+    printHtmlDocument(html, `Clearance Pass - ${stu.firstName} ${stu.lastName}`);
+  }
+
+  // ── Print Debtors Report ─────────────────────────────────────────────────────
+  function printDebtorsReport(filterSection = "all") {
+    const cfg     = getCfg();
+    const debtors = OJSchoolsDB.getDebtors(filterSection);
+    const summary = OJSchoolsDB.getFinancialSummary(filterSection);
+    const curr    = cfg.currency || "\u20a6";
+
+    const rows = debtors.map((d, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td><strong>${d.student.firstName} ${d.student.lastName}</strong></td>
+        <td>${d.student.regNo}</td>
+        <td>${d.student.currentClass}</td>
+        <td>${d.student.parentPhone || "—"}</td>
+        <td style="text-align:right">${curr}${fmt(d.balance.termFee)}</td>
+        <td style="text-align:right;color:#b45309">${curr}${fmt(d.balance.arrearsRemaining)}</td>
+        <td style="text-align:right;color:#059669">${curr}${fmt(d.balance.totalPaid)}</td>
+        <td style="text-align:right;font-weight:800;color:#dc2626">${curr}${fmt(d.balance.totalOutstanding)}</td>
+      </tr>
+    `).join("");
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OJ Schools — Debtors Schedule</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; padding: 24px; color: #0f172a; }
+    .header { border-bottom: 2px solid #0a192f; padding-bottom: 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .title { font-size: 20px; font-weight: 800; color: #0a192f; }
+    .subtitle { font-size: 11px; color: #64748b; margin-top: 3px; }
+    .summary-bar { display: flex; gap: 16px; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 12px 18px; margin-bottom: 18px; }
+    .sum-item { flex: 1; }
+    .sum-label { font-size: 10px; text-transform: uppercase; color: #9f1239; font-weight: 700; }
+    .sum-val   { font-size: 16px; font-weight: 800; color: #e11d48; margin-top: 2px; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    th { background: #0a192f; color: white; padding: 8px 10px; text-align: left; font-size: 10px; text-transform: uppercase; }
+    td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    .footer { margin-top: 24px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+    @media print {
+      body { padding: 0; }
+      @page { size: A4 landscape; margin: 8mm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <div class="title">${cfg.schoolName} — Outstanding Debtors Schedule</div>
+      <div class="subtitle">Session: ${cfg.currentSession} &bull; Term: ${cfg.currentTerm} &bull; Filter: ${filterSection.toUpperCase()}</div>
+    </div>
+    <div style="text-align:right;font-size:11px;color:#64748b">
+      Date: ${new Date().toLocaleDateString("en-GB")}
+    </div>
+  </div>
+
+  <div class="summary-bar">
+    <div class="sum-item">
+      <div class="sum-label">Total Debtors</div>
+      <div class="sum-val">${debtors.length} Learners</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-label">Total Unrecovered Arrears</div>
+      <div class="sum-val">${curr}${fmt(summary.totalOutstandingArrears)}</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-label">Total Unpaid Term Fees</div>
+      <div class="sum-val">${curr}${fmt(summary.totalUnpaidTermFees)}</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-label">Grand Total Outstanding</div>
+      <div class="sum-val">${curr}${fmt(summary.totalOutstandingDebt)}</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Learner Name</th>
+        <th>Reg No.</th>
+        <th>Class</th>
+        <th>Parent Phone</th>
+        <th style="text-align:right">Term Fee</th>
+        <th style="text-align:right">Arrears</th>
+        <th style="text-align:right">Paid</th>
+        <th style="text-align:right">Outstanding Balance</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows || '<tr><td colspan="9" style="text-align:center;padding:20px;color:#059669;font-weight:700">✓ No outstanding debtors found!</td></tr>'}
+    </tbody>
+  </table>
+
+  <div class="footer">
+    ${cfg.schoolName} &bull; ${cfg.address} &bull; ${cfg.phone} &bull; Generated on ${new Date().toLocaleString("en-GB")}
+  </div>
+  <script>window.onload = () => { window.print(); };<\/script>
+</body>
+</html>`;
+
+    printHtmlDocument(html, "Debtors Report");
+  }
+
+  // ── CSV Export: Debtors ──────────────────────────────────────────────────────
+  function exportDebtorsCSV(filterSection = "all") {
+    const debtors = OJSchoolsDB.getDebtors(filterSection);
+    if (!debtors.length) return alert("No debtors found.");
+
+    const headers = [
+      "Reg No", "First Name", "Last Name", "Class", "Section",
+      "Term Fee", "Arrears Remaining", "Total Paid", "Total Outstanding",
+      "Parent Name", "Parent Phone"
+    ];
+
+    const rows = debtors.map(d => {
+      const s = d.student;
+      const b = d.balance;
+      const sec = getSectionByClass(s.currentClass);
+      return [
+        s.regNo, s.firstName, s.lastName, s.currentClass, sec ? sec.name : "—",
+        b.termFee, b.arrearsRemaining, b.totalPaid, b.totalOutstanding,
+        s.parentName, s.parentPhone
+      ].map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",");
+    });
+
+    downloadCSV([headers.join(","), ...rows].join("\n"), "OJ_Schools_Debtors_" + new Date().toISOString().split("T")[0] + ".csv");
   }
 
   // ── CSV Export: Learners ──────────────────────────────────────────────────────
@@ -409,12 +571,8 @@ const OJSchoolsReports = (() => {
   }
 
   // ── CSV Export: Payments ──────────────────────────────────────────────────────
-  function exportPaymentsCSV(timeframe = "all") {
+  function exportPaymentsCSV() {
     let payments = OJSchoolsDB.getPayments();
-    if (timeframe !== "all") {
-      const range = getDateRange(timeframe);
-      if (range.startDate) payments = payments.filter(p => p.date >= range.startDate);
-    }
     if (!payments.length) return alert("No payment records to export.");
 
     const headers = ["Receipt No","Student Name","Reg No","Class","Section","Date","Amount","Arrears Deducted","Term Fee Paid","Other Fees","Payment Method","Recorded By","Notes"];
@@ -441,9 +599,11 @@ const OJSchoolsReports = (() => {
   }
 
   // ── Print P&L Financial Statement ────────────────────────────────────────────
-  function printPLStatement(timeframe = "all") {
+  function printPLStatement() {
+    const cfg       = getCfg();
     const summary   = OJSchoolsDB.getFinancialSummary();
     const breakdown = OJSchoolsDB.getSectionBreakdown();
+    const curr      = cfg.currency || "\u20a6";
 
     const sectionColors = {
       primary:  "#059669",
@@ -452,18 +612,18 @@ const OJSchoolsReports = (() => {
       tutorial: "#ea580c"
     };
 
-    const sectionsHTML = Object.entries(breakdown.sections).map(([id, data]) => {
-      const color = sectionColors[id] || "#64748b";
-      const net   = data.totalRevenue - data.totalExpenses;
+    const sectionRows = Object.entries(breakdown.sections).map(([secId, d]) => {
+      const net = d.totalRevenue - d.totalExpenses;
+      const col = sectionColors[secId] || "#0a192f";
       return `
         <tr>
-          <td style="font-weight:700;color:${color}">${data.name}</td>
-          <td style="text-align:right">${data.totalStudents}</td>
-          <td style="text-align:right;color:#059669;font-weight:700">₦${fmt(data.totalRevenue)}</td>
-          <td style="text-align:right;color:#dc2626;font-weight:700">₦${fmt(data.totalExpenses)}</td>
-          <td style="text-align:right;font-weight:700;color:${net >= 0 ? "#059669" : "#dc2626"}">₦${fmt(net)}</td>
-          <td style="text-align:right">${data.totalDebtorsCount}</td>
-          <td style="text-align:right;color:#b45309;font-weight:600">₦${fmt(data.totalOutstandingDebt)}</td>
+          <td><span style="display:inline-block;width:10px;height:10px;background:${col};border-radius:50%;margin-right:6px"></span><strong>${d.name}</strong></td>
+          <td style="text-align:right">${d.totalStudents}</td>
+          <td style="text-align:right;color:#059669">${curr}${fmt(d.totalRevenue)}</td>
+          <td style="text-align:right;color:#dc2626">${curr}${fmt(d.totalExpenses)}</td>
+          <td style="text-align:right;font-weight:700;color:${net >= 0 ? "#059669" : "#dc2626"}">${curr}${fmt(net)}</td>
+          <td style="text-align:right">${d.totalDebtorsCount}</td>
+          <td style="text-align:right;color:#b45309">${curr}${fmt(d.totalOutstandingDebt)}</td>
         </tr>
       `;
     }).join("");
@@ -472,118 +632,100 @@ const OJSchoolsReports = (() => {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>OJ Schools - P&L Financial Statement</title>
+  <title>P&L Statement - ${cfg.schoolName}</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #fff; color: #0f172a; padding: 32px; print-color-adjust: exact; }
-    .report-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #0a192f; padding-bottom: 20px; margin-bottom: 24px; }
-    .report-school-name { font-size: 24px; font-weight: 900; color: #0a192f; }
-    .report-school-sub  { font-size: 11px; color: #64748b; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
-    .report-title-box   { text-align: right; }
-    .report-title       { font-size: 16px; font-weight: 800; color: #0a192f; }
-    .report-date        { font-size: 11px; color: #64748b; margin-top: 4px; }
-    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-    .summary-card { border-radius: 10px; padding: 16px 20px; }
-    .summary-card.revenue { background: #d1fae5; }
-    .summary-card.expense { background: #fee2e2; }
-    .summary-card.profit  { background: #f0f9ff; }
-    .summary-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #64748b; }
-    .summary-value { font-size: 22px; font-weight: 900; margin-top: 4px; }
-    .section-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: #0a192f; margin-bottom: 12px; padding-top: 8px; border-top: 1px solid #e2e8f0; }
-    table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    th { background: #0a192f; color: white; padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
-    td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; }
-    tr:last-child td { border-bottom: none; }
-    .footer { margin-top: 32px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 14px; }
-    @media print { body { padding: 15mm; } @page { size: A4; margin: 15mm; } }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; padding: 28px; color: #0f172a; }
+    .header { border-bottom: 2px solid #0a192f; padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .title { font-size: 22px; font-weight: 800; color: #0a192f; }
+    .subtitle { font-size: 11px; color: #64748b; margin-top: 3px; }
+    .cards-row { display: flex; gap: 14px; margin-bottom: 22px; }
+    .card { flex: 1; border-radius: 12px; padding: 14px 18px; border: 1px solid #e2e8f0; text-align: center; background: #f8fafc; }
+    .card-label { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 4px; }
+    .card-val { font-size: 20px; font-weight: 900; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 14px; }
+    th { background: #0a192f; color: white; padding: 10px 12px; text-align: left; font-size: 10px; text-transform: uppercase; }
+    td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
+    tfoot td { font-weight: 800; background: #f1f5f9; border-top: 2px solid #0a192f; }
+    .footer { margin-top: 28px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+    @media print {
+      body { padding: 0; }
+      @page { size: A4 landscape; margin: 8mm; }
+    }
   </style>
 </head>
 <body>
-  <div class="report-header">
+  <div class="header">
     <div>
-      <div class="report-school-name">${schoolName}</div>
-      <div class="report-school-sub">${address}</div>
+      <div class="title">${cfg.schoolName} — Profit & Loss Statement</div>
+      <div class="subtitle">Academic Session: ${cfg.currentSession} &bull; Term: ${cfg.currentTerm}</div>
     </div>
-    <div class="report-title-box">
-      <div class="report-title">P&L Financial Statement</div>
-      <div class="report-date">Academic Session: ${session} &bull; Generated: ${new Date().toLocaleString("en-GB")}</div>
-    </div>
-  </div>
-
-  <div class="summary-grid">
-    <div class="summary-card revenue">
-      <div class="summary-label">Total Revenue</div>
-      <div class="summary-value" style="color:#047857">₦${fmt(summary.totalRevenue)}</div>
-    </div>
-    <div class="summary-card expense">
-      <div class="summary-label">Total Expenses</div>
-      <div class="summary-value" style="color:#dc2626">₦${fmt(summary.totalExpenses)}</div>
-    </div>
-    <div class="summary-card profit">
-      <div class="summary-label">Net Profit / Loss</div>
-      <div class="summary-value" style="color:${summary.netProfit >= 0 ? "#047857" : "#dc2626"}">₦${fmt(summary.netProfit)}</div>
+    <div style="text-align:right;font-size:11px;color:#64748b">
+      Generated: ${new Date().toLocaleDateString("en-GB")}
     </div>
   </div>
 
-  <div class="section-title">Section-by-Section Breakdown</div>
+  <div class="cards-row">
+    <div class="card" style="border-top:3px solid #059669">
+      <div class="card-label">Total Revenue</div>
+      <div class="card-val" style="color:#059669">${curr}${fmt(summary.totalRevenue)}</div>
+    </div>
+    <div class="card" style="border-top:3px solid #dc2626">
+      <div class="card-label">Total Expenses</div>
+      <div class="card-val" style="color:#dc2626">${curr}${fmt(summary.totalExpenses)}</div>
+    </div>
+    <div class="card" style="border-top:3px solid #2563eb">
+      <div class="card-label">Net Profit / Loss</div>
+      <div class="card-val" style="color:${summary.netProfit >= 0 ? "#059669" : "#dc2626"}">${curr}${fmt(summary.netProfit)}</div>
+    </div>
+    <div class="card" style="border-top:3px solid #d97706">
+      <div class="card-label">Debtors Outstanding</div>
+      <div class="card-val" style="color:#d97706">${curr}${fmt(summary.totalOutstandingDebt)}</div>
+    </div>
+  </div>
+
+  <h4 style="font-size:14px;font-weight:800;margin-top:16px;margin-bottom:8px">Sectional Ledger Breakdown</h4>
   <table>
     <thead>
       <tr>
-        <th>School Section</th>
+        <th>Section</th>
         <th style="text-align:right">Students</th>
         <th style="text-align:right">Revenue</th>
         <th style="text-align:right">Expenses</th>
-        <th style="text-align:right">Net</th>
+        <th style="text-align:right">Net P&L</th>
         <th style="text-align:right">Debtors</th>
-        <th style="text-align:right">Outstanding</th>
+        <th style="text-align:right">Debt Outstanding</th>
       </tr>
     </thead>
     <tbody>
-      ${sectionsHTML}
+      ${sectionRows}
     </tbody>
     <tfoot>
-      <tr style="background:#f8fafc;font-weight:800">
-        <td>TOTAL (All Sections)</td>
+      <tr>
+        <td>TOTALS</td>
         <td style="text-align:right">${summary.totalStudents}</td>
-        <td style="text-align:right;color:#059669">₦${fmt(summary.totalRevenue)}</td>
-        <td style="text-align:right;color:#dc2626">₦${fmt(summary.totalExpenses)}</td>
-        <td style="text-align:right;color:${summary.netProfit >= 0 ? "#059669" : "#dc2626"}">₦${fmt(summary.netProfit)}</td>
+        <td style="text-align:right;color:#059669">${curr}${fmt(summary.totalRevenue)}</td>
+        <td style="text-align:right;color:#dc2626">${curr}${fmt(summary.totalExpenses)}</td>
+        <td style="text-align:right;color:${summary.netProfit >= 0 ? "#059669" : "#dc2626"}">${curr}${fmt(summary.netProfit)}</td>
         <td style="text-align:right">${summary.totalDebtorsCount}</td>
-        <td style="text-align:right;color:#b45309">₦${fmt(summary.totalOutstandingDebt)}</td>
+        <td style="text-align:right;color:#b45309">${curr}${fmt(summary.totalOutstandingDebt)}</td>
       </tr>
     </tfoot>
   </table>
 
   <div class="footer">
-    ${schoolName} &bull; ${address} &bull; ${phone}<br>
-    Generated on ${new Date().toLocaleString("en-GB")} &bull; OJ Schools Admin Portal
+    ${cfg.schoolName} &bull; ${cfg.address} &bull; ${cfg.phone}<br>
+    Generated on ${new Date().toLocaleString("en-GB")} &bull; OJ Schools Bursary Ledger
   </div>
   <script>window.onload = () => { window.print(); };<\/script>
 </body>
 </html>`;
 
-    printHtmlDocument(html, "OJ Schools P&L Statement");
+    printHtmlDocument(html, "P&L Statement");
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────────
-  function getDateRange(timeframe) {
-    const now   = new Date();
-    const today = now.toISOString().split("T")[0];
-    let startDate = null;
-    if (timeframe === "daily") {
-      startDate = today;
-    } else if (timeframe === "weekly") {
-      const d = new Date(); d.setDate(d.getDate() - 6);
-      startDate = d.toISOString().split("T")[0];
-    } else if (timeframe === "monthly") {
-      startDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
-    } else if (timeframe === "termly" || timeframe === "session") {
-      startDate = "2026-09-01";
-    }
-    return { startDate, endDate: today };
-  }
-
+  // ── Helper ───────────────────────────────────────────────────────────────────
   function downloadCSV(content, filename) {
     const BOM  = "\uFEFF";
     const blob = new Blob([BOM + content], { type: "text/csv;charset=utf-8;" });
@@ -596,10 +738,11 @@ const OJSchoolsReports = (() => {
     setTimeout(() => URL.revokeObjectURL(link.href), 5000);
   }
 
-  // Public API
   return {
     printReceipt,
     printClearancePass,
+    printDebtorsReport,
+    exportDebtorsCSV,
     exportLearnersCSV,
     exportPaymentsCSV,
     exportExpensesCSV,
