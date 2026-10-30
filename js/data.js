@@ -222,12 +222,14 @@ const DEFAULT_DATA = {
   payments:      [],
   expenses:      [],
   auditLogs: [{
-    id:        "LOG-INIT",
-    timestamp: Date.now(),
-    date:      new Date().toLocaleString("en-GB"),
-    action:    "SYSTEM_INITIALIZE",
-    user:      "System",
-    details:   "OJ Schools Bursary & Records Database v2 initialized."
+    id:          "LOG-INIT",
+    timestamp:   Date.now(),
+    date:        new Date().toLocaleString("en-GB"),
+    action:      "SYSTEM_INITIALIZE",
+    entity:      "system",
+    performedBy: "System",
+    user:        "System",
+    details:     "OJ Schools Bursary & Records Database v2 initialized."
   }]
 };
 
@@ -313,8 +315,9 @@ class OJSchoolsDB {
 
     studentData.termFee = Number(studentData.termFee) || 0;
     studentData.arrears = Number(studentData.arrears) || 0;
-    if (!studentData.status)       studentData.status       = "Active";
-    if (!studentData.enrolledDate) studentData.enrolledDate = new Date().toISOString().split("T")[0];
+    if (!studentData.status)          studentData.status          = "Active";
+    if (!studentData.clearanceStatus) studentData.clearanceStatus = "Pending";
+    if (!studentData.enrolledDate)    studentData.enrolledDate    = new Date().toISOString().split("T")[0];
     if (!studentData.section) {
       const sec = getSectionByClass(studentData.currentClass);
       studentData.section = sec ? sec.id : "primary";
@@ -453,10 +456,13 @@ class OJSchoolsDB {
 
   static saveExpense(expenseData) {
     const data = this.get();
-    if (!expenseData.id)      expenseData.id      = "EXP-" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2,5).toUpperCase();
-    if (!expenseData.date)    expenseData.date    = new Date().toISOString().split("T")[0];
-    if (!expenseData.account) expenseData.account = "general";
-    if (!expenseData.period)  expenseData.period  = "monthly";
+    if (!expenseData.id)         expenseData.id         = "EXP-" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2,5).toUpperCase();
+    if (!expenseData.date)       expenseData.date       = new Date().toISOString().split("T")[0];
+    if (!expenseData.account)    expenseData.account    = "general";
+    if (!expenseData.section)    expenseData.section    = expenseData.account;
+    if (!expenseData.category)   expenseData.category   = expenseData.title || "General";
+    if (!expenseData.period)     expenseData.period     = "monthly";
+    if (!expenseData.recordedBy) expenseData.recordedBy = "Bursar";
     expenseData.amount = Number(expenseData.amount) || 0;
 
     const idx = data.expenses.findIndex(e => e.id === expenseData.id);
@@ -565,10 +571,14 @@ class OJSchoolsDB {
     const data = this.get();
     if (!data.auditLogs) data.auditLogs = [];
     data.auditLogs.unshift({
-      id: "LOG-" + Date.now().toString(36).toUpperCase(),
-      timestamp: Date.now(),
-      date: new Date().toLocaleString("en-GB"),
-      action, user: user || "System", details
+      id:          "LOG-" + Date.now().toString(36).toUpperCase(),
+      timestamp:   Date.now(),
+      date:        new Date().toLocaleString("en-GB"),
+      action,
+      entity:      "system",
+      performedBy: user || "System",
+      user:        user || "System",
+      details
     });
     if (data.auditLogs.length > 500) data.auditLogs.pop();
     localStorage.setItem(this.KEY, JSON.stringify(data));

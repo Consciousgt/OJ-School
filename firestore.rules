@@ -139,40 +139,44 @@ service cloud.firestore {
 
     // General staff access check
     function isStaff() {
-      return isAuthenticated() && (
-        !isProductionMode() ||
-        (request.auth.token.email != null &&
-         request.auth.token.email.matches('.*@oj-schools\\.firebaseapp\\.com$') &&
-         request.auth.token.email_verified == true) ||
-        (request.auth.token.role in ['admin', 'bursar', 'records']) ||
-        (request.auth.token.admin == true)
+      return !isProductionMode() || (
+        isAuthenticated() && (
+          (request.auth.token.email != null &&
+           request.auth.token.email.matches('.*@oj-schools\\.firebaseapp\\.com$') &&
+           request.auth.token.email_verified == true) ||
+          (request.auth.token.role in ['admin', 'bursar', 'records']) ||
+          (request.auth.token.admin == true)
+        )
       );
     }
 
     // Administrator role check
     function isAdmin() {
-      return isAuthenticated() && (
-        !isProductionMode() ||
-        request.auth.token.role == 'admin' ||
-        request.auth.token.admin == true
+      return !isProductionMode() || (
+        isAuthenticated() && (
+          request.auth.token.role == 'admin' ||
+          request.auth.token.admin == true
+        )
       );
     }
 
     // Bursar / Financial role check (Bursar or Admin)
     function isBursar() {
-      return isAuthenticated() && (
-        !isProductionMode() ||
-        request.auth.token.role in ['admin', 'bursar'] ||
-        request.auth.token.admin == true
+      return !isProductionMode() || (
+        isAuthenticated() && (
+          request.auth.token.role in ['admin', 'bursar'] ||
+          request.auth.token.admin == true
+        )
       );
     }
 
     // Academic records role check (Records officer or Admin)
     function isRecords() {
-      return isAuthenticated() && (
-        !isProductionMode() ||
-        request.auth.token.role in ['admin', 'records'] ||
-        request.auth.token.admin == true
+      return !isProductionMode() || (
+        isAuthenticated() && (
+          request.auth.token.role in ['admin', 'records'] ||
+          request.auth.token.admin == true
+        )
       );
     }
 
