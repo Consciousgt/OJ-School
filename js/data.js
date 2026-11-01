@@ -46,6 +46,7 @@ const SCHOOL_SECTIONS = {
     badgeClass: "badge-section-junior",
     color: "#2563eb",
     classes: [
+      "JSS 1", "JSS 2", "JSS 3",
       "JSS 1A", "JSS 1B",
       "JSS 2A", "JSS 2B",
       "JSS 3A", "JSS 3B"
@@ -58,6 +59,7 @@ const SCHOOL_SECTIONS = {
     badgeClass: "badge-section-senior",
     color: "#7c3aed",
     classes: [
+      "SSS 1", "SSS 2", "SSS 3",
       "SSS 1 Science", "SSS 1 Art", "SSS 1 Commercial",
       "SSS 2 Science", "SSS 2 Art", "SSS 2 Commercial",
       "SSS 3 Science", "SSS 3 Art", "SSS 3 Commercial"
@@ -151,28 +153,39 @@ const CLASS_FEE_SCHEDULES = {
   "Basic 5": { tuition: 25000, bece_registration: 25000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, friday_wear: 0 },
   "Basic 6": { tuition: 25000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, friday_wear: 0 },
 
+  "JSS 1":  { tuition: 32000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
   "JSS 1A": { tuition: 32000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
   "JSS 1B": { tuition: 32000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
+  "JSS 2":  { tuition: 32000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
   "JSS 2A": { tuition: 32000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
   "JSS 2B": { tuition: 32000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
+  "JSS 3":  { tuition: 32000, bece_registration: 40000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
   "JSS 3A": { tuition: 32000, bece_registration: 40000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
   "JSS 3B": { tuition: 32000, bece_registration: 40000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
 
+  "SSS 1":            { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
   "SSS 1 Science":    { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
   "SSS 1 Art":        { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
   "SSS 1 Commercial": { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
+  "SSS 2":            { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
   "SSS 2 Science":    { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
   "SSS 2 Art":        { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
   "SSS 2 Commercial": { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
 
   // SSS 3: Term 1 & 2 = 43,000; Term 3 = 21,500 (admin edits amount at runtime for term 3)
+  "SSS 3":            { tuition: 43000, waec_registration: 80000, jamb_registration: 40000, extra_lessons: 40000, sport_wear: 7000, friday_wear: 0 },
   "SSS 3 Science":    { tuition: 43000, waec_registration: 80000, jamb_registration: 40000, extra_lessons: 40000, sport_wear: 7000, friday_wear: 0 },
   "SSS 3 Art":        { tuition: 43000, waec_registration: 80000, jamb_registration: 40000, extra_lessons: 40000, sport_wear: 7000, friday_wear: 0 },
   "SSS 3 Commercial": { tuition: 43000, waec_registration: 80000, jamb_registration: 40000, extra_lessons: 40000, sport_wear: 7000, friday_wear: 0 }
 };
 
 function getClassFeeSchedule(className) {
-  return CLASS_FEE_SCHEDULES[className] || {};
+  if (!className) return {};
+  if (CLASS_FEE_SCHEDULES[className]) return CLASS_FEE_SCHEDULES[className];
+  for (const [k, v] of Object.entries(CLASS_FEE_SCHEDULES)) {
+    if (className.startsWith(k) || k.startsWith(className)) return v;
+  }
+  return {};
 }
 
 function getClassFeeItems(className) {
@@ -218,7 +231,7 @@ const DEFAULT_DATA = {
   },
   classes:       ALL_CLASSES,
   feeCategories: FEE_CATEGORIES,
-  students:      [],
+  students:      typeof OFFICIAL_STUDENTS_DATA !== "undefined" ? OFFICIAL_STUDENTS_DATA : [],
   payments:      [],
   expenses:      [],
   auditLogs: [{
@@ -236,27 +249,61 @@ const DEFAULT_DATA = {
 // ─── LocalStorage & Persistence Engine ───────────────────────────────────────
 class OJSchoolsDB {
   static KEY = "OJ_SCHOOLS_DB_V2_LIVE";
+  static SEED_KEY = "OJ_STUDENTS_SEEDED_2026_V1";
 
   static init() {
-    if (!localStorage.getItem(this.KEY)) {
+    const raw = localStorage.getItem(this.KEY);
+    if (!raw) {
       // Migrate from v1 key if present
       const old = localStorage.getItem("OJ_SCHOOLS_DB_V1_LIVE");
       if (old) {
         try {
           const parsed  = JSON.parse(old);
           const fresh   = JSON.parse(JSON.stringify(DEFAULT_DATA));
-          fresh.students  = parsed.students  || [];
+          fresh.students  = (parsed.students && parsed.students.length > 0)
+            ? parsed.students
+            : (typeof OFFICIAL_STUDENTS_DATA !== "undefined" ? OFFICIAL_STUDENTS_DATA : []);
           fresh.payments  = parsed.payments  || [];
           fresh.expenses  = parsed.expenses  || [];
           fresh.auditLogs = parsed.auditLogs || fresh.auditLogs;
           if (parsed.config) fresh.config = { ...fresh.config, ...parsed.config };
           localStorage.setItem(this.KEY, JSON.stringify(fresh));
           localStorage.removeItem("OJ_SCHOOLS_DB_V1_LIVE");
+          localStorage.setItem(this.SEED_KEY, "true");
+          return;
         } catch (e) {
           localStorage.setItem(this.KEY, JSON.stringify(DEFAULT_DATA));
+          localStorage.setItem(this.SEED_KEY, "true");
+          return;
         }
       } else {
         localStorage.setItem(this.KEY, JSON.stringify(DEFAULT_DATA));
+        localStorage.setItem(this.SEED_KEY, "true");
+        return;
+      }
+    }
+
+    // Auto-seed existing localStorage if official roster not yet merged
+    if (!localStorage.getItem(this.SEED_KEY) && typeof OFFICIAL_STUDENTS_DATA !== "undefined") {
+      try {
+        const data = JSON.parse(raw);
+        if (!data.students || data.students.length === 0) {
+          data.students = JSON.parse(JSON.stringify(OFFICIAL_STUDENTS_DATA));
+        } else {
+          const existingIds = new Set(data.students.map(s => s.id));
+          const existingRegNos = new Set(data.students.map(s => (s.regNo || "").toUpperCase()));
+          const existingNames = new Set(data.students.map(s => `${s.firstName} ${s.lastName}`.trim().toUpperCase()));
+          for (const s of OFFICIAL_STUDENTS_DATA) {
+            const fullName = `${s.firstName} ${s.lastName}`.trim().toUpperCase();
+            if (!existingIds.has(s.id) && !existingRegNos.has(s.regNo.toUpperCase()) && !existingNames.has(fullName)) {
+              data.students.push(s);
+            }
+          }
+        }
+        localStorage.setItem(this.KEY, JSON.stringify(data));
+        localStorage.setItem(this.SEED_KEY, "true");
+      } catch (_) {
+        localStorage.setItem(this.SEED_KEY, "true");
       }
     }
   }
