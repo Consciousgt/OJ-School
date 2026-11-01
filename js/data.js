@@ -18,6 +18,7 @@
  */
 
 // ─── School Sections & Class Definitions ─────────────────────────────────────
+// Only active classes with enrolled learners are maintained.
 const SCHOOL_SECTIONS = {
   primary: {
     id: "primary",
@@ -35,8 +36,7 @@ const SCHOOL_SECTIONS = {
       "Basic 2",
       "Basic 3",
       "Basic 4",
-      "Basic 5",
-      "Basic 6"
+      "Basic 5"
     ]
   },
   junior: {
@@ -46,10 +46,9 @@ const SCHOOL_SECTIONS = {
     badgeClass: "badge-section-junior",
     color: "#2563eb",
     classes: [
-      "JSS 1", "JSS 2", "JSS 3",
-      "JSS 1A", "JSS 1B",
-      "JSS 2A", "JSS 2B",
-      "JSS 3A", "JSS 3B"
+      "JSS 1",
+      "JSS 2",
+      "JSS 3"
     ]
   },
   senior: {
@@ -59,10 +58,9 @@ const SCHOOL_SECTIONS = {
     badgeClass: "badge-section-senior",
     color: "#7c3aed",
     classes: [
-      "SSS 1", "SSS 2", "SSS 3",
-      "SSS 1 Science", "SSS 1 Art", "SSS 1 Commercial",
-      "SSS 2 Science", "SSS 2 Art", "SSS 2 Commercial",
-      "SSS 3 Science", "SSS 3 Art", "SSS 3 Commercial"
+      "SSS 1",
+      "SSS 2",
+      "SSS 3"
     ]
   },
   tutorial: {
@@ -71,22 +69,14 @@ const SCHOOL_SECTIONS = {
     icon: "fas fa-book-open-reader",
     badgeClass: "badge-section-tutorial",
     color: "#ea580c",
-    classes: [
-      "WAEC & NECO Intensive Prep",
-      "UTME / JAMB CBT Drill & Masterclass",
-      "Post-UTME Screening Clinic",
-      "GCE & Adult Education Cohort",
-      "Weekend Accelerated Class",
-      "Evening Secondary Tutoring"
-    ]
+    classes: []
   }
 };
 
 const ALL_CLASSES = [
   ...SCHOOL_SECTIONS.primary.classes,
   ...SCHOOL_SECTIONS.junior.classes,
-  ...SCHOOL_SECTIONS.senior.classes,
-  ...SCHOOL_SECTIONS.tutorial.classes
+  ...SCHOOL_SECTIONS.senior.classes
 ];
 
 function getSectionByClass(className) {
@@ -151,32 +141,16 @@ const CLASS_FEE_SCHEDULES = {
   "Basic 3": { tuition: 24000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 3000, friday_wear: 0 },
   "Basic 4": { tuition: 25000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 3000, friday_wear: 0 },
   "Basic 5": { tuition: 25000, bece_registration: 25000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, friday_wear: 0 },
-  "Basic 6": { tuition: 25000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, friday_wear: 0 },
 
-  "JSS 1":  { tuition: 32000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
-  "JSS 1A": { tuition: 32000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
-  "JSS 1B": { tuition: 32000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
-  "JSS 2":  { tuition: 32000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
-  "JSS 2A": { tuition: 32000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
-  "JSS 2B": { tuition: 32000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
-  "JSS 3":  { tuition: 32000, bece_registration: 40000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
-  "JSS 3A": { tuition: 32000, bece_registration: 40000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
-  "JSS 3B": { tuition: 32000, bece_registration: 40000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
+  "JSS 1": { tuition: 32000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
+  "JSS 2": { tuition: 32000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
+  "JSS 3": { tuition: 32000, bece_registration: 40000, continuous_assessment: 3000, uniform: 10000, sport_wear: 8000, report_card: 4000, cbt_exams: 3000, friday_wear: 0 },
 
-  "SSS 1":            { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
-  "SSS 1 Science":    { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
-  "SSS 1 Art":        { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
-  "SSS 1 Commercial": { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
-  "SSS 2":            { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
-  "SSS 2 Science":    { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
-  "SSS 2 Art":        { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
-  "SSS 2 Commercial": { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
+  "SSS 1": { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
+  "SSS 2": { tuition: 37000, uniform: 12000, sport_wear: 7000, report_card: 4000, continuous_assessment: 3000, cbt_exams: 3000, friday_wear: 0 },
 
   // SSS 3: Term 1 & 2 = 43,000; Term 3 = 21,500 (admin edits amount at runtime for term 3)
-  "SSS 3":            { tuition: 43000, waec_registration: 80000, jamb_registration: 40000, extra_lessons: 40000, sport_wear: 7000, friday_wear: 0 },
-  "SSS 3 Science":    { tuition: 43000, waec_registration: 80000, jamb_registration: 40000, extra_lessons: 40000, sport_wear: 7000, friday_wear: 0 },
-  "SSS 3 Art":        { tuition: 43000, waec_registration: 80000, jamb_registration: 40000, extra_lessons: 40000, sport_wear: 7000, friday_wear: 0 },
-  "SSS 3 Commercial": { tuition: 43000, waec_registration: 80000, jamb_registration: 40000, extra_lessons: 40000, sport_wear: 7000, friday_wear: 0 }
+  "SSS 3": { tuition: 43000, waec_registration: 80000, jamb_registration: 40000, extra_lessons: 40000, sport_wear: 7000, friday_wear: 0 }
 };
 
 function getClassFeeSchedule(className) {

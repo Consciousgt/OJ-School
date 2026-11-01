@@ -71,6 +71,32 @@ const OJSchoolsApp = (() => {
     toast._timer = setTimeout(() => toast.classList.remove("show"), duration);
   }
 
+  // ── Mobile Drawer Navigation ─────────────────────────────────────────────────
+  function openMobileSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const backdrop = document.getElementById("sidebar-backdrop");
+    if (sidebar) sidebar.classList.add("open");
+    if (backdrop) backdrop.classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeMobileSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const backdrop = document.getElementById("sidebar-backdrop");
+    if (sidebar) sidebar.classList.remove("open");
+    if (backdrop) backdrop.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+
+  function toggleMobileSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar && sidebar.classList.contains("open")) {
+      closeMobileSidebar();
+    } else {
+      openMobileSidebar();
+    }
+  }
+
   // ── Tab Navigation ───────────────────────────────────────────────────────────
   function switchTab(tab) {
     currentTab = tab;
@@ -99,8 +125,7 @@ const OJSchoolsApp = (() => {
     if (headerTitle) headerTitle.textContent = pageTitleMap[tab] || "OJ Schools Admin";
 
     // Close mobile sidebar on tab switch
-    const sidebar = document.getElementById("sidebar");
-    if (sidebar && window.innerWidth < 768) sidebar.classList.remove("open");
+    closeMobileSidebar();
 
     // Load content
     if (tab === "dashboard")    loadDashboard();
@@ -137,6 +162,7 @@ const OJSchoolsApp = (() => {
       const currentVal = sel.value;
       sel.innerHTML = '<option value="">-- Select Class --</option>';
       for (const [, sec] of Object.entries(SCHOOL_SECTIONS)) {
+        if (!sec.classes || sec.classes.length === 0) continue;
         const grp = document.createElement("optgroup");
         grp.label = sec.name;
         sec.classes.forEach(cls => {
@@ -217,11 +243,21 @@ const OJSchoolsApp = (() => {
       tutorial: { icon: "fas fa-book-open-reader",  light: "#ffedd5", dark: "#c2410c" }
     };
 
-    const sections = ["primary", "junior", "senior", "tutorial"];
-    container.innerHTML = sections.map(secId => {
+    // Only show sections that have enrolled learners or active classes
+    const allStudents = OJSchoolsDB.getStudents();
+    const activeSectionIds = ["primary", "junior", "senior", "tutorial"].filter(secId => {
+      const sec = SCHOOL_SECTIONS[secId];
+      if (!sec) return false;
+      const count = allStudents.filter(s =>
+        (s.section || (getSectionByClass(s.currentClass) ? getSectionByClass(s.currentClass).id : "primary")) === secId
+      ).length;
+      return count > 0 || (sec.classes && sec.classes.length > 0);
+    });
+
+    container.innerHTML = activeSectionIds.map(secId => {
       const sec     = SCHOOL_SECTIONS[secId];
-      const style   = sectionColors[secId];
-      const students = OJSchoolsDB.getStudents().filter(s =>
+      const style   = sectionColors[secId] || { icon: "fas fa-chalkboard", light: "#e2e8f0", dark: "#334155" };
+      const students = allStudents.filter(s =>
         (s.section || (getSectionByClass(s.currentClass) ? getSectionByClass(s.currentClass).id : "primary")) === secId
       );
       const summary = OJSchoolsDB.getFinancialSummary(secId);
@@ -392,7 +428,13 @@ const OJSchoolsApp = (() => {
       tutorial: { color: "#ea580c", light: "#ffedd5" }
     };
 
-    container.innerHTML = sections.map(secId => {
+    // Only show sections that have classes configured
+    const activeSections = sections.filter(secId => {
+      const sec = SCHOOL_SECTIONS[secId];
+      return sec && sec.classes && sec.classes.length > 0;
+    });
+
+    container.innerHTML = activeSections.map(secId => {
       const sec   = SCHOOL_SECTIONS[secId];
       const style = sectionColors[secId];
 
@@ -753,12 +795,14 @@ const OJSchoolsApp = (() => {
     const container = document.getElementById("settings-fee-matrix");
     if (!container) return;
 
-    const sections = ["primary", "junior", "senior", "tutorial"];
+    const sections = ["primary", "junior", "senior", "tutorial"].filter(secId => {
+      const sec = SCHOOL_SECTIONS[secId];
+      return sec && sec.classes && sec.classes.length > 0;
+    });
     const sectionNames = {
-      primary:  "Primary Section (Creche, KG 1 & 2, Nursery 1-2, Basic 1-6)",
+      primary:  "Primary Section (Creche, KG 1 & 2, Nursery 1–5)",
       junior:   "Junior Secondary (JSS 1–3)",
-      senior:   "Senior Secondary (SSS 1–3)",
-      tutorial: "Tutorial Section"
+      senior:   "Senior Secondary (SSS 1–3)"
     };
 
     let html = "";
@@ -1407,17 +1451,18 @@ const OJSchoolsApp = (() => {
       });
     });
 
-    // Sidebar toggle (mobile)
-    const sidebarToggle = document.getElementById("sidebar-toggle");
-    const sidebar       = document.getElementById("sidebar");
-    if (sidebarToggle && sidebar) {
-      sidebarToggle.addEventListener("click", () => sidebar.classList.toggle("open"));
-    }
+    // Sidebar toggle (mobile drawer & backdrop)
+    const sidebarToggle   = document.getElementById("sidebar-toggle");
+    const sidebarCloseBtn  = document.getElementById("sidebar-close-btn");
+    const sidebarBackdrop = document.getElementById("sidebar-backdrop");
+    if (sidebarToggle)   sidebarToggle.addEventListener("click", () => toggleMobileSidebar());
+    if (sidebarCloseBtn) sidebarCloseBtn.addEventListener("click", () => closeMobileSidebar());
+    if (sidebarBackdrop) sidebarBackdrop.addEventListener("click", () => closeMobileSidebar());
 
     const mainEl = document.getElementById("main");
-    if (mainEl && sidebar) {
+    if (mainEl) {
       mainEl.addEventListener("click", () => {
-        if (window.innerWidth < 768) sidebar.classList.remove("open");
+        if (window.innerWidth < 768) closeMobileSidebar();
       });
     }
 
@@ -1546,6 +1591,9 @@ const OJSchoolsApp = (() => {
     printClearancePass,
     printReceipt,
     manualCloudSync,
+    openMobileSidebar,
+    closeMobileSidebar,
+    toggleMobileSidebar,
     parseAmount,
     formatAmount,
     currency

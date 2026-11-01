@@ -168,6 +168,10 @@
 
       <!-- CTA -->
       <div class="hidden md:flex items-center gap-3">
+        <a href="admin/index.html"
+           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm text-navy-900 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition">
+          <i class="fas fa-lock text-xs text-emerald-600"></i> Portal Login
+        </a>
         <a href="#contact"
            class="cta-pulse inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/30 transition">
           <i class="fas fa-paper-plane text-xs"></i> Apply Now
@@ -188,6 +192,7 @@
         <a href="#why-oj"   class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50"><i class="fas fa-star w-5 text-emerald-600"></i> Why OJ Schools</a>
         <a href="#tutorial" class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50"><i class="fas fa-book-open-reader w-5 text-emerald-600"></i> Tutorial Centre</a>
         <a href="#contact"  class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50"><i class="fas fa-phone w-5 text-emerald-600"></i> Contact</a>
+        <a href="admin/index.html" class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-navy-900 bg-amber-50 border border-amber-200"><i class="fas fa-shield-alt w-5 text-amber-600"></i> Staff Portal Login</a>
         <a href="#contact"  class="flex items-center justify-center gap-2 px-4 py-3 mt-2 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700"><i class="fas fa-paper-plane text-xs"></i> Apply for Admission</a>
       </div>
     </div>
@@ -441,13 +446,13 @@
             </div>
             <h3 class="text-xl font-black text-navy-900 mb-2">Primary Section</h3>
             <p class="text-slate-500 text-sm leading-relaxed mb-5">
-              From Creche and Nursery through Basic 1 to 6, our Primary Section gives children the strongest academic,
+              From Creche and Nursery through Basic 1 to 5, our Primary Section gives children the strongest academic,
               social, and moral foundation in a nurturing environment designed for young learners.
             </p>
             <div class="space-y-2 mb-6">
               <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-emerald-500 text-xs"></i> Creche &amp; Day Care</div>
-              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-emerald-500 text-xs"></i> Kindergarten &amp; Nursery 1–2</div>
-              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-emerald-500 text-xs"></i> Basic 1 through Basic 6</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-emerald-500 text-xs"></i> Kindergarten (KG 1 &amp; KG 2) &amp; Nursery 1–2</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-emerald-500 text-xs"></i> Basic 1 through Basic 5</div>
               <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-emerald-500 text-xs"></i> Phonics, Numeracy &amp; Discovery Labs</div>
             </div>
             <a href="#contact" class="inline-flex items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition">
@@ -472,9 +477,9 @@
               with disciplined academic coaching and character formation from JSS 1 through JSS 3.
             </p>
             <div class="space-y-2 mb-6">
-              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-blue-500 text-xs"></i> JSS 1A, 1B — Foundation Year</div>
-              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-blue-500 text-xs"></i> JSS 2A, 2B — Core Development</div>
-              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-blue-500 text-xs"></i> JSS 3A, 3B — BECE Examination Prep</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-blue-500 text-xs"></i> JSS 1 — Foundation Year</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-blue-500 text-xs"></i> JSS 2 — Core Development</div>
+              <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-blue-500 text-xs"></i> JSS 3 — BECE Examination Prep</div>
               <div class="flex items-center gap-2 text-sm text-slate-600"><i class="fas fa-check-circle text-blue-500 text-xs"></i> Mock Exams &amp; Intensive Coaching</div>
             </div>
             <a href="#contact" class="inline-flex items-center gap-2 text-sm font-bold text-blue-600 hover:text-blue-700 transition">
@@ -798,12 +803,27 @@
         </div>
       </div>
 
-      <div class="pt-7 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+      <div class="pt-7 pb-20 md:pb-0 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
         <span>&copy; 2026 OJ Schools. All Rights Reserved.</span>
         <span>Academic Session 2026/2027</span>
       </div>
     </div>
   </footer>
+
+  <!-- ═══════════════ MOBILE QUICK ACTION DOCK ═══════════════ -->
+  <aside class="md:hidden fixed bottom-3 left-3 right-3 z-40" aria-label="Quick Actions">
+    <div class="bg-navy-950/92 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl flex items-center justify-between gap-2">
+      <a href="tel:08031234567" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition">
+        <i class="fas fa-phone-alt text-emerald-400 text-xs"></i> <span>Call Us</span>
+      </a>
+      <a href="https://wa.me/2348031234567?text=Hello%20OJ%20Schools,%20I%20would%20like%20to%20enquire%20about%20admissions" target="_blank" rel="noopener" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-600/30 transition">
+        <i class="fab fa-whatsapp text-sm"></i> <span>WhatsApp</span>
+      </a>
+      <a href="admin/index.html" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-gold-500 hover:bg-gold-600 text-navy-950 text-xs font-black shadow-md shadow-gold-500/30 transition">
+        <i class="fas fa-lock text-xs"></i> <span>Portal</span>
+      </a>
+    </div>
+  </aside>
 
   <!-- Mobile nav toggle script -->
   <script>

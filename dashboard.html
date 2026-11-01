@@ -2,9 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0a192f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="OJ Schools">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <title>OJ Schools — Admin Dashboard</title>
+  <title>OJ Schools — Admin Portal</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%230a192f%22/><text y=%2224%22 x=%224%22 font-size=%2222%22>📊</text></svg>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
@@ -308,46 +313,128 @@
       margin-bottom: 14px; transition: all .2s;
     }
 
-    /* ── Mobile Bottom Nav ── */
+    /* ── Mobile Sidebar Close & Backdrop ── */
+    .sidebar-close-btn {
+      display: none; width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+      color: rgba(255,255,255,.8); cursor: pointer; align-items: center; justify-content: center;
+      font-size: 14px; transition: all .15s; font-family: inherit;
+    }
+    .sidebar-close-btn:hover { background: rgba(255,255,255,.18); color: #fff; }
+    .sidebar-backdrop {
+      position: fixed; inset: 0; background: rgba(5, 12, 24, 0.65);
+      backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+      z-index: 98; opacity: 0; pointer-events: none; transition: opacity .25s ease;
+    }
+    .sidebar-backdrop.active {
+      opacity: 1; pointer-events: auto;
+    }
+
+    /* ── Native Bottom Sheet Handle ── */
+    .bottom-sheet-handle {
+      display: none; width: 44px; height: 5px; border-radius: 3px;
+      background: var(--gray-300); margin: 0 auto 14px; flex-shrink: 0;
+    }
+
+    /* ── Mobile Bottom Nav Dock ── */
     #mobile-bottom-nav {
       display: none; position: fixed; bottom: 0; left: 0; right: 0;
-      background: var(--navy-dark); border-top: 1px solid rgba(255,255,255,.08);
-      z-index: 150; padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+      background: rgba(10, 25, 47, 0.95);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255,255,255,.12);
+      z-index: 150; padding: 6px 4px max(8px, env(safe-area-inset-bottom));
       justify-content: space-around; align-items: center;
-      box-shadow: 0 -4px 20px rgba(0,0,0,.3);
+      box-shadow: 0 -8px 25px rgba(0,0,0,.35);
     }
     .mob-nav-btn {
-      flex: 1; background: none; border: none; color: rgba(255,255,255,.5);
-      font-size: 10px; font-weight: 600; padding: 5px 2px; cursor: pointer;
+      flex: 1; background: none; border: none; color: rgba(255,255,255,.55);
+      font-size: 10px; font-weight: 700; padding: 4px 2px; cursor: pointer;
       display: flex; flex-direction: column; align-items: center; gap: 3px;
-      transition: color .15s; font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: all .18s cubic-bezier(0.16, 1, 0.3, 1); font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
+    .mob-icon-wrap {
+      width: 32px; height: 26px; border-radius: 13px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    .mob-icon-wrap i { font-size: 15px; }
     .mob-nav-btn.active { color: #fbbf24; }
-    .mob-nav-btn i { font-size: 17px; }
+    .mob-nav-btn.active .mob-icon-wrap {
+      background: rgba(251,191,36,.18);
+      color: #fbbf24;
+    }
+    .mob-nav-btn:active { transform: scale(0.92); }
 
-    /* ── Responsive ── */
+    /* ── Responsive Mobile Overrides ── */
     @media (max-width: 900px) {
       .form-row { grid-template-columns: 1fr; }
       .profile-info-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 768px) {
-      #sidebar { transform: translateX(-100%); }
+      #sidebar { transform: translateX(-100%); z-index: 100; box-shadow: 4px 0 25px rgba(0,0,0,.5); }
       #sidebar.open { transform: translateX(0); }
+      .sidebar-close-btn { display: flex; }
       #main { margin-left: 0; padding: 14px 12px 85px 12px; }
-      #header { left: 0; padding: 0 12px; gap: 8px; }
-      #sidebar-toggle { display: block; }
+      #header {
+        left: 0; padding: 0 14px; gap: 8px;
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      }
+      #sidebar-toggle { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; }
       .session-badge, #live-clock-badge { display: none; }
+      .logout-label { display: none; }
+      #header .btn-logout { padding: 6px 10px; font-size: 13px; }
       #mobile-bottom-nav { display: flex !important; }
-      .modal-overlay { padding: 10px; align-items: flex-end; }
-      .modal-box { max-width: 100vw; max-height: 90vh; border-radius: 18px 18px 0 0; }
-      .filters-bar { flex-direction: column; align-items: stretch; }
-      .filters-bar .form-control, .filters-bar .btn-primary, .filters-bar .btn-secondary { width: 100%; }
+
+      /* Modals as Native Bottom Sheets */
+      .modal-overlay {
+        padding: 0; align-items: flex-end;
+        background: rgba(5, 12, 24, 0.72);
+        backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      }
+      .modal-box {
+        width: 100%; max-width: 100vw; max-height: 88vh;
+        border-radius: 24px 24px 0 0;
+        padding: 16px 16px max(24px, env(safe-area-inset-bottom));
+        animation: slideUpSheet .28s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid rgba(255,255,255,.1);
+        box-shadow: 0 -10px 40px rgba(0,0,0,.45);
+        display: flex; flex-direction: column;
+      }
+      .modal-box.modal-xl { max-width: 100vw; }
+      .bottom-sheet-handle { display: block; }
+      .modal-header { padding: 8px 6px 12px; }
+      .modal-body { padding: 12px 4px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+      .modal-footer { padding: 14px 4px 6px; }
+
+      /* Filter Bars */
+      .filters-bar { flex-direction: column; align-items: stretch; gap: 8px; }
+      .filters-bar .form-control, .filters-bar .btn-primary, .filters-bar .btn-secondary { width: 100%; min-height: 42px; }
+
+      /* Tables on Mobile */
+      .table-wrap { -webkit-overflow-scrolling: touch; overflow-x: auto; }
+      table { min-width: 540px; }
+
+      /* Toasts above bottom dock */
+      .toast {
+        bottom: 78px; left: 16px; right: 16px; max-width: none;
+        text-align: center; border-radius: 14px;
+        box-shadow: 0 8px 30px rgba(0,0,0,.35);
+      }
     }
     @media (max-width: 480px) {
-      .stat-grid { grid-template-columns: 1fr 1fr; }
-      .section-enrollment-grid { grid-template-columns: 1fr 1fr; }
+      .stat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .stat-card { padding: 14px 12px; }
+      .stat-icon { width: 38px; height: 38px; font-size: 16px; }
+      .stat-val { font-size: 17px; }
+      .section-enrollment-grid { grid-template-columns: 1fr; }
       .class-cards-grid { grid-template-columns: 1fr; }
-      #header h1 { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      #header h1 { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    }
+    @keyframes slideUpSheet {
+      from { transform: translateY(100%); }
+      to   { transform: translateY(0); }
     }
     @media (hover: none) and (pointer: coarse) {
       .form-control, select.form-control { font-size: 16px !important; }
@@ -360,7 +447,10 @@
 <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
 <aside id="sidebar">
   <div class="sidebar-brand">
-    <div class="brand-oj">OJ</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div class="brand-oj">OJ</div>
+      <button id="sidebar-close-btn" class="sidebar-close-btn" aria-label="Close menu"><i class="fas fa-times"></i></button>
+    </div>
     <h2>OJ SCHOOLS</h2>
     <p>Admin Portal — 2026/2027</p>
   </div>
@@ -400,28 +490,36 @@
   </div>
 </aside>
 
-<!-- ═══════════════════ MOBILE BOTTOM NAV ═══════════════════ -->
-<nav id="mobile-bottom-nav">
+<!-- ═══════════════════ SIDEBAR BACKDROP (MOBILE) ═══════════════════ -->
+<div id="sidebar-backdrop" class="sidebar-backdrop" onclick="OJSchoolsApp.closeMobileSidebar()"></div>
+
+<!-- ═══════════════════ MOBILE BOTTOM DOCK ═══════════════════ -->
+<nav id="mobile-bottom-nav" aria-label="Mobile Navigation">
   <button data-tab="dashboard" class="mob-nav-btn active" onclick="OJSchoolsApp.switchTab('dashboard')">
-    <i class="fas fa-gauge-high"></i><span>Home</span>
+    <div class="mob-icon-wrap"><i class="fas fa-gauge-high"></i></div>
+    <span>Home</span>
   </button>
   <button data-tab="learners" class="mob-nav-btn" onclick="OJSchoolsApp.switchTab('learners')">
-    <i class="fas fa-user-graduate"></i><span>Learners</span>
+    <div class="mob-icon-wrap"><i class="fas fa-user-graduate"></i></div>
+    <span>Learners</span>
   </button>
-  <button data-tab="clearance" class="mob-nav-btn" onclick="OJSchoolsApp.switchTab('clearance')">
-    <i class="fas fa-id-badge"></i><span>Clear</span>
+  <button data-tab="class-hub" class="mob-nav-btn" onclick="OJSchoolsApp.switchTab('class-hub')">
+    <div class="mob-icon-wrap"><i class="fas fa-school"></i></div>
+    <span>Classes</span>
   </button>
   <button data-tab="payments" class="mob-nav-btn" onclick="OJSchoolsApp.switchTab('payments')">
-    <i class="fas fa-receipt"></i><span>Payments</span>
+    <div class="mob-icon-wrap"><i class="fas fa-receipt"></i></div>
+    <span>Payments</span>
   </button>
-  <button data-tab="reports" class="mob-nav-btn" onclick="OJSchoolsApp.switchTab('reports')">
-    <i class="fas fa-chart-bar"></i><span>Reports</span>
+  <button id="mob-more-btn" class="mob-nav-btn" onclick="OJSchoolsApp.toggleMobileSidebar()">
+    <div class="mob-icon-wrap"><i class="fas fa-bars"></i></div>
+    <span>More</span>
   </button>
 </nav>
 
 <!-- ═══════════════════ HEADER ═══════════════════ -->
 <header id="header">
-  <button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+  <button id="sidebar-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
   <h1 id="page-title">System Dashboard</h1>
 
   <div id="cloud-sync-badge" class="sync-badge" onclick="OJSchoolsApp.manualCloudSync()" title="Click to sync now">
@@ -436,7 +534,7 @@
 
   <span class="session-badge" id="dash-session">2026/2027 — 1st Term</span>
   <button class="btn-logout btn-logout">
-    <i class="fas fa-sign-out-alt"></i> Logout
+    <i class="fas fa-sign-out-alt"></i> <span class="logout-label">Logout</span>
   </button>
 </header>
 
@@ -1025,6 +1123,7 @@
 <!-- ═══════════════════ ENROL STUDENT MODAL ═══════════════════ -->
 <div id="modal-enroll" class="modal-overlay hidden">
   <div class="modal-box modal-xl">
+    <div class="bottom-sheet-handle"></div>
     <div class="modal-header">
       <h3 id="enroll-modal-title">Enrol New Learner</h3>
       <button class="modal-close" onclick="document.getElementById('modal-enroll').classList.add('hidden')">✕</button>
@@ -1115,6 +1214,7 @@
 <!-- ═══════════════════ PAYMENT MODAL (MULTI-ITEM CAPABLE) ═══════════════════ -->
 <div id="modal-payment" class="modal-overlay hidden">
   <div class="modal-box modal-xl">
+    <div class="bottom-sheet-handle"></div>
     <div class="modal-header">
       <div>
         <h3>Record Fee Payment</h3>
@@ -1225,6 +1325,7 @@
 <!-- ═══════════════════ EXPENSE MODAL ═══════════════════ -->
 <div id="modal-expense" class="modal-overlay hidden">
   <div class="modal-box">
+    <div class="bottom-sheet-handle"></div>
     <div class="modal-header">
       <h3>Log School Expense</h3>
       <button class="modal-close" onclick="document.getElementById('modal-expense').classList.add('hidden')">✕</button>
@@ -1293,6 +1394,7 @@
 <!-- ═══════════════════ STUDENT PROFILE MODAL ═══════════════════ -->
 <div id="modal-profile" class="modal-overlay hidden">
   <div class="modal-box modal-xl">
+    <div class="bottom-sheet-handle"></div>
     <div class="modal-header">
       <h3>Learner Profile</h3>
       <button class="modal-close" onclick="document.getElementById('modal-profile').classList.add('hidden')">✕</button>
