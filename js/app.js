@@ -162,6 +162,45 @@ const OJSchoolsApp = (() => {
     setInterval(tick, 1000);
   }
 
+  // ── Class Filter Dropdown Population ─────────────────────────────────────────
+  function updateFilterClassOptions(selectId, selectedSection = "") {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const currentVal = sel.value;
+    sel.innerHTML = '<option value="">All Classes</option>';
+
+    if (selectedSection && SCHOOL_SECTIONS[selectedSection]) {
+      const sec = SCHOOL_SECTIONS[selectedSection];
+      if (sec.classes && sec.classes.length > 0) {
+        sec.classes.forEach(cls => {
+          const opt = document.createElement("option");
+          opt.value = cls;
+          opt.textContent = cls;
+          sel.appendChild(opt);
+        });
+      }
+    } else {
+      for (const [, sec] of Object.entries(SCHOOL_SECTIONS)) {
+        if (!sec.classes || sec.classes.length === 0) continue;
+        const grp = document.createElement("optgroup");
+        grp.label = sec.name;
+        sec.classes.forEach(cls => {
+          const opt = document.createElement("option");
+          opt.value = cls;
+          opt.textContent = cls;
+          grp.appendChild(opt);
+        });
+        sel.appendChild(grp);
+      }
+    }
+
+    if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) {
+      sel.value = currentVal;
+    } else {
+      sel.value = "";
+    }
+  }
+
   // ── Populate Class Dropdowns ─────────────────────────────────────────────────
   function populateClassDropdowns() {
     const dropdowns = document.querySelectorAll("[data-class-select]");
@@ -371,6 +410,12 @@ const OJSchoolsApp = (() => {
       );
     }
 
+    const countBadge = document.getElementById("learners-count-badge");
+    if (countBadge) {
+      const clsText = filterClass ? " (" + filterClass + ")" : (filterSection ? " (" + filterSection.toUpperCase() + ")" : "");
+      countBadge.textContent = students.length + " Learner" + (students.length !== 1 ? "s" : "") + clsText;
+    }
+
     const tbody = document.getElementById("learners-tbody");
     if (!tbody) return;
 
@@ -400,7 +445,7 @@ const OJSchoolsApp = (() => {
               </div>
             </div>
           </td>
-          <td>${s.currentClass || "—"}</td>
+          <td><span class="badge badge-pill" style="cursor:pointer;background:var(--gray-100);color:var(--gray-800);border:1px solid var(--gray-200);transition:all .15s" onclick="OJSchoolsApp.viewClassStudents('${s.currentClass}')" title="Filter learners by ${s.currentClass}">${s.currentClass || "—"}</span></td>
           <td>${sectionBadge}</td>
           <td>${statusBadge}</td>
           <td class="amount-cell">${currency(bal ? bal.termFee : 0)}</td>
@@ -1490,11 +1535,20 @@ const OJSchoolsApp = (() => {
       bindCurrencyInput(document.getElementById(id));
     });
 
+    // Initialize class filter options
+    updateFilterClassOptions("filter-class");
+    updateFilterClassOptions("pay-filter-class");
+
     // Learners filter wiring
     const filterSection = document.getElementById("filter-section");
     const filterClass   = document.getElementById("filter-class");
     const searchInput   = document.getElementById("search-student");
-    if (filterSection) filterSection.addEventListener("change", () => applyLearnerFilters());
+    if (filterSection) {
+      filterSection.addEventListener("change", () => {
+        updateFilterClassOptions("filter-class", filterSection.value);
+        applyLearnerFilters();
+      });
+    }
     if (filterClass)   filterClass.addEventListener("change",   () => applyLearnerFilters());
     if (searchInput)   searchInput.addEventListener("input",    () => applyLearnerFilters());
 
@@ -1502,7 +1556,12 @@ const OJSchoolsApp = (() => {
     const payFilterSection = document.getElementById("pay-filter-section");
     const payFilterClass   = document.getElementById("pay-filter-class");
     const paySearch        = document.getElementById("pay-search");
-    if (payFilterSection) payFilterSection.addEventListener("change", () => applyPaymentFilters());
+    if (payFilterSection) {
+      payFilterSection.addEventListener("change", () => {
+        updateFilterClassOptions("pay-filter-class", payFilterSection.value);
+        applyPaymentFilters();
+      });
+    }
     if (payFilterClass)   payFilterClass.addEventListener("change",   () => applyPaymentFilters());
     if (paySearch)        paySearch.addEventListener("input",         () => applyPaymentFilters());
 
@@ -1577,6 +1636,7 @@ const OJSchoolsApp = (() => {
     loadSettings,
     saveSettings,
     viewClassStudents,
+    selectClass: viewClassStudents,
     openEnrollModal,
     onEnrollClassChange,
     saveEnrollment,

@@ -843,7 +843,10 @@
   <section id="view-learners" class="tab-section hidden">
     <div class="panel">
       <div class="panel-header">
-        <h3>Learners Register</h3>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <h3>Learners Register</h3>
+          <span id="learners-count-badge" class="badge badge-active" style="font-size:11px"></span>
+        </div>
         <div class="filters-bar">
           <select class="form-control" id="filter-section" style="min-width:150px">
             <option value="">All Sections</option>
@@ -851,6 +854,9 @@
             <option value="junior">Junior Secondary</option>
             <option value="senior">Senior Secondary</option>
             <option value="tutorial">Tutorial Section</option>
+          </select>
+          <select class="form-control" id="filter-class" style="min-width:140px">
+            <option value="">All Classes</option>
           </select>
           <input type="text" id="search-student" class="form-control" placeholder="Search name / reg no…" style="min-width:180px">
           <button class="btn-primary" onclick="OJSchoolsApp.openEnrollModal()">
@@ -940,6 +946,9 @@
             <option value="junior">Junior Secondary</option>
             <option value="senior">Senior Secondary</option>
             <option value="tutorial">Tutorial</option>
+          </select>
+          <select class="form-control" id="pay-filter-class" style="min-width:140px">
+            <option value="">All Classes</option>
           </select>
           <input type="text" id="pay-search" class="form-control" placeholder="Search name / receipt…" style="min-width:180px">
           <button class="btn-primary btn-emerald" onclick="OJSchoolsApp.openAddPaymentModal()">
