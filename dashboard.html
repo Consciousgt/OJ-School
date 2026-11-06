@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
   <meta name="theme-color" content="#0a192f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -342,7 +343,7 @@
       background: rgba(10, 25, 47, 0.95);
       backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border-top: 1px solid rgba(255,255,255,.12);
-      z-index: 150; padding: 6px 4px max(8px, env(safe-area-inset-bottom));
+      z-index: 200; padding: 6px 4px max(8px, env(safe-area-inset-bottom, 8px));
       justify-content: space-around; align-items: center;
       box-shadow: 0 -8px 25px rgba(0,0,0,.35);
     }
@@ -359,66 +360,148 @@
       transition: all .2s;
     }
     .mob-icon-wrap i { font-size: 15px; }
-    .mob-nav-btn.active { color: #fbbf24; }
+    .mob-nav-btn.active { color: #10b981 !important; font-weight: 800; }
     .mob-nav-btn.active .mob-icon-wrap {
-      background: rgba(251,191,36,.18);
-      color: #fbbf24;
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
     }
+    .mob-nav-btn.active i { transform: scale(1.08); }
+    .nav-indicator {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: transparent; margin-top: 1px;
+      transition: background .18s;
+    }
+    .mob-nav-btn.active .nav-indicator { background: #10b981; }
     .mob-nav-btn:active { transform: scale(0.92); }
 
-    /* ── Responsive Mobile Overrides ── */
+    /* ── Responsive Tablet & Mobile Engine ── */
     @media (max-width: 900px) {
       .form-row { grid-template-columns: 1fr; }
       .profile-info-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 768px) {
-      #sidebar { transform: translateX(-100%); z-index: 100; box-shadow: 4px 0 25px rgba(0,0,0,.5); }
+      html, body {
+        max-width: 100vw;
+        overflow-x: hidden;
+      }
+      #sidebar {
+        position: fixed;
+        top: 0; bottom: 0; left: 0;
+        width: min(82vw, 300px);
+        min-height: 100dvh;
+        z-index: 250;
+        transform: translateX(-100%);
+        transition: transform .28s cubic-bezier(0.32, 0.72, 0, 1);
+        box-shadow: 10px 0 35px rgba(0,0,0,.45);
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
       #sidebar.open { transform: translateX(0); }
       .sidebar-close-btn { display: flex; }
-      #main { margin-left: 0; padding: 14px 12px 85px 12px; }
-      #header {
-        left: 0; padding: 0 14px; gap: 8px;
-        background: rgba(255, 255, 255, 0.94);
-        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      .sidebar-backdrop {
+        z-index: 240;
       }
-      #sidebar-toggle { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; }
-      .session-badge, #live-clock-badge { display: none; }
+      #main {
+        margin-left: 0;
+        margin-top: calc(56px + env(safe-area-inset-top, 0px));
+        padding: 14px 12px calc(85px + env(safe-area-inset-bottom, 12px)) 12px;
+        min-height: calc(100dvh - 56px);
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+      }
+      #header {
+        left: 0;
+        top: 0;
+        height: calc(56px + env(safe-area-inset-top, 0px));
+        padding: env(safe-area-inset-top, 0px) 14px 0 14px;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        z-index: 100;
+      }
+      #sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        background: var(--gray-100);
+        border: 1px solid var(--gray-200);
+        color: var(--gray-800);
+        cursor: pointer;
+        font-size: 15px;
+        transition: transform .15s ease, background .15s ease;
+      }
+      #sidebar-toggle:active {
+        transform: scale(0.92);
+        background: var(--gray-200);
+      }
+      #page-title {
+        font-size: 15px;
+        font-weight: 800;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .session-badge, #live-clock-badge { display: none !important; }
       .logout-label { display: none; }
-      #header .btn-logout { padding: 6px 10px; font-size: 13px; }
+      #header .btn-logout { padding: 6px 10px; font-size: 12px; border-radius: 8px; flex-shrink: 0; }
       #mobile-bottom-nav { display: flex !important; }
 
-      /* Modals as Native Bottom Sheets */
+      /* Modals as Native iOS & Android Bottom Sheets */
       .modal-overlay {
         padding: 0; align-items: flex-end;
         background: rgba(5, 12, 24, 0.72);
-        backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        z-index: 300;
       }
       .modal-box {
-        width: 100%; max-width: 100vw; max-height: 88vh;
-        border-radius: 24px 24px 0 0;
-        padding: 16px 16px max(24px, env(safe-area-inset-bottom));
-        animation: slideUpSheet .28s cubic-bezier(0.16, 1, 0.3, 1);
-        border: 1px solid rgba(255,255,255,.1);
-        box-shadow: 0 -10px 40px rgba(0,0,0,.45);
-        display: flex; flex-direction: column;
+        width: 100% !important; max-width: 100vw !important; max-height: 90dvh !important;
+        border-radius: 24px 24px 0 0 !important;
+        margin: 0 !important;
+        padding: 16px 16px max(24px, env(safe-area-inset-bottom, 24px)) !important;
+        animation: slideUpSheet .28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        border: 1px solid rgba(255,255,255,.1) !important;
+        box-shadow: 0 -10px 40px rgba(0,0,0,.45) !important;
+        display: flex !important; flex-direction: column !important;
+        touch-action: pan-y !important;
+        overscroll-behavior-y: contain !important;
       }
-      .modal-box.modal-xl { max-width: 100vw; }
+      .modal-box.modal-xl { max-width: 100vw !important; }
       .bottom-sheet-handle { display: block; }
-      .modal-header { padding: 8px 6px 12px; }
-      .modal-body { padding: 12px 4px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-      .modal-footer { padding: 14px 4px 6px; }
+      .modal-header { padding: 8px 6px 12px; flex-shrink: 0; }
+      .modal-body {
+        padding: 12px 4px !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-y !important;
+        overscroll-behavior-y: contain !important;
+      }
+      .modal-footer {
+        padding: 14px 4px max(14px, env(safe-area-inset-bottom, 14px));
+        flex-shrink: 0;
+      }
 
       /* Filter Bars */
       .filters-bar { flex-direction: column; align-items: stretch; gap: 8px; }
-      .filters-bar .form-control, .filters-bar .btn-primary, .filters-bar .btn-secondary { width: 100%; min-height: 42px; }
+      .filters-bar .form-control, .filters-bar .btn-primary, .filters-bar .btn-secondary { width: 100%; min-height: 44px; }
 
       /* Tables on Mobile */
-      .table-wrap { -webkit-overflow-scrolling: touch; overflow-x: auto; }
-      table { min-width: 540px; }
+      .table-wrap {
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-x pan-y !important;
+        overflow-x: auto !important;
+        width: 100% !important;
+      }
+      table { min-width: 580px; }
 
       /* Toasts above bottom dock */
       .toast {
-        bottom: 78px; left: 16px; right: 16px; max-width: none;
+        bottom: max(78px, calc(66px + env(safe-area-inset-bottom, 0px)));
+        left: 16px; right: 16px; max-width: none;
         text-align: center; border-radius: 14px;
         box-shadow: 0 8px 30px rgba(0,0,0,.35);
       }
@@ -439,6 +522,22 @@
     @media (hover: none) and (pointer: coarse) {
       .form-control, select.form-control { font-size: 16px !important; }
       .btn-icon { min-width: 36px; min-height: 36px; }
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+      #sidebar-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: var(--gray-100);
+        border: 1px solid var(--gray-200);
+        color: var(--gray-800);
+        font-size: 15px;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
     }
   </style>
 </head>
@@ -498,22 +597,27 @@
   <button data-tab="dashboard" class="mob-nav-btn active" onclick="OJSchoolsApp.switchTab('dashboard')">
     <div class="mob-icon-wrap"><i class="fas fa-gauge-high"></i></div>
     <span>Home</span>
+    <span class="nav-indicator"></span>
   </button>
   <button data-tab="learners" class="mob-nav-btn" onclick="OJSchoolsApp.switchTab('learners')">
     <div class="mob-icon-wrap"><i class="fas fa-user-graduate"></i></div>
     <span>Learners</span>
+    <span class="nav-indicator"></span>
   </button>
   <button data-tab="class-hub" class="mob-nav-btn" onclick="OJSchoolsApp.switchTab('class-hub')">
     <div class="mob-icon-wrap"><i class="fas fa-school"></i></div>
     <span>Classes</span>
+    <span class="nav-indicator"></span>
   </button>
   <button data-tab="payments" class="mob-nav-btn" onclick="OJSchoolsApp.switchTab('payments')">
     <div class="mob-icon-wrap"><i class="fas fa-receipt"></i></div>
     <span>Payments</span>
+    <span class="nav-indicator"></span>
   </button>
   <button id="mob-more-btn" class="mob-nav-btn" onclick="OJSchoolsApp.toggleMobileSidebar()">
     <div class="mob-icon-wrap"><i class="fas fa-bars"></i></div>
     <span>More</span>
+    <span class="nav-indicator"></span>
   </button>
 </nav>
 
@@ -543,6 +647,34 @@
 
   <!-- ─── DASHBOARD ─── -->
   <section id="view-dashboard" class="tab-section">
+    
+    <!-- Mobile App Quick Actions (Visible on Mobile) -->
+    <div class="mobile-quick-actions">
+      <button type="button" class="mob-action-card" onclick="OJSchoolsApp.openAddPaymentModal()">
+        <div class="mob-action-icon" style="background: linear-gradient(135deg, #059669, #10b981);">
+          <i class="fas fa-receipt"></i>
+        </div>
+        <span>Pay Fee</span>
+      </button>
+      <button type="button" class="mob-action-card" onclick="OJSchoolsApp.openEnrollModal()">
+        <div class="mob-action-icon" style="background: linear-gradient(135deg, #0a192f, #1e3a5f);">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <span>Enrol</span>
+      </button>
+      <button type="button" class="mob-action-card" onclick="OJSchoolsApp.openExpenseModal()">
+        <div class="mob-action-icon" style="background: linear-gradient(135deg, #dc2626, #f87171);">
+          <i class="fas fa-file-invoice-dollar"></i>
+        </div>
+        <span>Expense</span>
+      </button>
+      <button type="button" class="mob-action-card" onclick="OJSchoolsApp.switchTab('clearance')">
+        <div class="mob-action-icon" style="background: linear-gradient(135deg, #7c3aed, #a78bfa);">
+          <i class="fas fa-id-badge"></i>
+        </div>
+        <span>Clearance</span>
+      </button>
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
       <div>
         <h2 style="font-size:22px;font-weight:900;color:var(--gray-900);font-family:'Outfit',sans-serif">System Dashboard 👋</h2>

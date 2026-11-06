@@ -2,7 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="OJ Schools">
+  <meta name="theme-color" content="#0a192f">
+  <meta name="format-detection" content="telephone=no">
   <title>OJ SCHOOLS — Knowledge, Diligence & Distinction | Admissions 2026/2027</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%230a192f%22/><text y=%2224%22 x=%224%22 font-size=%2222%22>🏫</text></svg>">
 
@@ -46,6 +52,25 @@
   <link rel="stylesheet" href="css/custom.css">
 
   <style>
+    /* Cross-platform Touch & Gesture Foundations */
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-rendering: optimizeLegibility;
+      scroll-behavior: smooth;
+    }
+    body {
+      -webkit-overflow-scrolling: touch;
+    }
+    button, a, input, select, textarea {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    @media (hover: none) and (pointer: coarse) {
+      input, select, textarea {
+        font-size: 16px !important;
+      }
+    }
+
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
     h1,h2,h3,h4 { font-family: 'Outfit', sans-serif; }
 
@@ -803,7 +828,7 @@
         </div>
       </div>
 
-      <div class="pt-7 pb-20 md:pb-0 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+      <div class="pt-7 pb-24 md:pb-0 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500" style="padding-bottom: max(85px, calc(72px + env(safe-area-inset-bottom, 0px)));">
         <span>&copy; 2026 OJ Schools. All Rights Reserved.</span>
         <span>Academic Session 2026/2027</span>
       </div>
@@ -811,7 +836,7 @@
   </footer>
 
   <!-- ═══════════════ MOBILE QUICK ACTION DOCK ═══════════════ -->
-  <aside class="md:hidden fixed bottom-3 left-3 right-3 z-40" aria-label="Quick Actions">
+  <aside class="md:hidden fixed left-3 right-3 z-40" style="bottom: max(12px, calc(10px + env(safe-area-inset-bottom, 0px)));" aria-label="Quick Actions">
     <div class="bg-navy-950/92 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl flex items-center justify-between gap-2">
       <a href="tel:08031234567" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition">
         <i class="fas fa-phone-alt text-emerald-400 text-xs"></i> <span>Call Us</span>

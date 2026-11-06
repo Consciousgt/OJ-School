@@ -124,6 +124,13 @@ const OJSchoolsApp = (() => {
     const headerTitle = document.getElementById("page-title");
     if (headerTitle) headerTitle.textContent = pageTitleMap[tab] || "OJ Schools Admin";
 
+    // Bottom dock indicator & More button active state
+    const bottomTabs = ["dashboard", "learners", "class-hub", "payments"];
+    const moreBtn = document.getElementById("mob-more-btn");
+    if (moreBtn) {
+      moreBtn.classList.toggle("active", !bottomTabs.includes(tab));
+    }
+
     // Close mobile sidebar on tab switch
     closeMobileSidebar();
 
@@ -1584,6 +1591,7 @@ const OJSchoolsApp = (() => {
     savePayment,
     deletePayment,
     openExpenseModal,
+    openAddExpenseModal: openExpenseModal,
     saveExpense,
     deleteExpense,
     openStudentProfile,
