@@ -118,6 +118,8 @@ const OJSchoolsApp = (() => {
       expenses:     "Expenses Ledger",
       reports:      "Reports & Exports",
       debtors:      "Debtors Schedule",
+      salary:       "Staff Salary & Payroll",
+      stocks:       "Stock & Inventory Ledger",
       "audit-logs": "Audit Trail",
       settings:     "School Settings & Fee Tariffs"
     };
@@ -1620,7 +1622,725 @@ const OJSchoolsApp = (() => {
   }
 
   // Public API
-  return {
+  
+  let _modalScrollY = 0;
+  function openModal(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove("hidden");
+    if (!document.body.classList.contains("modal-open")) {
+      _modalScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+      document.body.classList.add("modal-open");
+      document.body.style.top = `-${_modalScrollY}px`;
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+    }
+  }
+
+  function closeModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add("hidden");
+    const openModals = document.querySelectorAll(".modal-overlay:not(.hidden)");
+    if (!openModals || openModals.length === 0) {
+      document.body.classList.remove("modal-open");
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      window.scrollTo({ top: _modalScrollY, behavior: "instant" });
+    }
+  }
+
+  function showConfirmModal(message, onYes, onNo) {
+    const el = document.getElementById("modal-confirm");
+    const msgEl = document.getElementById("confirm-message");
+    const yesBtn = document.getElementById("confirm-yes-btn");
+    const noBtn = document.getElementById("confirm-no-btn");
+    if (!el || !msgEl || !yesBtn || !noBtn) {
+      if (window.confirm(message.replace(/<[^>]*>/g, ""))) {
+        if (onYes) onYes();
+      } else {
+        if (onNo) onNo();
+      }
+      return;
+    }
+    msgEl.innerHTML = message;
+    el.classList.remove("hidden");
+    el.style.display = "flex";
+    const cleanup = () => {
+      el.style.display = "none";
+      el.classList.add("hidden");
+      yesBtn.onclick = null;
+      noBtn.onclick = null;
+    };
+    yesBtn.onclick = () => {
+      cleanup();
+      if (typeof onYes === "function") onYes();
+    };
+    noBtn.onclick = () => {
+      cleanup();
+      if (typeof onNo === "function") onNo();
+    };
+  }
+
+
+function checkStockAlerts() {
+    if (!window.OJSchoolsDB || !window.OJSchoolsDB.getStockAlerts) return;
+    const alerts = OJSchoolsDB.getStockAlerts();
+    const badgeEl = document.getElementById("stock-alert-badge");
+    const totalAlerts = (alerts.outOfStock?.length || 0) + (alerts.lowStock?.length || 0);
+
+    if (badgeEl) {
+      if (totalAlerts > 0) {
+        badgeEl.textContent = totalAlerts;
+        badgeEl.style.display = "inline-flex";
+      } else {
+        badgeEl.style.display = "none";
+      }
+    }
+  }
+
+  function loadStocksTab() {
+    OJSchoolsDB.recalculateStockQuantities();
+    const stocks = OJSchoolsDB.getStocks();
+    const summary = OJSchoolsDB.getStockSummary();
+    const alerts = OJSchoolsDB.getStockAlerts();
+    const fmt = n => Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // Update summary stat cards
+    _setText("stk-total-items", summary.totalItems);
+    _setText("stk-total-revenue", "₦" + fmt(summary.totalSaleRevenue));
+    _setText("stk-gross-profit", "₦" + fmt(summary.grossProfit));
+    _setText("stk-valuation", "₦" + fmt(summary.totalStockValuation));
+    _setText("stk-items-sold", summary.totalItemsSold);
+    _setText("stk-out-of-stock", summary.outOfStockCount);
+    _setText("stk-low-stock", summary.lowStockCount);
+
+    // Dynamic Alert Banners
+    const alertContainer = document.getElementById("stk-alerts-container");
+    if (alertContainer) {
+      let html = "";
+      if (alerts.outOfStock.length) {
+        html += `<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px">
+          <i class="fas fa-times-circle" style="color:#dc2626;font-size:20px;flex-shrink:0"></i>
+          <div>
+            <strong style="color:#b91c1c;font-size:13px">Out of Stock (${alerts.outOfStock.length} items):</strong>
+            <div style="color:#7f1d1d;font-size:12px;margin-top:2px">${alerts.outOfStock.map(s => `<b>${s.name}</b>`).join(", ")} — <i>Restock required immediately!</i></div>
+          </div>
+        </div>`;
+      }
+      if (alerts.lowStock.length) {
+        html += `<div style="background:#fef9c3;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px">
+          <i class="fas fa-exclamation-triangle" style="color:#d97706;font-size:20px;flex-shrink:0"></i>
+          <div>
+            <strong style="color:#92400e;font-size:13px">Low Stock Warning (< 20% remaining, ${alerts.lowStock.length} items):</strong>
+            <div style="color:#78350f;font-size:12px;margin-top:2px">${alerts.lowStock.map(s => `<b>${s.name}</b> (${s.quantityLeft} ${s.unit || 'unit'}(s) left)`).join(", ")}</div>
+          </div>
+        </div>`;
+      }
+      alertContainer.innerHTML = html;
+      alertContainer.style.display = html ? "block" : "none";
+    }
+
+    // Filter stocks
+    const catFilter = document.getElementById("stk-cat-filter")?.value || "All";
+    const statusFilter = document.getElementById("stk-status-filter")?.value || "All";
+    const searchFilter = document.getElementById("stk-search-filter")?.value.toLowerCase().trim() || "";
+
+    const filtered = stocks.filter(s => {
+      if (catFilter !== "All" && s.category !== catFilter) return false;
+      if (statusFilter !== "All" && s.status !== statusFilter) return false;
+      if (searchFilter && !s.name.toLowerCase().includes(searchFilter) && !s.category.toLowerCase().includes(searchFilter)) return false;
+      return true;
+    });
+
+    const tbody = document.getElementById("stock-table-body");
+    if (!tbody) return;
+
+    tbody.innerHTML = filtered.length ? filtered.map(s => {
+      const pctLeft = s.totalReceived > 0 ? Math.round((s.quantityLeft / s.totalReceived) * 100) : 0;
+      let stockStatus = "In Stock";
+      let stockStatusColor = "#15803d";
+      let stockStatusBg = "#dcfce7";
+      if (s.quantityLeft === 0) {
+        stockStatus = "Out of Stock";
+        stockStatusColor = "#b91c1c";
+        stockStatusBg = "#fee2e2";
+      } else if (s.quantityLeft <= s.lowStockThreshold) {
+        stockStatus = "Low Stock (<20%)";
+        stockStatusColor = "#92400e";
+        stockStatusBg = "#fef9c3";
+      }
+
+      const profitPerUnit = s.sellingPrice - s.costPrice;
+      const profitMargin = s.sellingPrice > 0 ? Math.round((profitPerUnit / s.sellingPrice) * 100) : 0;
+
+      return `<tr>
+        <td style="font-weight:700;max-width:200px">
+          <div style="font-size:13px;color:#0f172a">${s.name}</div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px"><span class="badge" style="background:#f1f5f9;color:#475569;font-size:10px">${s.category}</span> · ${s.unit}</div>
+        </td>
+        <td style="text-align:right;color:#0369a1;font-weight:700">₦${fmt(s.costPrice)}</td>
+        <td style="text-align:right;color:green;font-weight:700">₦${fmt(s.sellingPrice)}</td>
+        <td style="text-align:center">${s.openingQty}</td>
+        <td style="text-align:center;color:#7c3aed;font-weight:700">+${s.quantityRestocked || 0}</td>
+        <td style="text-align:center;color:#d97706;font-weight:700">${s.quantitySold || 0}</td>
+        <td style="text-align:center">
+          <span style="font-weight:800;font-size:14px;color:${stockStatusColor}">${s.quantityLeft}</span>
+          <div style="background:#e2e8f0;border-radius:4px;height:5px;width:70px;margin:3px auto 0;overflow:hidden">
+            <div style="background:${stockStatusColor};height:5px;width:${Math.min(100, pctLeft)}%;border-radius:4px"></div>
+          </div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:2px">${pctLeft}% left</div>
+        </td>
+        <td><span style="background:${stockStatusBg};color:${stockStatusColor};padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap">${stockStatus}</span></td>
+        <td style="text-align:right;font-size:11.5px;color:${profitPerUnit >= 0 ? '#15803d' : '#b91c1c'};font-weight:700">${profitMargin}%</td>
+        <td style="white-space:nowrap">
+          <button class="btn-icon" style="color:#0369a1" onclick="OJSchoolsApp.openSellStockModal('${s.id}')" title="Sell / Dispense Item"><i class="fas fa-shopping-cart"></i></button>
+          <button class="btn-icon" style="color:#15803d" onclick="OJSchoolsApp.openRestockModal('${s.id}')" title="Restock Inventory"><i class="fas fa-plus-circle"></i></button>
+          <button class="btn-icon" style="color:#7c3aed" onclick="OJSchoolsApp.openEditStockModal('${s.id}')" title="Edit Item"><i class="fas fa-edit"></i></button>
+          <button class="btn-icon btn-danger" onclick="OJSchoolsApp.confirmDeleteStock('${s.id}')" title="Delete Item"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>`;
+    }).join("") : `<tr><td colspan="10" class="empty-cell"><i class="fas fa-boxes" style="font-size:32px;opacity:.3;margin-bottom:8px;display:block"></i>No stock items found. Click "Add Stock Item" above to add uniforms, books, or supplies.</td></tr>`;
+
+    checkStockAlerts();
+  }
+
+  // ── STOCK MODALS ───────────────────────────────────────────────────────────
+  function openAddStockModal() {
+    const form = document.getElementById("add-stock-form");
+    if (!form) return;
+    form.reset();
+    bindCurrencyInput(form.querySelector("#add-stk-cost"));
+    bindCurrencyInput(form.querySelector("#add-stk-sell"));
+    openModal("modal-add-stock");
+  }
+
+  function handleAddStockSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const name = form.querySelector("#add-stk-name").value.trim();
+    const category = form.querySelector("#add-stk-category").value;
+    const unit = form.querySelector("#add-stk-unit").value;
+    const costPrice = parseAmount(form.querySelector("#add-stk-cost").value);
+    const sellingPrice = parseAmount(form.querySelector("#add-stk-sell").value);
+    const openingQty = parseInt(form.querySelector("#add-stk-qty").value) || 0;
+    const description = form.querySelector("#add-stk-desc").value.trim();
+
+    if (!name) return showAlert("Please enter the stock item name.");
+    if (sellingPrice <= 0) return showAlert("Please enter a valid selling price.");
+
+    const item = OJSchoolsDB.addStockItem({ name, category, unit, costPrice, sellingPrice, openingQty, description });
+    closeModal("modal-add-stock");
+    loadStocksTab();
+    loadDashboard();
+    showToast(`✓ "${item.name}" added to stock inventory`, "success");
+  }
+
+  function openEditStockModal(stockId) {
+    const item = OJSchoolsDB.getStockById(stockId);
+    if (!item) return;
+    const form = document.getElementById("edit-stock-form");
+    if (!form) return;
+    form.querySelector("#edit-stk-id").value = item.id;
+    form.querySelector("#edit-stk-name").value = item.name;
+    form.querySelector("#edit-stk-category").value = item.category;
+    form.querySelector("#edit-stk-unit").value = item.unit || "piece";
+    form.querySelector("#edit-stk-cost").value = formatAmount(item.costPrice, true);
+    form.querySelector("#edit-stk-sell").value = formatAmount(item.sellingPrice, true);
+    form.querySelector("#edit-stk-qty").value = item.openingQty;
+    form.querySelector("#edit-stk-desc").value = item.description || "";
+    form.querySelector("#edit-stk-status").value = item.status || "active";
+    bindCurrencyInput(form.querySelector("#edit-stk-cost"));
+    bindCurrencyInput(form.querySelector("#edit-stk-sell"));
+    openModal("modal-edit-stock");
+  }
+
+  function handleEditStockSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const id = form.querySelector("#edit-stk-id").value;
+    const name = form.querySelector("#edit-stk-name").value.trim();
+    const sellingPrice = parseAmount(form.querySelector("#edit-stk-sell").value);
+    const costPrice = parseAmount(form.querySelector("#edit-stk-cost").value);
+    if (!name) return showAlert("Stock item name is required.");
+    if (sellingPrice <= 0) return showAlert("Please enter a valid selling price.");
+    OJSchoolsDB.updateStockItem(id, {
+      name,
+      category: form.querySelector("#edit-stk-category").value,
+      unit: form.querySelector("#edit-stk-unit").value,
+      costPrice,
+      sellingPrice,
+      openingQty: parseInt(form.querySelector("#edit-stk-qty").value) || 0,
+      description: form.querySelector("#edit-stk-desc").value.trim(),
+      status: form.querySelector("#edit-stk-status").value
+    });
+    closeModal("modal-edit-stock");
+    loadStocksTab();
+    loadDashboard();
+    showToast(`✓ Stock item updated`, "success");
+  }
+
+  function openSellStockModal(stockId) {
+    const item = OJSchoolsDB.getStockById(stockId);
+    if (!item) return;
+    if (item.quantityLeft <= 0) return showToast(`⚠ "${item.name}" is out of stock!`, "error");
+    const form = document.getElementById("sell-stock-form");
+    if (!form) return;
+    form.querySelector("#sell-stk-id").value = item.id;
+    form.querySelector("#sell-stk-item-info").textContent = `${item.name} — ${item.quantityLeft} ${item.unit || 'unit'}(s) available @ ₦${formatAmount(item.sellingPrice, true)} each`;
+    form.querySelector("#sell-stk-price").value = formatAmount(item.sellingPrice, true);
+    form.querySelector("#sell-stk-qty").value = 1;
+    form.querySelector("#sell-stk-date").value = new Date().toISOString().split("T")[0];
+    form.querySelector("#sell-stk-student").value = "";
+    form.querySelector("#sell-stk-notes").value = "";
+    bindCurrencyInput(form.querySelector("#sell-stk-price"));
+    _updateSellTotal(item);
+    openModal("modal-sell-stock");
+  }
+
+  function _updateSellTotal(item = null) {
+    const form = document.getElementById("sell-stock-form");
+    if (!form) return;
+    const stockId = form.querySelector("#sell-stk-id")?.value;
+    const currentItem = item || (stockId ? OJSchoolsDB.getStockById(stockId) : null);
+    const qty = parseInt(form.querySelector("#sell-stk-qty")?.value) || 1;
+    const price = parseAmount(form.querySelector("#sell-stk-price")?.value) || (currentItem ? currentItem.sellingPrice : 0);
+    const totalEl = document.getElementById("sell-stk-total-display");
+    if (totalEl) totalEl.textContent = "₦" + formatAmount(qty * price, true);
+  }
+
+  function handleSellStockSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const stockId = form.querySelector("#sell-stk-id").value;
+    const qty = parseInt(form.querySelector("#sell-stk-qty").value) || 1;
+    const sellingPrice = parseAmount(form.querySelector("#sell-stk-price").value);
+    const studentName = form.querySelector("#sell-stk-student").value.trim() || "Walk-in Customer";
+    const date = form.querySelector("#sell-stk-date").value;
+    const paymentMethod = form.querySelector("#sell-stk-method").value;
+    const notes = form.querySelector("#sell-stk-notes").value.trim();
+    if (qty < 1) return showAlert("Quantity must be at least 1.");
+    if (!date) return showAlert("Please select a sale date.");
+    const result = OJSchoolsDB.recordStockSale({ stockId, quantity: qty, sellingPrice, studentName, date, paymentMethod, notes });
+    if (result && result.error) return showAlert(result.error, 'warning', 4000);
+    closeModal("modal-sell-stock");
+    loadStocksTab();
+    loadDashboard();
+    loadOverviewTab();
+    showToast(`✓ Sale recorded — ₦${formatAmount(result.totalRevenue, true)} revenue`, "success");
+  }
+
+  function openRestockModal(stockId) {
+    const item = OJSchoolsDB.getStockById(stockId);
+    if (!item) return;
+    const form = document.getElementById("restock-form");
+    if (!form) return;
+    form.querySelector("#restock-stk-id").value = item.id;
+    form.querySelector("#restock-stk-item-info").textContent = `${item.name} — currently ${item.quantityLeft} ${item.unit || 'unit'}(s) in stock`;
+    form.querySelector("#restock-stk-cost").value = formatAmount(item.costPrice, true);
+    form.querySelector("#restock-stk-qty").value = "";
+    form.querySelector("#restock-stk-date").value = new Date().toISOString().split("T")[0];
+    form.querySelector("#restock-stk-supplier").value = "";
+    form.querySelector("#restock-stk-invoice").value = "";
+    bindCurrencyInput(form.querySelector("#restock-stk-cost"));
+    openModal("modal-restock-stock");
+  }
+
+  function handleRestockSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const stockId = form.querySelector("#restock-stk-id").value;
+    const qty = parseInt(form.querySelector("#restock-stk-qty").value) || 0;
+    const costPrice = parseAmount(form.querySelector("#restock-stk-cost").value);
+    const date = form.querySelector("#restock-stk-date").value;
+    const supplier = form.querySelector("#restock-stk-supplier").value.trim();
+    const invoiceNo = form.querySelector("#restock-stk-invoice").value.trim();
+    if (qty < 1) return showAlert("Quantity to restock must be at least 1.");
+    if (!date) return showAlert("Please select a restock date.");
+    const result = OJSchoolsDB.restockItem(stockId, { quantity: qty, costPrice, date, supplier, invoiceNo });
+    if (!result) return showAlert("Could not find the stock item.");
+    closeModal("modal-restock-stock");
+    loadStocksTab();
+    loadDashboard();
+    loadOverviewTab();
+    showToast(`✓ Restocked ${qty} unit(s) — ₦${formatAmount(result.totalCost, true)} cost`, "success");
+  }
+
+  function confirmDeleteStock(stockId) {
+    const item = OJSchoolsDB.getStockById(stockId);
+    if (!item) return;
+    showConfirm(`⚠️ Delete <strong>${item.name}</strong> from inventory?<br><small style="color:#64748b">This also removes all associated sales and restock records.<br>This action cannot be undone.</small>`, () => {
+      OJSchoolsDB.deleteStockItem(stockId);
+      loadStocksTab();
+      loadDashboard();
+      loadOverviewTab();
+      showToast(`Deleted: ${item.name}`, "warning");
+    });
+  }
+
+  // ── STUDENT PROFILE MODAL ─────────────────────────────────────────────────
+  
+
+function loadSalaryTab() {
+    const secFilter = document.getElementById("sal-filter-section")?.value || "All";
+    const monthFilter = document.getElementById("sal-filter-month")?.value || "All";
+    const yearFilter = document.getElementById("sal-filter-year")?.value || "All";
+    const searchFilter = (document.getElementById("sal-filter-search")?.value || "").trim().toLowerCase();
+
+    // 1. Fetch data
+    const allStaff = OJSchoolsDB.getStaff({
+      section: secFilter !== "All" ? secFilter : "All",
+      search: searchFilter
+    });
+
+    const payments = OJSchoolsDB.getSalaryPayments({
+      section: secFilter !== "All" ? secFilter : "All",
+      month: monthFilter !== "All" ? monthFilter : "All",
+      year: yearFilter !== "All" ? yearFilter : "All",
+      search: searchFilter
+    });
+
+    // 2. Render Summary KPI Cards
+    renderSalarySummaryCards(payments, secFilter);
+
+    // 3. Render Salary Payments Register Table
+    const countEl = document.getElementById("sal-payment-count");
+    if (countEl) countEl.textContent = payments.length;
+
+    const tbody = document.getElementById("sal-payments-body");
+    if (tbody) {
+      if (!payments.length) {
+        tbody.innerHTML = '<tr><td colspan="10" class="empty-cell">No salary payments found matching your filter criteria.</td></tr>';
+      } else {
+        tbody.innerHTML = payments.map((p, idx) => {
+          const badgeStyle = SALARY_SECTION_BADGES[p.section] || "background:#f1f5f9;color:#334155";
+          const secName = SALARY_SECTION_NAMES[p.section] || p.section;
+          const monthStr = SALARY_MONTH_NAMES[p.month] || p.month;
+          return `
+            <tr>
+              <td style="color:var(--gray-400);font-size:11px">${idx + 1}</td>
+              <td style="white-space:nowrap;font-size:12px">${p.date || "&mdash;"}</td>
+              <td style="font-weight:700;color:var(--gray-900)">${p.staffName}</td>
+              <td><span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:10.5px;font-weight:700;${badgeStyle}">${secName}</span></td>
+              <td style="color:var(--gray-600);font-size:12px">${p.role || "&mdash;"}</td>
+              <td style="font-weight:600;font-size:12px">${monthStr} ${p.year}</td>
+              <td style="text-align:right;font-weight:800;color:#059669;font-size:13px">&#8358;${Number(p.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+              <td style="font-size:11.5px;color:var(--gray-700)">${p.method || "&mdash;"}</td>
+              <td style="font-size:11px;color:var(--gray-500);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${p.notes || ''}">${p.notes || "&mdash;"}</td>
+              <td style="text-align:center">
+                <button class="btn-icon btn-danger" title="Delete Payment Record" onclick="OJSchoolsApp.deleteSalaryPayment('${p.id}', '${(p.staffName || '').replace(/'/g, "\\'")}', '${monthStr} ${p.year}')">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      }
+    }
+
+    // 4. Render Staff Directory Table
+    const staffCountEl = document.getElementById("sal-staff-count");
+    if (staffCountEl) staffCountEl.textContent = allStaff.length;
+
+    const staffTbody = document.getElementById("sal-staff-body");
+    if (staffTbody) {
+      if (!allStaff.length) {
+        staffTbody.innerHTML = '<tr><td colspan="8" class="empty-cell">No staff enrolled yet. Click &ldquo;Add Staff&rdquo; to register teachers and personnel.</td></tr>';
+      } else {
+        staffTbody.innerHTML = allStaff.map((s, idx) => {
+          const badgeStyle = SALARY_SECTION_BADGES[s.section] || "background:#f1f5f9;color:#334155";
+          const secName = SALARY_SECTION_NAMES[s.section] || s.section;
+          return `
+            <tr>
+              <td style="color:var(--gray-400);font-size:11px">${idx + 1}</td>
+              <td style="font-weight:700;color:var(--gray-900)">${s.name}</td>
+              <td><span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:10.5px;font-weight:700;${badgeStyle}">${secName}</span></td>
+              <td style="color:var(--gray-700);font-size:12px">${s.role || "&mdash;"}</td>
+              <td style="text-align:right;font-weight:700;color:var(--gray-800);font-size:12.5px">&#8358;${Number(s.baseSalary || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+              <td style="font-size:11.5px;color:var(--gray-600)">
+                ${s.bank ? `<b>${s.bank}</b> &bull; <span style="font-family:monospace">${s.accountNo || ''}</span>` : '&mdash;'}
+              </td>
+              <td style="font-size:12px;color:var(--gray-600)">${s.phone || "&mdash;"}</td>
+              <td style="text-align:center;white-space:nowrap">
+                <button class="btn-icon" style="background:#eff6ff;color:#0284c7" title="Quick Pay Salary" onclick="OJSchoolsApp.openPaySalaryModal('${s.id}')">
+                  <i class="fas fa-hand-holding-usd"></i>
+                </button>
+                <button class="btn-icon" style="background:#f1f5f9;color:#334155" title="Edit Staff Profile" onclick="OJSchoolsApp.openEditStaffModal('${s.id}')">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-icon btn-danger" title="Delete Staff" onclick="OJSchoolsApp.deleteStaff('${s.id}', '${(s.name || '').replace(/'/g, "\\'")}')">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      }
+    }
+  }
+
+  function renderSalarySummaryCards(payments, secFilter) {
+    const container = document.getElementById("sal-summary-cards");
+    if (!container) return;
+
+    const totalPaid = Math.round(payments.reduce((s, p) => s + (Number(p.amount) || 0), 0) * 100) / 100;
+    const bySection = { primary: 0, junior: 0, senior: 0, general: 0 };
+    payments.forEach(p => {
+      const sec = p.section || "general";
+      bySection[sec] = (bySection[sec] || 0) + (Number(p.amount) || 0);
+    });
+
+    const cards = [
+      {
+        label: "Total Salaries Paid",
+        amount: totalPaid,
+        sub: `${payments.length} payment voucher(s)`,
+        color: "#059669",
+        bg: "#ecfdf5",
+        icon: "fas fa-money-bill-wave"
+      },
+      {
+        label: "Primary School Salaries",
+        amount: bySection.primary,
+        sub: "&darr; Deducted from Primary Revenue",
+        color: "#16a34a",
+        bg: "#f0fdf4",
+        icon: "fas fa-child"
+      },
+      {
+        label: "Junior College Salaries",
+        amount: bySection.junior,
+        sub: "&darr; Deducted from Junior Revenue",
+        color: "#0284c7",
+        bg: "#f0f9ff",
+        icon: "fas fa-school"
+      },
+      {
+        label: "Senior College Salaries",
+        amount: bySection.senior,
+        sub: "&darr; Deducted from Senior Revenue",
+        color: "#7c3aed",
+        bg: "#faf5ff",
+        icon: "fas fa-graduation-cap"
+      },
+      {
+        label: "General / Admin Salaries",
+        amount: bySection.general,
+        sub: "&darr; Central Operations Overhead",
+        color: "#d97706",
+        bg: "#fffbeb",
+        icon: "fas fa-building"
+      }
+    ];
+
+    container.innerHTML = cards.map(c => `
+      <div class="stat-card" style="border-left:4px solid ${c.color}">
+        <div class="stat-icon" style="background:${c.bg};color:${c.color}"><i class="${c.icon}"></i></div>
+        <div style="flex:1;min-width:0">
+          <div class="stat-value" style="font-size:16px">&#8358;${c.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+          <div class="stat-label" style="font-weight:700;color:var(--gray-800)">${c.label}</div>
+          <div style="font-size:10px;color:var(--gray-500);margin-top:2px">${c.sub}</div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function resetSalaryFilters() {
+    const sec = document.getElementById("sal-filter-section");
+    if (sec) sec.value = "All";
+    const month = document.getElementById("sal-filter-month");
+    if (month) month.value = "All";
+    const year = document.getElementById("sal-filter-year");
+    if (year) year.value = new Date().getFullYear();
+    const search = document.getElementById("sal-filter-search");
+    if (search) search.value = "";
+    loadSalaryTab();
+  }
+
+  function openAddStaffModal() {
+    const titleEl = document.getElementById("staff-modal-title");
+    if (titleEl) titleEl.innerHTML = '<i class="fas fa-user-plus" style="color:#059669"></i> Add Staff Member';
+    document.getElementById("staff-edit-id").value = "";
+    document.getElementById("staff-name").value = "";
+    document.getElementById("staff-section").value = "primary";
+    document.getElementById("staff-role").value = "";
+    document.getElementById("staff-base-salary").value = "";
+    document.getElementById("staff-bank").value = "";
+    document.getElementById("staff-account-no").value = "";
+    document.getElementById("staff-phone").value = "";
+    openModal("modal-add-staff");
+  }
+
+  function openEditStaffModal(staffId) {
+    const staff = OJSchoolsDB.getStaffById(staffId);
+    if (!staff) return showAlert("Staff record not found.", "error");
+
+    const titleEl = document.getElementById("staff-modal-title");
+    if (titleEl) titleEl.innerHTML = '<i class="fas fa-edit" style="color:#0284c7"></i> Edit Staff Member Profile';
+    document.getElementById("staff-edit-id").value = staff.id;
+    document.getElementById("staff-name").value = staff.name || "";
+    document.getElementById("staff-section").value = staff.section || "general";
+    document.getElementById("staff-role").value = staff.role || "";
+    document.getElementById("staff-base-salary").value = staff.baseSalary || "";
+    document.getElementById("staff-bank").value = staff.bank || "";
+    document.getElementById("staff-account-no").value = staff.accountNo || "";
+    document.getElementById("staff-phone").value = staff.phone || "";
+    openModal("modal-add-staff");
+  }
+
+  function saveStaff() {
+    const id = document.getElementById("staff-edit-id").value;
+    const name = (document.getElementById("staff-name").value || "").trim();
+    const section = document.getElementById("staff-section").value;
+    const role = (document.getElementById("staff-role").value || "").trim();
+    const baseSalary = parseFloat(document.getElementById("staff-base-salary").value) || 0;
+    const bank = (document.getElementById("staff-bank").value || "").trim();
+    const accountNo = (document.getElementById("staff-account-no").value || "").trim();
+    const phone = (document.getElementById("staff-phone").value || "").trim();
+
+    if (!name) return showAlert("Please enter the staff member's full name.", "warning");
+    if (!role) return showAlert("Please enter the staff member's role or designation.", "warning");
+
+    const fields = { name, section, role, baseSalary, bank, accountNo, phone };
+
+    if (id) {
+      OJSchoolsDB.updateStaff(id, fields);
+      showToast("Staff profile updated successfully.", "success");
+    } else {
+      OJSchoolsDB.addStaff(fields);
+      showToast("Staff member enrolled successfully.", "success");
+    }
+
+    closeModal("modal-add-staff");
+    loadSalaryTab();
+  }
+
+  function deleteStaff(id, name) {
+    showConfirm(`Are you sure you want to delete staff member "${name}"? Existing recorded salary disbursement history will remain intact.`, () => {
+      OJSchoolsDB.deleteStaff(id);
+      showToast("Staff record removed.", "info");
+      loadSalaryTab();
+    });
+  }
+
+  function openPaySalaryModal(preselectedStaffId = null) {
+    const staffList = OJSchoolsDB.getStaff();
+    const selectEl = document.getElementById("sal-pay-staff");
+    if (!selectEl) return;
+
+    selectEl.innerHTML = '<option value="">-- Select Staff Member --</option>' +
+      staffList.map(s => {
+        const secLabel = SALARY_SECTION_NAMES[s.section] || s.section;
+        return `<option value="${s.id}" data-section="${s.section}" data-role="${s.role || ''}" data-salary="${s.baseSalary || 0}">${s.name} (${secLabel} &bull; ${s.role || 'Staff'})</option>`;
+      }).join("");
+
+    if (preselectedStaffId) {
+      selectEl.value = preselectedStaffId;
+      onSalaryStaffSelect();
+    } else {
+      document.getElementById("sal-pay-section").value = "primary";
+      document.getElementById("sal-pay-role").value = "";
+      document.getElementById("sal-pay-amount").value = "";
+    }
+
+    // Default month to current month, date to today
+    const now = new Date();
+    document.getElementById("sal-pay-month").value = String(now.getMonth() + 1);
+    document.getElementById("sal-pay-year").value = String(now.getFullYear());
+    document.getElementById("sal-pay-date").value = now.toISOString().split("T")[0];
+    document.getElementById("sal-pay-notes").value = "";
+
+    openModal("modal-pay-salary");
+  }
+
+  function onSalaryStaffSelect() {
+    const selectEl = document.getElementById("sal-pay-staff");
+    const opt = selectEl?.options[selectEl.selectedIndex];
+    if (!opt || !opt.value) return;
+
+    const sec = opt.getAttribute("data-section") || "general";
+    const role = opt.getAttribute("data-role") || "";
+    const salary = opt.getAttribute("data-salary") || "";
+
+    const secEl = document.getElementById("sal-pay-section");
+    if (secEl) secEl.value = sec;
+
+    const roleEl = document.getElementById("sal-pay-role");
+    if (roleEl) roleEl.value = role;
+
+    const amtEl = document.getElementById("sal-pay-amount");
+    if (amtEl && salary && Number(salary) > 0) amtEl.value = salary;
+  }
+
+  function saveSalaryPayment() {
+    const staffSelect = document.getElementById("sal-pay-staff");
+    const staffId = staffSelect?.value;
+    const opt = staffSelect?.options[staffSelect.selectedIndex];
+    if (!staffId || !opt) return showAlert("Please select a staff member to record salary payment.", "warning");
+
+    const staffName = opt.text.split(" (")[0].trim();
+    const section = document.getElementById("sal-pay-section").value;
+    const role = (document.getElementById("sal-pay-role").value || "").trim();
+    const month = document.getElementById("sal-pay-month").value;
+    const year = document.getElementById("sal-pay-year").value;
+    const amount = parseFloat(document.getElementById("sal-pay-amount").value);
+    const method = document.getElementById("sal-pay-method").value;
+    const date = document.getElementById("sal-pay-date").value;
+    const notes = (document.getElementById("sal-pay-notes").value || "").trim();
+
+    if (!amount || amount <= 0) return showAlert("Please enter a valid salary payment amount greater than zero.", "warning");
+    if (!date) return showAlert("Please select the payment date.", "warning");
+
+    // Optional duplicate payment check
+    const existing = OJSchoolsDB.getSalaryPayments({ staffId, month, year });
+    if (existing.length > 0) {
+      const monthName = SALARY_MONTH_NAMES[month] || month;
+      if (!confirm(`Warning: A salary payment for ${staffName} for ${monthName} ${year} already exists (₦${existing[0].amount.toLocaleString()}). Record another payment anyway?`)) {
+        return;
+      }
+    }
+
+    const payment = OJSchoolsDB.addSalaryPayment({
+      staffId,
+      staffName,
+      section,
+      role,
+      month,
+      year,
+      amount,
+      method,
+      date,
+      notes
+    });
+
+    const monthName = SALARY_MONTH_NAMES[month] || month;
+    showToast(`Salary payment of ₦${amount.toLocaleString()} recorded for ${staffName} (${monthName} ${year}) & deducted from ${SALARY_SECTION_NAMES[section] || section} revenue.`, "success");
+    closeModal("modal-pay-salary");
+    loadSalaryTab();
+  }
+
+  function deleteSalaryPayment(id, staffName, period) {
+    showConfirm(`Are you sure you want to delete the salary payment for ${staffName} (${period})? The linked expense deduction will also be reversed.`, () => {
+      OJSchoolsDB.deleteSalaryPayment(id);
+      showToast("Salary payment record deleted and expense reversed.", "info");
+      loadSalaryTab();
+    });
+  }
+
+  function printSalaryReport() {
+    const year = document.getElementById("sal-filter-year")?.value || new Date().getFullYear();
+    const section = document.getElementById("sal-filter-section")?.value || "All";
+    OJSchoolsReports.printSalaryReport({ year, section });
+  }
+
+
+
+  // ════════════════════════════════════════════════════════════════
+  // Expense Category Multi-Select Checkbox Dropdown helpers
+  // ════════════════════════════════════════════════════════════════
+  
+
+return {
     init,
     switchTab,
     refreshCurrentTab,
@@ -1670,6 +2390,7 @@ const OJSchoolsApp = (() => {
 
 if (typeof window !== "undefined") {
   window.OJSchoolsApp = OJSchoolsApp;
+  window.RichVineApp = OJSchoolsApp; // Interoperability alias
 }
 
 document.addEventListener("DOMContentLoaded", OJSchoolsApp.init);

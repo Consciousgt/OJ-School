@@ -738,7 +738,524 @@ const OJSchoolsReports = (() => {
     setTimeout(() => URL.revokeObjectURL(link.href), 5000);
   }
 
-  return {
+  function printSalaryReport(filter = {}) {
+    const db = OJSchoolsDB.get();
+    const targetYear = filter.year && filter.year !== "All" ? Number(filter.year) : (new Date().getFullYear());
+    const targetSection = filter.section || "All";
+
+    const allStaff = OJSchoolsDB.getStaff(targetSection !== "All" ? { section: targetSection } : {});
+    const allSalaries = OJSchoolsDB.getSalaryPayments({ year: targetYear, section: targetSection !== "All" ? targetSection : "All" });
+
+    const SECTION_LABELS = {
+      primary: "Primary School (Deducted from Primary Revenue)",
+      junior: "Junior College (Deducted from Junior Revenue)",
+      senior: "Senior College (Deducted from Senior Revenue)",
+      general: "General / Central Admin (Central Overhead)"
+    };
+
+    const SECTION_SHORT = {
+      primary: "Primary School",
+      junior: "Junior College",
+      senior: "Senior College",
+      general: "General / Admin"
+    };
+
+    const SECTION_COLORS = {
+      primary: "#dcfce7",
+      junior: "#e0f2fe",
+      senior: "#f3e8ff",
+      general: "#fef3c7"
+    };
+
+    const SECTION_TEXT_COLORS = {
+      primary: "#14532d",
+      junior: "#0c4a6e",
+      senior: "#581c87",
+      general: "#78350f"
+    };
+
+    // Combine staff from DB + any staff found in salary payments
+    const staffMap = new Map();
+    allStaff.forEach(s => {
+      staffMap.set(s.id || s.name, {
+        id: s.id,
+        name: s.name,
+        section: s.section || "general",
+        role: s.role || "Staff Member",
+        baseSalary: Number(s.baseSalary) || 0,
+        bank: s.bank || "",
+        accountNo: s.accountNo || "",
+        months: Array(13).fill(0) // 1-indexed (1 to 12)
+      });
+    });
+
+    allSalaries.forEach(p => {
+      const key = p.staffId || p.staffName;
+      if (!staffMap.has(key)) {
+        staffMap.set(key, {
+          id: p.staffId || key,
+          name: p.staffName,
+          section: p.section || "general",
+          role: p.role || "Staff Member",
+          baseSalary: 0,
+          bank: "",
+          accountNo: "",
+          months: Array(13).fill(0)
+        });
+      }
+      const entry = staffMap.get(key);
+      const m = Number(p.month);
+      if (m >= 1 && m <= 12) {
+        entry.months[m] += Number(p.amount) || 0;
+      }
+    });
+
+    const staffList = Array.from(staffMap.values());
+    const sectionsToRender = targetSection === "All" ? ["primary", "junior", "senior", "general"] : [targetSection];
+
+    // Calculate section totals & grand totals
+    const MONTH_NAMES_SHORT = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const grandMonthTotals = Array(13).fill(0);
+    let grandAnnualTotal = 0;
+
+    const sectionSummaries = {};
+    sectionsToRender.forEach(sec => {
+      sectionSummaries[sec] = {
+        total: 0,
+        monthTotals: Array(13).fill(0),
+        count: 0
+      };
+    });
+
+    // Build Excel Table Rows
+    let tableHtml = "";
+    let globalIndex = 0;
+
+    sectionsToRender.forEach(secKey => {
+      const secStaff = staffList.filter(s => s.section === secKey).sort((a, b) => a.name.localeCompare(b.name));
+      const summary = sectionSummaries[secKey];
+
+      // Section Header Row
+      tableHtml += `
+        <tr class="sec-header">
+          <td colspan="16">
+            <span style="font-weight:900;letter-spacing:0.8px">&bull; ${SECTION_LABELS[secKey] || secKey.toUpperCase()}</span>
+            <span style="font-weight:500;font-size:9px;opacity:0.9;margin-left:12px">(${secStaff.length} staff enrolled)</span>
+          </td>
+        </tr>
+      `;
+
+      if (secStaff.length === 0) {
+        tableHtml += `
+          <tr>
+            <td colspan="16" style="text-align:center;padding:10px;color:#94a3b8;font-style:italic">
+              No staff members recorded under ${SECTION_SHORT[secKey] || secKey}.
+            </td>
+          </tr>
+        `;
+      } else {
+        secStaff.forEach(stf => {
+          globalIndex++;
+          summary.count++;
+          let staffRowTotal = 0;
+
+          let monthCells = "";
+          for (let m = 1; m <= 12; m++) {
+            const amt = stf.months[m];
+            staffRowTotal += amt;
+            summary.monthTotals[m] += amt;
+            grandMonthTotals[m] += amt;
+
+            if (amt > 0) {
+              monthCells += `<td class="col-num paid-cell">&#8358;${amt.toLocaleString("en-NG", { maximumFractionDigits: 0 })}</td>`;
+            } else {
+              monthCells += `<td class="col-num empty-month">&mdash;</td>`;
+            }
+          }
+
+          summary.total += staffRowTotal;
+          grandAnnualTotal += staffRowTotal;
+
+          tableHtml += `
+            <tr>
+              <td class="col-sn">${globalIndex}</td>
+              <td class="col-name" title="${stf.name}">${stf.name}</td>
+              <td class="col-role" title="${stf.role}">${stf.role || "&mdash;"}</td>
+              ${monthCells}
+              <td class="col-num col-total">&#8358;${staffRowTotal.toLocaleString("en-NG", { maximumFractionDigits: 0 })}</td>
+            </tr>
+          `;
+        });
+      }
+
+      // Section Subtotal Row
+      let subtotalCells = "";
+      for (let m = 1; m <= 12; m++) {
+        const sAmt = summary.monthTotals[m];
+        subtotalCells += `<td class="col-num" style="font-weight:800">${sAmt > 0 ? '&#8358;' + sAmt.toLocaleString("en-NG", { maximumFractionDigits: 0 }) : '&mdash;'}</td>`;
+      }
+
+      tableHtml += `
+        <tr class="sec-subtotal subtotal-${secKey}">
+          <td colspan="3" style="text-align:right;padding-right:10px;text-transform:uppercase;letter-spacing:0.5px">
+            ${SECTION_SHORT[secKey] || secKey} Subtotal (Deducted):
+          </td>
+          ${subtotalCells}
+          <td class="col-num" style="font-weight:900;font-size:10px;text-decoration:underline">
+            &#8358;${summary.total.toLocaleString("en-NG", { maximumFractionDigits: 0 })}
+          </td>
+        </tr>
+      `;
+    });
+
+    // Grand Total Row (across all sections)
+    let grandCells = "";
+    for (let m = 1; m <= 12; m++) {
+      const gAmt = grandMonthTotals[m];
+      grandCells += `<td class="col-num amount-cell" style="font-weight:900">${gAmt > 0 ? '&#8358;' + gAmt.toLocaleString("en-NG", { maximumFractionDigits: 0 }) : '&mdash;'}</td>`;
+    }
+
+    tableHtml += `
+      <tr class="grand-total">
+        <td colspan="3" style="text-align:right;padding-right:12px;font-weight:900;letter-spacing:0.8px;font-size:10.5px">
+          GRAND TOTAL PAYROLL (ALL SECTIONS):
+        </td>
+        ${grandCells}
+        <td class="col-num amount-cell" style="font-size:11.5px;font-weight:900;text-decoration:underline double">
+          &#8358;${grandAnnualTotal.toLocaleString("en-NG", { maximumFractionDigits: 0 })}
+        </td>
+      </tr>
+    `;
+
+    // High-level KPI Card calculations
+    const primaryTotal = (sectionSummaries.primary?.total) || 0;
+    const juniorTotal  = (sectionSummaries.junior?.total) || 0;
+    const seniorTotal  = (sectionSummaries.senior?.total) || 0;
+    const generalTotal = (sectionSummaries.general?.total) || 0;
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>OJ Schools College - Annual Staff Salary &amp; Payroll Schedule (${targetYear})</title>
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 8mm 7mm 8mm 7mm;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+      font-size: 9.5px;
+      color: #0f172a;
+      background: #ffffff;
+      padding: 0;
+      line-height: 1.25;
+    }
+    .excel-container {
+      width: 100%;
+      margin: 0 auto;
+    }
+    /* Ribbon Banner */
+    .excel-ribbon {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2.5px solid #107c41;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+    .excel-title h1 {
+      font-size: 17px;
+      font-weight: 900;
+      color: #107c41;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .excel-title p {
+      font-size: 11px;
+      color: #1e293b;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+    .excel-title .sub-note {
+      font-size: 9.5px;
+      color: #0369a1;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .excel-meta {
+      text-align: right;
+      font-size: 9px;
+      color: #475569;
+      line-height: 1.35;
+    }
+    /* KPI Ribbon */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .kpi-card {
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 5px 8px;
+      background: #f8fafc;
+    }
+    .kpi-card.kpi-highlight {
+      background: #ecfdf5;
+      border-color: #107c41;
+      border-width: 1.5px;
+    }
+    .kpi-label {
+      font-size: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: #64748b;
+    }
+    .kpi-value {
+      font-size: 12.5px;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 1px;
+    }
+    .kpi-sub {
+      font-size: 8px;
+      color: #059669;
+      margin-top: 1px;
+      font-weight: 600;
+    }
+    /* Spreadsheet Grid */
+    table.excel-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 9px;
+    }
+    table.excel-table th, table.excel-table td {
+      border: 1px solid #94a3b8;
+      padding: 3.5px 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    table.excel-table th {
+      background: #107c41;
+      color: #ffffff;
+      font-weight: 800;
+      text-align: center;
+      font-size: 8.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    table.excel-table th.col-left { text-align: left; }
+    table.excel-table th.col-num { text-align: right; }
+
+    /* Section Header Rows */
+    tr.sec-header td {
+      background: #1e293b;
+      color: #f8fafc;
+      font-weight: 800;
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4.5px 6px;
+    }
+    /* Subtotal Rows */
+    tr.sec-subtotal td {
+      font-weight: 800;
+      font-size: 9px;
+      border-top: 1.5px solid #475569;
+      border-bottom: 1.5px solid #475569;
+    }
+    tr.subtotal-primary td { background: #dcfce7; color: #14532d; }
+    tr.subtotal-junior td  { background: #e0f2fe; color: #0c4a6e; }
+    tr.subtotal-senior td  { background: #f3e8ff; color: #581c87; }
+    tr.subtotal-general td { background: #fef3c7; color: #78350f; }
+
+    /* Grand Total */
+    tr.grand-total td {
+      background: #0f172a;
+      color: #f8fafc;
+      font-weight: 900;
+      font-size: 10px;
+      border-top: 2px solid #000000;
+      border-bottom: 3px double #000000;
+      padding: 5px 4px;
+    }
+    tr.grand-total td.amount-cell {
+      color: #86efac;
+      text-align: right;
+    }
+
+    /* Column Widths & Alignments */
+    td.col-sn { text-align: center; width: 26px; }
+    td.col-name { font-weight: 600; width: 135px; }
+    td.col-role { color: #475569; width: 105px; font-size: 8.5px; }
+    td.col-num { text-align: right; font-variant-numeric: tabular-nums; }
+    td.col-total { text-align: right; font-weight: 800; width: 70px; background-color: #f0fdf4; font-variant-numeric: tabular-nums; }
+    
+    tr:nth-child(even) td.col-num, 
+    tr:nth-child(even) td.col-name, 
+    tr:nth-child(even) td.col-role, 
+    tr:nth-child(even) td.col-sn {
+      background-color: #f8fafc;
+    }
+    td.paid-cell {
+      font-weight: 600;
+      color: #0f172a;
+    }
+    td.empty-month {
+      color: #cbd5e1;
+      text-align: center;
+    }
+
+    /* Footer & Print Controls */
+    .excel-footer {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-size: 8.5px;
+      color: #64748b;
+      border-top: 1px solid #cbd5e1;
+      padding-top: 5px;
+    }
+    .print-controls {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 9999;
+      display: flex;
+      gap: 8px;
+    }
+    .print-btn {
+      background: #107c41;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .print-btn:hover {
+      background: #0d6535;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <div class="print-controls no-print">
+    <button class="print-btn" onclick="window.print()">
+      🖨 Print / Save as PDF (Landscape)
+    </button>
+  </div>
+
+  <div class="excel-container">
+    <!-- Ribbon Header -->
+    <div class="excel-ribbon">
+      <div class="excel-title">
+        <h1>OJ SCHOOLS &mdash; BURSARY DEPARTMENT</h1>
+        <p>STAFF SALARY &amp; PAYROLL SCHEDULE &mdash; ANNUAL DISBURSEMENT LEDGER (${targetYear})</p>
+        <div class="sub-note">
+          &bull; Accounting Rule: Section staff salaries are directly deducted from section revenue (Primary, Junior, Senior, General)
+        </div>
+      </div>
+      <div class="excel-meta">
+        <b>Academic Year:</b> ${targetYear}<br>
+        <b>Section Scope:</b> ${targetSection === "All" ? "All School Sections" : (SECTION_SHORT[targetSection] || targetSection)}<br>
+        <b>Generated:</b> ${new Date().toLocaleDateString("en-GB", { day: '2-digit', month: 'short', year: 'numeric' })} at ${new Date().toLocaleTimeString("en-GB", { hour: '2-digit', minute: '2-digit' })}<br>
+        <b>Prepared by:</b> ${sessionStorage.getItem("oj_admin_username") || "Super Admin"} (Bursar)
+      </div>
+    </div>
+
+    <!-- KPI Summary Row -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Primary School Payroll</div>
+        <div class="kpi-value">&#8358;${primaryTotal.toLocaleString("en-NG", { maximumFractionDigits: 0 })}</div>
+        <div class="kpi-sub">&darr; Deducted from Primary</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Junior College Payroll</div>
+        <div class="kpi-value">&#8358;${juniorTotal.toLocaleString("en-NG", { maximumFractionDigits: 0 })}</div>
+        <div class="kpi-sub">&darr; Deducted from Junior</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Senior College Payroll</div>
+        <div class="kpi-value">&#8358;${seniorTotal.toLocaleString("en-NG", { maximumFractionDigits: 0 })}</div>
+        <div class="kpi-sub">&darr; Deducted from Senior</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">General &amp; Admin Payroll</div>
+        <div class="kpi-value">&#8358;${generalTotal.toLocaleString("en-NG", { maximumFractionDigits: 0 })}</div>
+        <div class="kpi-sub">&darr; Central Operations</div>
+      </div>
+      <div class="kpi-card kpi-highlight">
+        <div class="kpi-label" style="color:#065f46">OVERALL TOTAL PAYROLL</div>
+        <div class="kpi-value" style="color:#107c41">&#8358;${grandAnnualTotal.toLocaleString("en-NG", { maximumFractionDigits: 0 })}</div>
+        <div class="kpi-sub" style="color:#047857">&check; Reconciled Net Total</div>
+      </div>
+    </div>
+
+    <!-- Excel Spreadsheet Matrix -->
+    <table class="excel-table">
+      <thead>
+        <tr>
+          <th style="width:26px">S/N</th>
+          <th class="col-left" style="width:135px">Staff Member Name</th>
+          <th class="col-left" style="width:105px">Role / Designation</th>
+          <th>Jan</th>
+          <th>Feb</th>
+          <th>Mar</th>
+          <th>Apr</th>
+          <th>May</th>
+          <th>Jun</th>
+          <th>Jul</th>
+          <th>Aug</th>
+          <th>Sep</th>
+          <th>Oct</th>
+          <th>Nov</th>
+          <th>Dec</th>
+          <th class="col-num" style="width:70px">Total Paid</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tableHtml}
+      </tbody>
+    </table>
+
+    <!-- Footer Certification -->
+    <div class="excel-footer">
+      <div>
+        <b>Auditing &amp; Compliance:</b> All salary expenditures verified against bank transaction logs &amp; cash disbursement vouchers.<br>
+        OJ Schools College &bull; 5-7 Olukayode Street, Imoro, Ogijo, Ogun State &bull; Contact: 09053126809
+      </div>
+      <div style="text-align:right">
+        <b>Bursar Signature:</b> _________________________ &nbsp;&nbsp;&nbsp;
+        <b>Director Signature:</b> _________________________
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    printHtmlDocument(html, `OJ Schools_College_Salary_Report_${targetYear}`);
+  }
+
+  
+
+return {
     printReceipt,
     printClearancePass,
     printDebtorsReport,
@@ -752,4 +1269,5 @@ const OJSchoolsReports = (() => {
 
 if (typeof window !== "undefined") {
   window.OJSchoolsReports = OJSchoolsReports;
+  window.RichVineReports = OJSchoolsReports; // Interoperability alias
 }

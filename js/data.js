@@ -208,6 +208,13 @@ const DEFAULT_DATA = {
   students:      typeof OFFICIAL_STUDENTS_DATA !== "undefined" ? OFFICIAL_STUDENTS_DATA : [],
   payments:      [],
   expenses:      [],
+  staff:         [],
+  salaries:      [],
+  stocks:        [],
+  stockSales:    [],
+  stockRestocks: [],
+  _pendingDeletes: [],
+  _tombstones:   {},
   auditLogs: [{
     id:          "LOG-INIT",
     timestamp:   Date.now(),
@@ -376,34 +383,63 @@ class OJSchoolsDB {
 
   static deleteStudent(studentId) {
     const data = this.get();
-    const stu  = data.students.find(s => s.id === studentId);
+    const stu = (data.students || []).find(s => s.id === studentId);
     if (!stu) return false;
 
-    if (!data._deleted)           data._deleted          = {};
-    if (!data._deleted.students)  data._deleted.students = [];
-    if (!data._deleted.payments)  data._deleted.payments = [];
-    data._deleted.students.push(studentId);
+    if (!data._pendingDeletes) data._pendingDeletes = [];
+    if (!data._tombstones) data._tombstones = {};
 
-    const assoc = data.payments.filter(p => p.studentId === studentId);
-    assoc.forEach(p => data._deleted.payments.push(p.id));
-    data.students = data.students.filter(s => s.id !== studentId);
-    data.payments = data.payments.filter(p => p.studentId !== studentId);
+    const studentFullName = `${stu.firstName} ${stu.lastName}`.trim().toLowerCase();
+    const regNo = (stu.regNo || "").trim().toLowerCase();
 
-    if (!data.auditLogs) data.auditLogs = [];
-    data.auditLogs.unshift({
-      id:          "LOG-" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2,5).toUpperCase(),
-      timestamp:   Date.now(),
-      date:        new Date().toLocaleString("en-GB"),
-      action:      "DELETE_STUDENT",
-      entity:      "students",
-      entityId:    studentId,
-      performedBy: "Admin",
-      user:        "Admin",
-      details:     `Deleted ${stu.firstName} ${stu.lastName} + ${assoc.length} payment(s)`
+    // Gather and remove ALL payments belonging to this student
+    const studentPayments = (data.payments || []).filter(p =>
+      p.studentId === studentId ||
+      (p.studentName && p.studentName.trim().toLowerCase() === studentFullName) ||
+      (regNo && p.studentRegNo && p.studentRegNo.trim().toLowerCase() === regNo) ||
+      (regNo && p.receiptNumber && p.receiptNumber.toLowerCase().includes(regNo)) ||
+      (regNo && p.receiptNo && p.receiptNo.toLowerCase().includes(regNo))
+    );
+    const deletedPaymentIds = studentPayments.map(p => p.id);
+    const deletedRevenue = studentPayments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+
+    // Remove payments locally
+    data.payments = (data.payments || []).filter(p => !deletedPaymentIds.includes(p.id) && p.studentId !== studentId);
+
+    // Track pending deletes & tombstones for cloud backend
+    deletedPaymentIds.forEach(pId => {
+      data._pendingDeletes.push({ col: "payments", id: pId });
+      data._tombstones[pId] = Date.now();
     });
+    data._pendingDeletes.push({ col: "students", id: studentId });
+    data._tombstones[studentId] = Date.now();
+
+    // Remove student locally
+    data.students = (data.students || []).filter(s => s.id !== studentId);
+
+    const revenueNote = deletedRevenue > 0
+      ? ` | ${deletedPaymentIds.length} payment(s) purged (₦${deletedRevenue.toLocaleString()})`
+      : "";
+
+    const log = this._buildLog(
+      "STUDENT_DELETED",
+      `Permanently deleted learner: ${stu.firstName} ${stu.lastName} (${stu.regNo || "N/A"})${revenueNote}`
+    );
+    if (!data.auditLogs) data.auditLogs = [];
+    data.auditLogs.unshift(log);
     if (data.auditLogs.length > 500) data.auditLogs.pop();
 
     this.save(data);
+
+    // Direct Firestore Cloud Backend Deletion
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb) {
+      if (typeof fb.deleteStudent === "function") fb.deleteStudent(studentId);
+      for (const pId of deletedPaymentIds) {
+        if (typeof fb.deletePayment === "function") fb.deletePayment(pId);
+      }
+      if (typeof fb.saveLog === "function") fb.saveLog(log);
+    }
     return true;
   }
 
@@ -492,14 +528,39 @@ class OJSchoolsDB {
 
   static deletePayment(paymentId) {
     const data = this.get();
-    const pay  = data.payments.find(p => p.id === paymentId);
-    if (!pay) return false;
-    if (!data._deleted)          data._deleted         = {};
-    if (!data._deleted.payments) data._deleted.payments = [];
-    data._deleted.payments.push(paymentId);
-    data.payments = data.payments.filter(p => p.id !== paymentId);
-    this.logAction("DELETE_PAYMENT","Admin",`Voided receipt #${pay.receiptNumber}`);
+    const idx = (data.payments || []).findIndex(p => p.id === paymentId);
+    if (idx === -1) return false;
+    const payment = data.payments[idx];
+    const studentId = payment.studentId;
+
+    data.payments.splice(idx, 1);
+
+    if (!data._pendingDeletes) data._pendingDeletes = [];
+    if (!data._tombstones) data._tombstones = {};
+    data._pendingDeletes.push({ col: "payments", id: paymentId });
+    data._tombstones[paymentId] = Date.now();
+
+    // Rebalance student balance
+    if (typeof this.recalculateAllStudentBalances === "function") {
+      this.recalculateAllStudentBalances(data);
+    }
+
+    const log = this._buildLog(
+      "PAYMENT_DELETED",
+      `Voided payment receipt #${payment.receiptNumber || payment.receiptNo || paymentId} for ${payment.studentName || "learner"}: ₦${Number(payment.amount || 0).toLocaleString()}`
+    );
+    if (!data.auditLogs) data.auditLogs = [];
+    data.auditLogs.unshift(log);
     this.save(data);
+
+    // Direct Firestore Cloud Backend Deletion
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb) {
+      if (typeof fb.deletePayment === "function") fb.deletePayment(paymentId);
+      const updatedStudent = (data.students || []).find(s => s.id === studentId);
+      if (updatedStudent && typeof fb.saveStudent === "function") fb.saveStudent(updatedStudent);
+      if (typeof fb.saveLog === "function") fb.saveLog(log);
+    }
     return true;
   }
 
@@ -531,14 +592,30 @@ class OJSchoolsDB {
 
   static deleteExpense(expenseId) {
     const data = this.get();
-    const exp  = data.expenses.find(e => e.id === expenseId);
+    const exp = (data.expenses || []).find(e => e.id === expenseId);
     if (!exp) return false;
-    if (!data._deleted)          data._deleted         = {};
-    if (!data._deleted.expenses) data._deleted.expenses = [];
-    data._deleted.expenses.push(expenseId);
-    data.expenses = data.expenses.filter(e => e.id !== expenseId);
-    this.logAction("DELETE_EXPENSE","Admin",`Removed expense: ${exp.title}`);
+
+    data.expenses = (data.expenses || []).filter(e => e.id !== expenseId);
+
+    if (!data._pendingDeletes) data._pendingDeletes = [];
+    if (!data._tombstones) data._tombstones = {};
+    data._pendingDeletes.push({ col: "expenses", id: expenseId });
+    data._tombstones[expenseId] = Date.now();
+
+    const log = this._buildLog(
+      "EXPENSE_DELETED",
+      `Deleted expense: ${exp.title || exp.description || "Expense"} — ₦${Number(exp.amount || 0).toLocaleString()} (${exp.category || exp.section || "General"})`
+    );
+    if (!data.auditLogs) data.auditLogs = [];
+    data.auditLogs.unshift(log);
     this.save(data);
+
+    // Direct Firestore Cloud Backend Deletion
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb) {
+      if (typeof fb.deleteExpense === "function") fb.deleteExpense(expenseId);
+      if (typeof fb.saveLog === "function") fb.saveLog(log);
+    }
     return true;
   }
 
@@ -635,8 +712,583 @@ class OJSchoolsDB {
     if (data.auditLogs.length > 500) data.auditLogs.pop();
     this.save(data, false);
   }
+
+  static _buildLog(action, details) {
+    const authUser = (typeof window !== "undefined" && window.OJSchoolsAuth && window.OJSchoolsAuth.getUser)
+      ? window.OJSchoolsAuth.getUser()
+      : null;
+    return {
+      id: "LOG-" + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase(),
+      timestamp: Date.now(),
+      date: new Date().toLocaleString("en-GB"),
+      action: action || "GENERAL_ACTION",
+      entity: "system",
+      performedBy: (authUser && authUser.name) ? authUser.name : "Admin",
+      user: (authUser && authUser.name) ? authUser.name : "Admin",
+      details: details || ""
+    };
+  }
+
+
+  // ── Deduplication & Student Balance Rebalancing ──
+  static cleanDuplicatePayments(db) {
+    if (!db || !Array.isArray(db.payments)) return { removedCount: 0 };
+    const seen = new Set();
+    const initialLen = db.payments.length;
+    const cleanList = [];
+    for (const p of db.payments) {
+      if (!p || !p.id) continue;
+      const key = p.id;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      cleanList.push(p);
+    }
+    db.payments = cleanList;
+    return { removedCount: initialLen - cleanList.length };
+  }
+
+  static recalculateAllStudentBalances(db) {
+    if (!db || !Array.isArray(db.students)) return;
+    const payments = Array.isArray(db.payments) ? db.payments : [];
+    db.students.forEach(s => {
+      const stuPayments = payments.filter(p => p.studentId === s.id);
+      const totalPaid = stuPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+      const termFee = Number(s.termFee) || 0;
+      const arrears = Number(s.arrears) || 0;
+      const totalExpected = termFee + arrears;
+      s.totalPaid = totalPaid;
+      s.balance = Math.max(0, totalExpected - totalPaid);
+      s.clearanceStatus = (s.balance === 0 && totalExpected > 0) ? "Cleared" : "Pending";
+    });
+  }
+
+  // ── Staff Registry & Salary Payroll ──
+  static getStaff(filter = {}) {
+    const db = this.get();
+    let staff = [...(db.staff || [])];
+    if (filter.section && filter.section !== "All") {
+      staff = staff.filter(s => s.section === filter.section);
+    }
+    if (filter.search) {
+      const q = filter.search.toLowerCase();
+      staff = staff.filter(s => (s.name && s.name.toLowerCase().includes(q)) || (s.role && s.role.toLowerCase().includes(q)));
+    }
+    return staff.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  }
+
+  static getStaffById(id) {
+    const db = this.get();
+    return (db.staff || []).find(s => s.id === id) || null;
+  }
+
+  static addStaff(fields) {
+    const db = this.get();
+    if (!db.staff) db.staff = [];
+    const now = Date.now();
+    const staff = {
+      id: `STF-${now}-${Math.floor(Math.random() * 9999)}`,
+      name: (fields.name || "").trim(),
+      section: fields.section || "general",
+      role: (fields.role || "").trim(),
+      baseSalary: Math.round((Number(fields.baseSalary) || 0) * 100) / 100,
+      bank: (fields.bank || "").trim(),
+      accountNo: (fields.accountNo || "").trim(),
+      phone: (fields.phone || "").trim(),
+      createdAt: new Date().toISOString()
+    };
+    db.staff.push(staff);
+
+    const log = this._buildLog("STAFF_ADDED", `Added staff: ${staff.name} (${staff.role} — ${staff.section})`);
+    if (!db.auditLogs) db.auditLogs = [];
+    db.auditLogs.unshift(log);
+    this.save(db);
+
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb && typeof fb.saveStaff === "function") fb.saveStaff(staff);
+    return staff;
+  }
+
+  static updateStaff(id, fields) {
+    const db = this.get();
+    const idx = (db.staff || []).findIndex(s => s.id === id);
+    if (idx === -1) return null;
+
+    db.staff[idx] = {
+      ...db.staff[idx],
+      name: (fields.name || db.staff[idx].name).trim(),
+      section: fields.section || db.staff[idx].section,
+      role: (fields.role || db.staff[idx].role).trim(),
+      baseSalary: fields.baseSalary !== undefined ? Math.round(Number(fields.baseSalary) * 100) / 100 : db.staff[idx].baseSalary,
+      bank: fields.bank !== undefined ? fields.bank.trim() : db.staff[idx].bank,
+      accountNo: fields.accountNo !== undefined ? fields.accountNo.trim() : db.staff[idx].accountNo,
+      phone: fields.phone !== undefined ? fields.phone.trim() : db.staff[idx].phone,
+      updatedAt: new Date().toISOString()
+    };
+
+    const log = this._buildLog("STAFF_UPDATED", `Updated staff details: ${db.staff[idx].name}`);
+    if (!db.auditLogs) db.auditLogs = [];
+    db.auditLogs.unshift(log);
+    this.save(db);
+
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb && typeof fb.saveStaff === "function") fb.saveStaff(db.staff[idx]);
+    return db.staff[idx];
+  }
+
+  static deleteStaff(id) {
+    const db = this.get();
+    const stf = (db.staff || []).find(s => s.id === id);
+    if (!stf) return false;
+    db.staff = db.staff.filter(s => s.id !== id);
+
+    if (!db._pendingDeletes) db._pendingDeletes = [];
+    if (!db._tombstones) db._tombstones = {};
+    db._pendingDeletes.push({ col: "staff", id });
+    db._tombstones[id] = Date.now();
+
+    const log = this._buildLog("STAFF_DELETED", `Deleted staff: ${stf.name} (${stf.section})`);
+    if (!db.auditLogs) db.auditLogs = [];
+    db.auditLogs.unshift(log);
+    this.save(db);
+
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb && typeof fb.deleteStaff === "function") fb.deleteStaff(id);
+    return true;
+  }
+
+  static getSalaryPayments(filter = {}) {
+    const db = this.get();
+    let salaries = [...(db.salaries || [])];
+
+    if (filter.month && filter.month !== "All") {
+      salaries = salaries.filter(s => String(s.month) === String(filter.month));
+    }
+    if (filter.year && filter.year !== "All") {
+      salaries = salaries.filter(s => String(s.year) === String(filter.year));
+    }
+    if (filter.section && filter.section !== "All") {
+      salaries = salaries.filter(s => s.section === filter.section);
+    }
+    if (filter.staffId) {
+      salaries = salaries.filter(s => s.staffId === filter.staffId);
+    }
+    if (filter.search) {
+      const q = filter.search.toLowerCase();
+      salaries = salaries.filter(s =>
+        (s.staffName && s.staffName.toLowerCase().includes(q)) ||
+        (s.paymentRef && s.paymentRef.toLowerCase().includes(q))
+      );
+    }
+
+    return salaries.sort((a, b) => new Date(b.paidAt || b.date) - new Date(a.paidAt || a.date));
+  }
+
+  static addSalaryPayment(fields) {
+    const db = this.get();
+    if (!db.salaries) db.salaries = [];
+    if (!db.expenses) db.expenses = [];
+
+    const now = Date.now();
+    const staff = this.getStaffById(fields.staffId);
+    const staffName = staff ? staff.name : (fields.staffName || "Staff Member");
+    const section = staff ? staff.section : (fields.section || "general");
+    const amount = Math.round((Number(fields.amount) || 0) * 100) / 100;
+    const bonus = Math.round((Number(fields.bonus) || 0) * 100) / 100;
+    const deductions = Math.round((Number(fields.deductions) || 0) * 100) / 100;
+    const netAmount = Math.max(0, amount + bonus - deductions);
+    const dateStr = fields.date || new Date().toISOString().split("T")[0];
+
+    const monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const monthNum = Number(fields.month) || (new Date().getMonth() + 1);
+    const monthName = monthNames[monthNum] || `Month ${monthNum}`;
+    const year = Number(fields.year) || new Date().getFullYear();
+
+    const paymentRef = fields.paymentRef || `SAL-${year}-${String(monthNum).padStart(2, "0")}-${Math.floor(Math.random() * 9000 + 1000)}`;
+
+    // 1. Auto-generate corresponding Expense entry so P&L remains 100% accurate!
+    const expenseId = `EXP-SAL-${now}-${Math.floor(Math.random() * 9999)}`;
+    const expDesc = `Staff Salary: ${staffName} (${monthName} ${year})`;
+    const expenseEntry = {
+      id: expenseId,
+      title: expDesc,
+      description: expDesc,
+      amount: netAmount,
+      category: "Staff Salary",
+      account: section,
+      section: section,
+      period: "monthly",
+      date: dateStr,
+      recordedBy: fields.paidBy || "Bursar",
+      paymentMethod: fields.method || "Bank Transfer",
+      salaryRef: paymentRef,
+      createdAt: new Date().toISOString()
+    };
+    db.expenses.unshift(expenseEntry);
+
+    // 2. Create Salary Ledger Record
+    const salary = {
+      id: `SAL-${now}-${Math.floor(Math.random() * 9999)}`,
+      paymentRef,
+      expenseId,
+      staffId: fields.staffId || null,
+      staffName,
+      section,
+      role: staff ? staff.role : "",
+      month: monthNum,
+      monthName,
+      year,
+      baseAmount: amount,
+      bonus,
+      deductions,
+      amount: netAmount,
+      method: fields.method || "Bank Transfer",
+      bank: fields.bank || (staff ? staff.bank : ""),
+      accountNo: fields.accountNo || (staff ? staff.accountNo : ""),
+      notes: (fields.notes || "").trim(),
+      paidBy: fields.paidBy || "Bursar",
+      paidAt: new Date().toISOString(),
+      date: dateStr
+    };
+    db.salaries.unshift(salary);
+
+    const log = this._buildLog("SALARY_PAID", `Paid salary to ${staffName} for ${monthName} ${year}: ₦${netAmount.toLocaleString()}`);
+    if (!db.auditLogs) db.auditLogs = [];
+    db.auditLogs.unshift(log);
+    this.save(db);
+
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb) {
+      if (typeof fb.saveSalary === "function") fb.saveSalary(salary);
+      if (typeof fb.saveExpense === "function") fb.saveExpense(expenseEntry);
+    }
+    return salary;
+  }
+
+  static deleteSalaryPayment(id) {
+    const db = this.get();
+    const sal = (db.salaries || []).find(s => s.id === id);
+    if (!sal) return false;
+
+    db.salaries = db.salaries.filter(s => s.id !== id);
+
+    if (!db._pendingDeletes) db._pendingDeletes = [];
+    if (!db._tombstones) db._tombstones = {};
+    db._pendingDeletes.push({ col: "salaries", id });
+    db._tombstones[id] = Date.now();
+
+    // Also remove the linked expense record
+    if (sal.expenseId) {
+      db.expenses = (db.expenses || []).filter(e => e.id !== sal.expenseId);
+      db._pendingDeletes.push({ col: "expenses", id: sal.expenseId });
+      db._tombstones[sal.expenseId] = Date.now();
+    }
+
+    const log = this._buildLog("SALARY_DELETED", `Deleted salary payment: ${sal.staffName} (${sal.monthName} ${sal.year}) — ₦${Number(sal.amount).toLocaleString()}`);
+    if (!db.auditLogs) db.auditLogs = [];
+    db.auditLogs.unshift(log);
+    this.save(db);
+
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb) {
+      if (typeof fb.deleteSalary === "function") fb.deleteSalary(id);
+      if (sal.expenseId && typeof fb.deleteExpense === "function") fb.deleteExpense(sal.expenseId);
+    }
+    return true;
+  }
+
+  static getSalarySummary(filter = {}) {
+    const salaries = this.getSalaryPayments(filter);
+    const totalPaid = salaries.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+    const count = salaries.length;
+    const staffList = this.getStaff(filter);
+    const totalStaff = staffList.length;
+    const totalPayrollBudget = staffList.reduce((s, st) => s + (Number(st.baseSalary) || 0), 0);
+
+    return {
+      totalPaid,
+      count,
+      totalStaff,
+      totalPayrollBudget,
+      coveragePercent: totalPayrollBudget > 0 ? Math.min(100, Math.round((totalPaid / totalPayrollBudget) * 100)) : 0
+    };
+  }
+
+  // ── Inventory / Stocks Management Engine ──
+  static getStocks(filter = {}) {
+    const db = this.get();
+    let stocks = [...(db.stocks || [])];
+    if (filter.category && filter.category !== "All") {
+      stocks = stocks.filter(s => s.category === filter.category);
+    }
+    if (filter.status && filter.status !== "All") {
+      if (filter.status === "out") {
+        stocks = stocks.filter(s => Number(s.quantity) <= 0);
+      } else if (filter.status === "low") {
+        stocks = stocks.filter(s => Number(s.quantity) > 0 && Number(s.quantity) <= Number(s.reorderLevel || 5));
+      } else if (filter.status === "healthy") {
+        stocks = stocks.filter(s => Number(s.quantity) > Number(s.reorderLevel || 5));
+      }
+    }
+    if (filter.search) {
+      const q = filter.search.toLowerCase();
+      stocks = stocks.filter(s =>
+        (s.name && s.name.toLowerCase().includes(q)) ||
+        (s.sku && s.sku.toLowerCase().includes(q)) ||
+        (s.category && s.category.toLowerCase().includes(q))
+      );
+    }
+    return stocks.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  }
+
+  static getStockById(id) {
+    const db = this.get();
+    return (db.stocks || []).find(s => s.id === id) || null;
+  }
+
+  static recalculateStockQuantities(db) {
+    if (!db || !Array.isArray(db.stocks)) return;
+    const sales = Array.isArray(db.stockSales) ? db.stockSales : [];
+    const restocks = Array.isArray(db.stockRestocks) ? db.stockRestocks : [];
+
+    db.stocks.forEach(item => {
+      const initial = Number(item.initialQuantity || item.initialQty) || 0;
+      const totalRestocked = restocks.filter(r => r.stockId === item.id).reduce((sum, r) => sum + (Number(r.quantity) || 0), 0);
+      const totalSold = sales.filter(s => s.stockId === item.id).reduce((sum, s) => sum + (Number(s.quantity) || 0), 0);
+      item.quantity = Math.max(0, initial + totalRestocked - totalSold);
+    });
+  }
+
+  static addStockItem(fields) {
+    const db = this.get();
+    if (!db.stocks) db.stocks = [];
+    const now = Date.now();
+    const qty = Math.max(0, parseInt(fields.quantity, 10) || 0);
+    const item = {
+      id: `STK-${now}-${Math.floor(Math.random() * 9999)}`,
+      sku: (fields.sku || `SKU-${Math.floor(Math.random() * 90000 + 10000)}`).trim().toUpperCase(),
+      name: (fields.name || "").trim(),
+      category: fields.category || "General",
+      unit: fields.unit || "pcs",
+      initialQuantity: qty,
+      quantity: qty,
+      unitPrice: Math.round((Number(fields.unitPrice) || 0) * 100) / 100,
+      costPrice: Math.round((Number(fields.costPrice) || 0) * 100) / 100,
+      reorderLevel: parseInt(fields.reorderLevel, 10) || 5,
+      supplier: (fields.supplier || "").trim(),
+      description: (fields.description || "").trim(),
+      createdAt: new Date().toISOString()
+    };
+    db.stocks.push(item);
+
+    const log = this._buildLog("STOCK_ITEM_ADDED", `Added stock item: ${item.name} (${qty} ${item.unit} @ ₦${item.unitPrice})`);
+    if (!db.auditLogs) db.auditLogs = [];
+    db.auditLogs.unshift(log);
+    this.save(db);
+
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb && typeof fb.saveStockItem === "function") fb.saveStockItem(item);
+    return item;
+  }
+
+  static updateStockItem(id, fields) {
+    const db = this.get();
+    const idx = (db.stocks || []).findIndex(s => s.id === id);
+    if (idx === -1) return null;
+
+    db.stocks[idx] = {
+      ...db.stocks[idx],
+      name: (fields.name || db.stocks[idx].name).trim(),
+      sku: fields.sku ? fields.sku.trim().toUpperCase() : db.stocks[idx].sku,
+      category: fields.category || db.stocks[idx].category,
+      unit: fields.unit || db.stocks[idx].unit,
+      unitPrice: fields.unitPrice !== undefined ? Math.round(Number(fields.unitPrice) * 100) / 100 : db.stocks[idx].unitPrice,
+      costPrice: fields.costPrice !== undefined ? Math.round(Number(fields.costPrice) * 100) / 100 : db.stocks[idx].costPrice,
+      reorderLevel: fields.reorderLevel !== undefined ? parseInt(fields.reorderLevel, 10) : db.stocks[idx].reorderLevel,
+      supplier: fields.supplier !== undefined ? fields.supplier.trim() : db.stocks[idx].supplier,
+      description: fields.description !== undefined ? fields.description.trim() : db.stocks[idx].description,
+      updatedAt: new Date().toISOString()
+    };
+
+    const log = this._buildLog("STOCK_ITEM_UPDATED", `Updated stock item: ${db.stocks[idx].name}`);
+    if (!db.auditLogs) db.auditLogs = [];
+    db.auditLogs.unshift(log);
+    this.save(db);
+
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb && typeof fb.saveStockItem === "function") fb.saveStockItem(db.stocks[idx]);
+    return db.stocks[idx];
+  }
+
+  static deleteStockItem(id) {
+    const db = this.get();
+    const item = (db.stocks || []).find(s => s.id === id);
+    if (!item) return false;
+
+    db.stocks = db.stocks.filter(s => s.id !== id);
+    db.stockSales = (db.stockSales || []).filter(s => s.stockId !== id);
+    db.stockRestocks = (db.stockRestocks || []).filter(r => r.stockId !== id);
+
+    if (!db._pendingDeletes) db._pendingDeletes = [];
+    if (!db._tombstones) db._tombstones = {};
+    db._pendingDeletes.push({ col: "stocks", id });
+    db._tombstones[id] = Date.now();
+
+    const log = this._buildLog("STOCK_DELETED", `Deleted stock item: ${item.name}`);
+    if (!db.auditLogs) db.auditLogs = [];
+    db.auditLogs.unshift(log);
+    this.save(db);
+
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb && typeof fb.deleteStockItem === "function") fb.deleteStockItem(id);
+    return true;
+  }
+
+  static recordStockSale(fields) {
+    const db = this.get();
+    if (!db.stockSales) db.stockSales = [];
+    const item = this.getStockById(fields.stockId);
+    if (!item) return { success: false, error: "Stock item not found" };
+
+    const qtySold = parseInt(fields.quantity, 10) || 0;
+    if (qtySold <= 0) return { success: false, error: "Quantity must be greater than 0" };
+    if (item.quantity < qtySold) return { success: false, error: `Insufficient stock (Available: ${item.quantity})` };
+
+    const unitPrice = fields.unitPrice !== undefined ? Number(fields.unitPrice) : item.unitPrice;
+    const totalAmount = Math.round(qtySold * unitPrice * 100) / 100;
+    const now = Date.now();
+
+    // 1. Deduct quantity
+    item.quantity = Math.max(0, item.quantity - qtySold);
+
+    // 2. Create Stock Sale Record
+    const sale = {
+      id: `SALE-${now}-${Math.floor(Math.random() * 9999)}`,
+      stockId: item.id,
+      stockName: item.name,
+      category: item.category,
+      quantity: qtySold,
+      unitPrice,
+      totalAmount,
+      buyerName: (fields.buyerName || "Walk-in Buyer").trim(),
+      buyerType: fields.buyerType || "Student",
+      paymentMethod: fields.paymentMethod || "Cash",
+      soldBy: fields.soldBy || "Bursar",
+      date: fields.date || new Date().toISOString().split("T")[0],
+      createdAt: new Date().toISOString()
+    };
+    db.stockSales.unshift(sale);
+
+    const log = this._buildLog("STOCK_SALE", `Sold ${qtySold}x ${item.name} to ${sale.buyerName} (₦${totalAmount.toLocaleString()})`);
+    if (!db.auditLogs) db.auditLogs = [];
+    db.auditLogs.unshift(log);
+    this.save(db);
+
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb) {
+      if (typeof fb.saveStockItem === "function") fb.saveStockItem(item);
+      if (typeof fb.saveStockSale === "function") fb.saveStockSale(sale);
+    }
+    return { success: true, sale, remaining: item.quantity };
+  }
+
+  static restockItem(fields) {
+    const db = this.get();
+    if (!db.stockRestocks) db.stockRestocks = [];
+    const item = this.getStockById(fields.stockId);
+    if (!item) return { success: false, error: "Stock item not found" };
+
+    const qtyRestocked = parseInt(fields.quantity, 10) || 0;
+    if (qtyRestocked <= 0) return { success: false, error: "Quantity must be greater than 0" };
+
+    const costPrice = fields.costPrice !== undefined ? Number(fields.costPrice) : (item.costPrice || 0);
+    const totalCost = Math.round(qtyRestocked * costPrice * 100) / 100;
+    const now = Date.now();
+
+    // 1. Add quantity
+    item.quantity = (Number(item.quantity) || 0) + qtyRestocked;
+    if (costPrice > 0) item.costPrice = costPrice;
+
+    // 2. Create Restock Record
+    const restock = {
+      id: `RESTOCK-${now}-${Math.floor(Math.random() * 9999)}`,
+      stockId: item.id,
+      stockName: item.name,
+      quantity: qtyRestocked,
+      costPrice,
+      totalCost,
+      supplier: (fields.supplier || item.supplier || "Supplier").trim(),
+      invoiceNo: (fields.invoiceNo || "").trim(),
+      receivedBy: fields.receivedBy || "Bursar",
+      date: fields.date || new Date().toISOString().split("T")[0],
+      createdAt: new Date().toISOString()
+    };
+    db.stockRestocks.unshift(restock);
+
+    const log = this._buildLog("STOCK_RESTOCK", `Restocked ${qtyRestocked}x ${item.name} (₦${totalCost.toLocaleString()})`);
+    if (!db.auditLogs) db.auditLogs = [];
+    db.auditLogs.unshift(log);
+    this.save(db);
+
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb) {
+      if (typeof fb.saveStockItem === "function") fb.saveStockItem(item);
+      if (typeof fb.saveStockRestock === "function") fb.saveStockRestock(restock);
+    }
+    return { success: true, restock, totalQuantity: item.quantity };
+  }
+
+  static getStockSales(filter = {}) {
+    const db = this.get();
+    let sales = [...(db.stockSales || [])];
+    if (filter.stockId) sales = sales.filter(s => s.stockId === filter.stockId);
+    if (filter.search) {
+      const q = filter.search.toLowerCase();
+      sales = sales.filter(s => (s.stockName && s.stockName.toLowerCase().includes(q)) || (s.buyerName && s.buyerName.toLowerCase().includes(q)));
+    }
+    return sales.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+  }
+
+  static getStockRestocks(filter = {}) {
+    const db = this.get();
+    let restocks = [...(db.stockRestocks || [])];
+    if (filter.stockId) restocks = restocks.filter(r => r.stockId === filter.stockId);
+    return restocks.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+  }
+
+  static getStockAlerts() {
+    const stocks = this.getStocks();
+    const outOfStock = stocks.filter(s => Number(s.quantity) <= 0);
+    const lowStock = stocks.filter(s => Number(s.quantity) > 0 && Number(s.quantity) <= Number(s.reorderLevel || 5));
+    return {
+      outOfStock,
+      lowStock,
+      totalAlerts: outOfStock.length + lowStock.length
+    };
+  }
+
+  static getStockSummary() {
+    const stocks = this.getStocks();
+    const totalItems = stocks.length;
+    const totalQuantity = stocks.reduce((sum, s) => sum + (Number(s.quantity) || 0), 0);
+    const totalInventoryValue = stocks.reduce((sum, s) => sum + ((Number(s.quantity) || 0) * (Number(s.unitPrice) || 0)), 0);
+    const alerts = this.getStockAlerts();
+
+    return {
+      totalItems,
+      totalQuantity,
+      totalInventoryValue,
+      outOfStockCount: alerts.outOfStock.length,
+      lowStockCount: alerts.lowStock.length
+    };
+  }
+
 }
 
 if (typeof window !== "undefined") {
   window.OJSchoolsDB = OJSchoolsDB;
+  window.RichVineDB = OJSchoolsDB; // Interoperability alias
+
+  
+  
 }
+

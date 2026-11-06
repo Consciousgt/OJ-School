@@ -552,6 +552,9 @@
     </div>
     <h2>OJ SCHOOLS</h2>
     <p>Admin Portal — 2026/2027</p>
+    <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10b981;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;margin-top:6px;letter-spacing:0.5px">
+      <i class="fas fa-bolt"></i> POWERED BY BURSAR IQ
+    </div>
   </div>
 
   <nav>
@@ -565,6 +568,11 @@
     <button data-tab="clearance"><i class="fas fa-id-badge"></i> Clearance</button>
     <button data-tab="debtors"><i class="fas fa-hand-holding-dollar"></i> Debtors List</button>
 
+    
+    <div class="nav-label">Operations</div>
+    <button data-tab="salary"><i class="fas fa-money-check-alt"></i> Staff Payroll</button>
+    <button data-tab="stocks" style="position:relative"><i class="fas fa-boxes"></i> Stock Inventory <span id="stock-alert-badge" style="display:none;position:absolute;right:10px;background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px">0</span></button>
+  
     <div class="nav-label">Finance</div>
     <button data-tab="payments"><i class="fas fa-receipt"></i> Payments</button>
     <button data-tab="expenses"><i class="fas fa-file-invoice-dollar"></i> Expenses</button>
@@ -982,7 +990,253 @@
   </section>
 
   <!-- ─── EXPENSES ─── -->
-  <section id="view-expenses" class="tab-section hidden">
+  <section id="view-stocks" class="tab-section hidden">
+    <div class="panel-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px">
+      <h2 style="font-size:18px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:8px">
+        <i class="fas fa-boxes" style="color:#7c3aed"></i> Stock &amp; Inventory Accounting
+      </h2>
+      <button class="btn-primary" style="background:#7c3aed;border-color:#7c3aed" onclick="OJSchoolsApp.openAddStockModal()">
+        <i class="fas fa-plus"></i> Add Stock Item
+      </button>
+    </div>
+
+    <!-- Alert Banners (Low Stock / Out of Stock) -->
+    <div id="stk-alerts-container" style="display:none;margin-bottom:16px"></div>
+
+    <!-- Summary Cards -->
+    <div class="stat-grid" style="margin-bottom:20px">
+      <div class="stat-card">
+        <div class="stat-icon purple"><i class="fas fa-boxes"></i></div>
+        <div>
+          <div class="stat-value" id="stk-total-items">0</div>
+          <div class="stat-label">Active Stock Items</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-cash-register"></i></div>
+        <div>
+          <div class="stat-value" id="stk-total-revenue" style="font-size:18px">₦0.00</div>
+          <div class="stat-label">Stock Sales Revenue</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-chart-line"></i></div>
+        <div>
+          <div class="stat-value" id="stk-gross-profit" style="font-size:18px">₦0.00</div>
+          <div class="stat-label">Gross Stock Profit (Margin)</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber" style="background:#e0f2fe;color:#0369a1"><i class="fas fa-warehouse"></i></div>
+        <div>
+          <div class="stat-value" id="stk-valuation" style="font-size:18px">₦0.00</div>
+          <div class="stat-label">Current Stock Valuation (Cost)</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber"><i class="fas fa-shopping-bag"></i></div>
+        <div>
+          <div class="stat-value" id="stk-items-sold">0</div>
+          <div class="stat-label">Total Units Sold</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red"><i class="fas fa-times-circle"></i></div>
+        <div>
+          <div class="stat-value" id="stk-out-of-stock">0</div>
+          <div class="stat-label">Out of Stock Items</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber"><i class="fas fa-exclamation-triangle"></i></div>
+        <div>
+          <div class="stat-value" id="stk-low-stock">0</div>
+          <div class="stat-label">Low Stock (&lt; 20% Remaining)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stock Table Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3><i class="fas fa-table" style="color:#7c3aed"></i> &nbsp;Inventory Register</h3>
+        <div class="filters-bar">
+          <input type="text" class="form-control" id="stk-search-filter" placeholder="Search item name / category…" style="max-width:220px" oninput="OJSchoolsApp.loadStocksTab()">
+          <select class="form-control" id="stk-cat-filter" onchange="OJSchoolsApp.loadStocksTab()">
+            <option value="All">All Categories</option>
+            <option>Uniform</option>
+            <option>Books &amp; Stationery</option>
+            <option>Laboratory</option>
+            <option>Sport</option>
+            <option>Catering</option>
+            <option>Electronics</option>
+            <option>Others</option>
+          </select>
+          <select class="form-control" id="stk-status-filter" onchange="OJSchoolsApp.loadStocksTab()">
+            <option value="All">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Item &amp; Category</th>
+                <th style="text-align:right">Cost Price</th>
+                <th style="text-align:right">Sell Price</th>
+                <th style="text-align:center">Opening</th>
+                <th style="text-align:center">Restocked</th>
+                <th style="text-align:center">Sold</th>
+                <th style="text-align:center">Qty Left</th>
+                <th>Status</th>
+                <th style="text-align:right">Margin %</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="stock-table-body">
+              <tr><td colspan="10" class="empty-cell">Loading stock inventory...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<section id="view-salary" class="tab-section hidden">
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <h3 style="font-size:16px;font-weight:800;color:var(--gray-900);display:flex;align-items:center;gap:8px">
+            <i class="fas fa-money-bill-wave" style="color:#059669"></i> Staff &amp; Salary Management
+          </h3>
+          <p style="font-size:12px;color:var(--gray-600);margin-top:3px">
+            Section-based staff payroll &mdash; deducted directly from section revenue (Primary, Junior, Senior, General)
+          </p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-primary" style="background:#059669" onclick="OJSchoolsApp.openAddStaffModal()">
+            <i class="fas fa-user-plus"></i> Add Staff
+          </button>
+          <button class="btn-primary" style="background:#0284c7" onclick="OJSchoolsApp.openPaySalaryModal()">
+            <i class="fas fa-hand-holding-usd"></i> Pay Salary
+          </button>
+          <button class="btn-secondary" onclick="OJSchoolsApp.printSalaryReport()">
+            <i class="fas fa-file-pdf" style="color:#dc2626"></i> Download Excel PDF Report
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-body">
+        <!-- Filter Controls -->
+        <div class="filters-bar" style="margin-bottom:16px">
+          <select id="sal-filter-section" class="form-control" style="min-width:160px" onchange="OJSchoolsApp.loadSalaryTab()">
+            <option value="All">All Sections</option>
+            <option value="primary">Primary School</option>
+            <option value="junior">Junior College</option>
+            <option value="senior">Senior College</option>
+            <option value="general">General / Admin</option>
+          </select>
+          <select id="sal-filter-month" class="form-control" style="min-width:130px" onchange="OJSchoolsApp.loadSalaryTab()">
+            <option value="All">All Months</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+          <select id="sal-filter-year" class="form-control" style="min-width:110px" onchange="OJSchoolsApp.loadSalaryTab()">
+            <option value="All">All Years</option>
+            <option value="2025">2025</option>
+            <option value="2026" selected>2026</option>
+            <option value="2027">2027</option>
+          </select>
+          <input type="text" id="sal-filter-search" class="form-control" placeholder="Search staff name or role..." style="min-width:200px;flex:1" oninput="OJSchoolsApp.loadSalaryTab()">
+          <button class="btn-secondary" onclick="OJSchoolsApp.resetSalaryFilters()">
+            <i class="fas fa-undo"></i> Reset
+          </button>
+        </div>
+
+        <!-- KPI Summary Cards -->
+        <div id="sal-summary-cards" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:12px;margin-bottom:20px">
+          <!-- Dynamic KPI cards inserted by JS -->
+        </div>
+
+        <!-- Section 1: Salary Payment History -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px;flex-wrap:wrap;gap:8px">
+          <h4 style="font-size:14px;font-weight:700;color:var(--gray-900);display:flex;align-items:center;gap:6px">
+            <i class="fas fa-list-alt" style="color:#059669"></i> Salary Payment Register (<span id="sal-payment-count">0</span>)
+          </h4>
+          <span style="font-size:11px;color:var(--gray-500)">
+            <i class="fas fa-info-circle"></i> Payments are linked to section expenses &amp; deducted from revenue
+          </span>
+        </div>
+
+        <div class="table-wrap">
+          <table id="sal-payments-table">
+            <thead>
+              <tr>
+                <th style="width:40px">#</th>
+                <th>Date</th>
+                <th>Staff Member</th>
+                <th>Section</th>
+                <th>Role / Designation</th>
+                <th>Month &amp; Year</th>
+                <th style="text-align:right">Amount (&#8358;)</th>
+                <th>Method</th>
+                <th>Notes</th>
+                <th style="width:70px;text-align:center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="sal-payments-body">
+              <tr><td colspan="10" class="empty-cell">No salary payments recorded yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Section 2: Staff Directory -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:28px 0 10px;flex-wrap:wrap;gap:8px">
+          <h4 style="font-size:14px;font-weight:700;color:var(--gray-900);display:flex;align-items:center;gap:6px">
+            <i class="fas fa-users" style="color:#0284c7"></i> Staff &amp; Teachers Directory (<span id="sal-staff-count">0</span>)
+          </h4>
+          <button class="btn-secondary btn-sm" onclick="OJSchoolsApp.openAddStaffModal()">
+            <i class="fas fa-plus"></i> Add New Staff
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table id="sal-staff-table">
+            <thead>
+              <tr>
+                <th style="width:40px">#</th>
+                <th>Staff Name</th>
+                <th>Section</th>
+                <th>Role / Subject</th>
+                <th style="text-align:right">Base Salary (&#8358;)</th>
+                <th>Bank &amp; Account</th>
+                <th>Phone</th>
+                <th style="width:110px;text-align:center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="sal-staff-body">
+              <tr><td colspan="8" class="empty-cell">No staff enrolled yet. Click &ldquo;Add Staff&rdquo; to begin.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<section id="view-expenses" class="tab-section hidden">
     <div class="panel">
       <div class="panel-header">
         <h3>Expenses Ledger</h3>
@@ -1583,6 +1837,562 @@
     </div>
   </div>
 </div>
+
+
+
+<!-- modal-add-stock -->
+<div class="modal-overlay hidden" id="modal-add-stock">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3><i class="fas fa-plus-circle" style="color:#7c3aed"></i> &nbsp;Add New Stock Item</h3>
+      <button class="modal-close" onclick="OJSchoolsApp.closeModal('modal-add-stock')">&times;</button>
+    </div>
+    <form id="add-stock-form" onsubmit="OJSchoolsApp.handleAddStockSubmit(event)">
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group full">
+            <label class="form-label">Item Name *</label>
+            <input id="add-stk-name" class="form-control" type="text" required placeholder="e.g. School Uniform (Male), Chemistry Textbook…">
+            <!-- Quick-fill stationery name chips -->
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">
+              <span style="font-size:10.5px;color:#64748b;font-weight:600;align-self:center">Quick-fill:</span>
+              <button type="button" class="btn-sm" style="background:#dcfce7;color:#15803d;border:1px solid #86efac;border-radius:12px;padding:2px 9px;font-size:11px;cursor:pointer" onclick="document.getElementById('add-stk-name').value='HB Pencil';document.getElementById('add-stk-category').value='Books &amp; Stationery'">HB Pencil</button>
+              <button type="button" class="btn-sm" style="background:#dcfce7;color:#15803d;border:1px solid #86efac;border-radius:12px;padding:2px 9px;font-size:11px;cursor:pointer" onclick="document.getElementById('add-stk-name').value='Biro (Blue)';document.getElementById('add-stk-category').value='Books &amp; Stationery'">Biro Blue</button>
+              <button type="button" class="btn-sm" style="background:#dcfce7;color:#15803d;border:1px solid #86efac;border-radius:12px;padding:2px 9px;font-size:11px;cursor:pointer" onclick="document.getElementById('add-stk-name').value='Biro (Black)';document.getElementById('add-stk-category').value='Books &amp; Stationery'">Biro Black</button>
+              <button type="button" class="btn-sm" style="background:#dcfce7;color:#15803d;border:1px solid #86efac;border-radius:12px;padding:2px 9px;font-size:11px;cursor:pointer" onclick="document.getElementById('add-stk-name').value='20 Leaves Exercise Book';document.getElementById('add-stk-category').value='Books &amp; Stationery'">20 Leaves Book</button>
+              <button type="button" class="btn-sm" style="background:#dcfce7;color:#15803d;border:1px solid #86efac;border-radius:12px;padding:2px 9px;font-size:11px;cursor:pointer" onclick="document.getElementById('add-stk-name').value='40 Leaves Exercise Book';document.getElementById('add-stk-category').value='Books &amp; Stationery'">40 Leaves Book</button>
+              <button type="button" class="btn-sm" style="background:#dcfce7;color:#15803d;border:1px solid #86efac;border-radius:12px;padding:2px 9px;font-size:11px;cursor:pointer" onclick="document.getElementById('add-stk-name').value='60 Leaves Exercise Book';document.getElementById('add-stk-category').value='Books &amp; Stationery'">60 Leaves Book</button>
+              <button type="button" class="btn-sm" style="background:#ede9fe;color:#7c3aed;border:1px solid #c4b5fd;border-radius:12px;padding:2px 9px;font-size:11px;cursor:pointer" onclick="document.getElementById('add-stk-name').value='Math Set';document.getElementById('add-stk-category').value='Books &amp; Stationery'">Math Set</button>
+              <button type="button" class="btn-sm" style="background:#ede9fe;color:#7c3aed;border:1px solid #c4b5fd;border-radius:12px;padding:2px 9px;font-size:11px;cursor:pointer" onclick="document.getElementById('add-stk-name').value='Eraser';document.getElementById('add-stk-category').value='Books &amp; Stationery'">Eraser</button>
+              <button type="button" class="btn-sm" style="background:#ede9fe;color:#7c3aed;border:1px solid #c4b5fd;border-radius:12px;padding:2px 9px;font-size:11px;cursor:pointer" onclick="document.getElementById('add-stk-name').value='Sharpener';document.getElementById('add-stk-category').value='Books &amp; Stationery'">Sharpener</button>
+              <button type="button" class="btn-sm" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d;border-radius:12px;padding:2px 9px;font-size:11px;cursor:pointer" onclick="document.getElementById('add-stk-name').value='Crayon Pack';document.getElementById('add-stk-category').value='Books &amp; Stationery'">Crayon Pack</button>
+              <button type="button" class="btn-sm" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d;border-radius:12px;padding:2px 9px;font-size:11px;cursor:pointer" onclick="document.getElementById('add-stk-name').value='Colour Pencils (12 pack)';document.getElementById('add-stk-category').value='Books &amp; Stationery'">Colour Pencils</button>
+              <button type="button" class="btn-sm" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d;border-radius:12px;padding:2px 9px;font-size:11px;cursor:pointer" onclick="document.getElementById('add-stk-name').value='A4 Paper Ream (500 sheets)';document.getElementById('add-stk-category').value='Books &amp; Stationery'">A4 Ream</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select id="add-stk-category" class="form-control" required>
+              <option value="Uniform">Uniform</option>
+              <option value="Books &amp; Stationery">Books &amp; Stationery</option>
+              <option value="Laboratory">Laboratory</option>
+              <option value="Sport">Sport</option>
+              <option value="Catering">Catering</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Others">Others</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unit of Measure</label>
+            <select id="add-stk-unit" class="form-control">
+              <option value="piece">Piece</option>
+              <option value="pair">Pair</option>
+              <option value="set">Set</option>
+              <option value="pack">Pack</option>
+              <option value="dozen">Dozen</option>
+              <option value="carton">Carton</option>
+              <option value="bottle">Bottle</option>
+              <option value="kg">Kg</option>
+              <option value="litre">Litre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="color:#0369a1;font-weight:700">Cost Price (₦) — School Purchase Price</label>
+            <input id="add-stk-cost" class="form-control" type="text" inputmode="decimal" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="color:green;font-weight:700">Selling Price (₦) *</label>
+            <input id="add-stk-sell" class="form-control" type="text" inputmode="decimal" required placeholder="0.00" style="border-color:#86efac">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Opening Quantity (in store right now)</label>
+            <input id="add-stk-qty" class="form-control" type="number" min="0" placeholder="0" value="0">
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Description / Size / Details (Optional)</label>
+            <input id="add-stk-desc" class="form-control" type="text" placeholder="e.g. Size: Medium, Blue &amp; White, Junior only…">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="OJSchoolsApp.closeModal('modal-add-stock')">Cancel</button>
+        <button type="submit" class="btn-primary" style="background:#7c3aed"><i class="fas fa-save"></i> Add to Inventory</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Stock Item Modal -->
+
+<!-- modal-edit-stock -->
+<div class="modal-overlay hidden" id="modal-edit-stock">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3><i class="fas fa-edit" style="color:#7c3aed"></i> &nbsp;Edit / Correct Stock Item</h3>
+      <button class="modal-close" onclick="OJSchoolsApp.closeModal('modal-edit-stock')">&times;</button>
+    </div>
+    <form id="edit-stock-form" onsubmit="OJSchoolsApp.handleEditStockSubmit(event)">
+      <div class="modal-body">
+        <input type="hidden" id="edit-stk-id">
+        <div class="form-row">
+          <div class="form-group full">
+            <label class="form-label">Item Name *</label>
+            <input id="edit-stk-name" class="form-control" type="text" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="edit-stk-category" class="form-control">
+              <option value="Uniform">Uniform</option>
+              <option value="Books &amp; Stationery">Books &amp; Stationery</option>
+              <option value="Laboratory">Laboratory</option>
+              <option value="Sport">Sport</option>
+              <option value="Catering">Catering</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Others">Others</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unit</label>
+            <select id="edit-stk-unit" class="form-control">
+              <option value="piece">Piece</option>
+              <option value="pair">Pair</option>
+              <option value="set">Set</option>
+              <option value="pack">Pack</option>
+              <option value="dozen">Dozen</option>
+              <option value="carton">Carton</option>
+              <option value="bottle">Bottle</option>
+              <option value="kg">Kg</option>
+              <option value="litre">Litre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="color:#0369a1;font-weight:700">Cost Price (₦)</label>
+            <input id="edit-stk-cost" class="form-control" type="text" inputmode="decimal" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="color:green;font-weight:700">Selling Price (₦) *</label>
+            <input id="edit-stk-sell" class="form-control" type="text" inputmode="decimal" required style="border-color:#86efac">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Opening Quantity (correct if entered wrong)</label>
+            <input id="edit-stk-qty" class="form-control" type="number" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select id="edit-stk-status" class="form-control">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive (Archived)</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Description / Notes</label>
+            <input id="edit-stk-desc" class="form-control" type="text">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="OJSchoolsApp.closeModal('modal-edit-stock')">Cancel</button>
+        <button type="submit" class="btn-primary" style="background:#7c3aed"><i class="fas fa-save"></i> Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Record Stock Sale Modal -->
+
+<!-- modal-sell-stock -->
+<div class="modal-overlay hidden" id="modal-sell-stock">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3><i class="fas fa-shopping-cart" style="color:#15803d"></i> &nbsp;Record Stock Sale / Dispense</h3>
+      <button class="modal-close" onclick="OJSchoolsApp.closeModal('modal-sell-stock')">&times;</button>
+    </div>
+    <form id="sell-stock-form" onsubmit="OJSchoolsApp.handleSellStockSubmit(event)">
+      <div class="modal-body">
+        <input type="hidden" id="sell-stk-id">
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#15803d;margin-bottom:14px;font-weight:600">
+          <i class="fas fa-info-circle"></i> &nbsp;<span id="sell-stk-item-info"></span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" style="color:green;font-weight:700">Quantity to Sell *</label>
+            <input id="sell-stk-qty" class="form-control" type="number" min="1" required value="1" oninput="OJSchoolsApp._updateSellTotal && OJSchoolsApp._updateSellTotal()">
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="color:green;font-weight:700">Unit Selling Price (₦) *</label>
+            <input id="sell-stk-price" class="form-control" type="text" inputmode="decimal" required oninput="OJSchoolsApp._updateSellTotal && OJSchoolsApp._updateSellTotal()">
+          </div>
+          <div class="form-group full" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px">
+            <div style="font-size:11px;color:#16a34a;text-transform:uppercase;font-weight:700">Total Sale Amount</div>
+            <div style="font-size:24px;font-weight:900;color:green" id="sell-stk-total-display">₦0.00</div>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Buyer Name (Student Name or Walk-in)</label>
+            <input id="sell-stk-student" class="form-control" type="text" placeholder="e.g. Adebayo Emmanuel, or leave blank for Walk-in">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sale Date *</label>
+            <input id="sell-stk-date" class="form-control" type="date" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Payment Method</label>
+            <select id="sell-stk-method" class="form-control">
+              <option value="Cash">Cash</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+              <option value="POS">POS</option>
+              <option value="Online">Online</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Notes / Reference (Optional)</label>
+            <input id="sell-stk-notes" class="form-control" type="text" placeholder="e.g. Receipt #, JSS 1 kit, etc.">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="OJSchoolsApp.closeModal('modal-sell-stock')">Cancel</button>
+        <button type="submit" class="btn-primary" style="background:#15803d"><i class="fas fa-check"></i> Confirm Sale</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Restock Modal -->
+
+<!-- modal-restock-stock -->
+<div class="modal-overlay hidden" id="modal-restock-stock">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3><i class="fas fa-boxes" style="color:#15803d"></i> &nbsp;Restock Item (Add Units)</h3>
+      <button class="modal-close" onclick="OJSchoolsApp.closeModal('modal-restock-stock')">&times;</button>
+    </div>
+    <form id="restock-form" onsubmit="OJSchoolsApp.handleRestockSubmit(event)">
+      <div class="modal-body">
+        <input type="hidden" id="restock-stk-id">
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#15803d;margin-bottom:14px;font-weight:600">
+          <i class="fas fa-info-circle"></i> &nbsp;<span id="restock-stk-item-info"></span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" style="font-weight:700">Quantity to Add (Units) *</label>
+            <input id="restock-stk-qty" class="form-control" type="number" min="1" required placeholder="e.g. 50">
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="color:#0369a1;font-weight:700">Cost Price per Unit (₦)</label>
+            <input id="restock-stk-cost" class="form-control" type="text" inputmode="decimal" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Restock Date *</label>
+            <input id="restock-stk-date" class="form-control" type="date" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Supplier / Vendor Name (Optional)</label>
+            <input id="restock-stk-supplier" class="form-control" type="text" placeholder="e.g. Supreme Printers &amp; Stationers">
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Invoice / Waybill No. (Optional)</label>
+            <input id="restock-stk-invoice" class="form-control" type="text" placeholder="e.g. INV-2026-904, Waybill #55">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="OJSchoolsApp.closeModal('modal-restock-stock')">Cancel</button>
+        <button type="submit" class="btn-primary" style="background:#15803d"><i class="fas fa-plus"></i> Confirm Restock</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Student Modal -->
+
+<!-- modal-add-staff -->
+<div class="modal-overlay hidden" id="modal-add-staff">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="staff-modal-title"><i class="fas fa-user-plus" style="color:#059669"></i> Add Staff Member</h3>
+      <button class="modal-close" onclick="OJSchoolsApp.closeModal('modal-add-staff')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="staff-edit-id">
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <label class="form-label">Full Name *</label>
+          <input type="text" id="staff-name" class="form-control" placeholder="e.g. Mr. Emmanuel Adebayo" required>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Section *</label>
+          <select id="staff-section" class="form-control" required>
+            <option value="primary">Primary School</option>
+            <option value="junior">Junior College</option>
+            <option value="senior">Senior College</option>
+            <option value="general">General / Admin</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <label class="form-label">Role / Subject / Designation *</label>
+          <input type="text" id="staff-role" class="form-control" placeholder="e.g. Mathematics Teacher, Class Teacher, Bursar" required>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Monthly Salary (&#8358;) *</label>
+          <input type="number" id="staff-base-salary" class="form-control" placeholder="e.g. 75000" min="0" step="500">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Bank Name</label>
+          <input type="text" id="staff-bank" class="form-control" placeholder="e.g. Zenith Bank, GTBank">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Account Number</label>
+          <input type="text" id="staff-account-no" class="form-control" placeholder="10-digit NUBAN account">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" id="staff-phone" class="form-control" placeholder="e.g. 08012345678">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" onclick="OJSchoolsApp.closeModal('modal-add-staff')">Cancel</button>
+      <button type="button" class="btn-primary" style="background:#059669" onclick="OJSchoolsApp.saveStaff()">
+        <i class="fas fa-save"></i> Save Staff Member
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PAY SALARY MODAL ═══════════════ -->
+
+<!-- modal-pay-salary -->
+<div class="modal-overlay hidden" id="modal-pay-salary">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3><i class="fas fa-hand-holding-usd" style="color:#0284c7"></i> Record Monthly Salary Payment</h3>
+      <button class="modal-close" onclick="OJSchoolsApp.closeModal('modal-pay-salary')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Staff Member *</label>
+        <select id="sal-pay-staff" class="form-control" onchange="OJSchoolsApp.onSalaryStaffSelect()" required>
+          <option value="">-- Select Staff Member --</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Section (Auto-detected)</label>
+          <select id="sal-pay-section" class="form-control">
+            <option value="primary">Primary School</option>
+            <option value="junior">Junior College</option>
+            <option value="senior">Senior College</option>
+            <option value="general">General / Admin</option>
+          </select>
+          <small style="color:var(--gray-500);font-size:11px">Deducts from this section's revenue</small>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Staff Role / Designation</label>
+          <input type="text" id="sal-pay-role" class="form-control" placeholder="e.g. Science Teacher">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Month *</label>
+          <select id="sal-pay-month" class="form-control" required>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Year *</label>
+          <select id="sal-pay-year" class="form-control" required>
+            <option value="2025">2025</option>
+            <option value="2026" selected>2026</option>
+            <option value="2027">2027</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Amount Paid (&#8358;) *</label>
+          <input type="number" id="sal-pay-amount" class="form-control" placeholder="e.g. 75000" min="0" step="500" required>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Payment Method *</label>
+          <select id="sal-pay-method" class="form-control">
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Cash">Cash</option>
+            <option value="Cheque">Cheque</option>
+            <option value="POS">POS</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Payment Date *</label>
+          <input type="date" id="sal-pay-date" class="form-control" required>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Payment Reference / Notes</label>
+          <input type="text" id="sal-pay-notes" class="form-control" placeholder="e.g. Transfer Ref, or Oct 2026 salary">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" onclick="OJSchoolsApp.closeModal('modal-pay-salary')">Cancel</button>
+      <button type="button" class="btn-primary" style="background:#0284c7" onclick="OJSchoolsApp.saveSalaryPayment()">
+        <i class="fas fa-check-circle"></i> Confirm &amp; Deduct from Revenue
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- In-app Confirm Dialog -->
+<div id="modal-confirm" class="confirm-overlay modal-overlay hidden" >
+  <div class="confirm-box">
+    <span class="confirm-icon">⚠️</span>
+    <div class="confirm-msg" id="confirm-message">Are you sure?</div>
+    <div class="confirm-btns">
+      <button id="confirm-no-btn"><i class="fas fa-times"></i> Cancel</button>
+      <button id="confirm-yes-btn"><i class="fas fa-check"></i> Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+
+<!-- modal-confirm -->
+<div class="modal-overlay hidden" id="modal-pay-salary">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3><i class="fas fa-hand-holding-usd" style="color:#0284c7"></i> Record Monthly Salary Payment</h3>
+      <button class="modal-close" onclick="OJSchoolsApp.closeModal('modal-pay-salary')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Staff Member *</label>
+        <select id="sal-pay-staff" class="form-control" onchange="OJSchoolsApp.onSalaryStaffSelect()" required>
+          <option value="">-- Select Staff Member --</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Section (Auto-detected)</label>
+          <select id="sal-pay-section" class="form-control">
+            <option value="primary">Primary School</option>
+            <option value="junior">Junior College</option>
+            <option value="senior">Senior College</option>
+            <option value="general">General / Admin</option>
+          </select>
+          <small style="color:var(--gray-500);font-size:11px">Deducts from this section's revenue</small>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Staff Role / Designation</label>
+          <input type="text" id="sal-pay-role" class="form-control" placeholder="e.g. Science Teacher">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Month *</label>
+          <select id="sal-pay-month" class="form-control" required>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Year *</label>
+          <select id="sal-pay-year" class="form-control" required>
+            <option value="2025">2025</option>
+            <option value="2026" selected>2026</option>
+            <option value="2027">2027</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Amount Paid (&#8358;) *</label>
+          <input type="number" id="sal-pay-amount" class="form-control" placeholder="e.g. 75000" min="0" step="500" required>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Payment Method *</label>
+          <select id="sal-pay-method" class="form-control">
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Cash">Cash</option>
+            <option value="Cheque">Cheque</option>
+            <option value="POS">POS</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Payment Date *</label>
+          <input type="date" id="sal-pay-date" class="form-control" required>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Payment Reference / Notes</label>
+          <input type="text" id="sal-pay-notes" class="form-control" placeholder="e.g. Transfer Ref, or Oct 2026 salary">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" onclick="OJSchoolsApp.closeModal('modal-pay-salary')">Cancel</button>
+      <button type="button" class="btn-primary" style="background:#0284c7" onclick="OJSchoolsApp.saveSalaryPayment()">
+        <i class="fas fa-check-circle"></i> Confirm &amp; Deduct from Revenue
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- In-app Confirm Dialog -->
+<div id="modal-confirm" class="confirm-overlay modal-overlay hidden" >
+  <div class="confirm-box">
+    <span class="confirm-icon">⚠️</span>
+    <div class="confirm-msg" id="confirm-message">Are you sure?</div>
+    <div class="confirm-btns">
+      <button id="confirm-no-btn"><i class="fas fa-times"></i> Cancel</button>
+      <button id="confirm-yes-btn"><i class="fas fa-check"></i> Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
 
 <!-- ═══════════════════ TOAST ═══════════════════ -->
 <div id="toast-notification" class="toast"><span id="toast-text">Notification</span></div>
