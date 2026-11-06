@@ -457,5 +457,55 @@ service cloud.firestore {
       allow read: if isStaff();
       allow write: if isAdmin();
     }
+
+    // 7. STOCK INVENTORY
+    match /stocks/{stockId} {
+      allow read: if isStaff();
+      allow create, update: if isStaff();
+      allow delete: if isAdmin();
+    }
+
+    // 8. STOCK SALES LEDGER
+    match /stockSales/{saleId} {
+      allow read: if isStaff();
+      allow create: if isStaff();
+      allow update: if false; // Immutable sales
+      allow delete: if isAdmin();
+    }
+
+    // 9. STOCK RESTOCKS
+    match /stockRestocks/{restockId} {
+      allow read: if isStaff();
+      allow create: if isStaff();
+      allow update: if false; // Immutable restocks
+      allow delete: if isAdmin();
+    }
+
+    // 10. STAFF REGISTRY
+    match /staff/{staffId} {
+      allow read: if isStaff();
+      allow create, update: if isStaff();
+      allow delete: if isAdmin();
+    }
+
+    // 11. SALARY DISBURSEMENTS & PAYROLL
+    match /salaries/{salaryId} {
+      allow read: if isStaff();
+      allow create, update: if isBursar();
+      allow delete: if isAdmin();
+    }
+
+    // 12. PERMANENT DELETED RECORDS (TOMBSTONES)
+    // Supports physical Firestore backend deletion and prevents deleted record resurrection
+    match /deletedRecords/{recordId} {
+      allow read: if isStaff();
+      allow create, update: if isStaff();
+      allow delete: if isAdmin();
+    }
+
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
 }
