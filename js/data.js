@@ -231,7 +231,7 @@ const DEFAULT_DATA = {
 class OJSchoolsDB {
   static KEY = "OJ_SCHOOLS_DB_V2_LIVE";
   static SEED_KEY = "OJ_STUDENTS_SEEDED_2026_V1";
-  static SEED_PAYMENTS_KEY = "OJ_PAYMENTS_SEEDED_2026_V1";
+  static SEED_PAYMENTS_KEY = "OJ_PAYMENTS_SEEDED_2026_V3";
 
   static init() {
     const raw = localStorage.getItem(this.KEY);
@@ -289,26 +289,44 @@ class OJSchoolsDB {
       }
     }
 
-    // ── Auto-seed official payments (runs once per device) ──────────────────
-    if (!localStorage.getItem(this.SEED_PAYMENTS_KEY)) {
-      try {
-        const rawDb2 = localStorage.getItem(this.KEY);
-        if (rawDb2) {
-          const dbData = JSON.parse(rawDb2);
-          if (typeof OFFICIAL_PAYMENTS_DATA !== "undefined" && Array.isArray(OFFICIAL_PAYMENTS_DATA) && OFFICIAL_PAYMENTS_DATA.length > 0) {
-            if (!Array.isArray(dbData.payments) || dbData.payments.length === 0) {
-              dbData.payments = JSON.parse(JSON.stringify(OFFICIAL_PAYMENTS_DATA));
-            } else {
-              const existingPayIds = new Set(dbData.payments.map(function(p) { return p.id; }));
-              for (var pi = 0; pi < OFFICIAL_PAYMENTS_DATA.length; pi++) {
-                var seedPay = OFFICIAL_PAYMENTS_DATA[pi];
-                if (!existingPayIds.has(seedPay.id)) {
-                  dbData.payments.push(JSON.parse(JSON.stringify(seedPay)));
-                }
+    // ── Auto-seed official payments & recovery guard ──────────────────
+    try {
+      const rawDb2 = localStorage.getItem(this.KEY);
+      if (rawDb2) {
+        const dbData = JSON.parse(rawDb2);
+        let needsSave = false;
+
+        // Clean out any erroneous tombstones for official seed payments
+        if (dbData._tombstones && typeof dbData._tombstones === "object") {
+          for (const k of Object.keys(dbData._tombstones)) {
+            if (k.startsWith("PAY-2026-") || k.includes("PAY-2026-")) {
+              delete dbData._tombstones[k];
+              needsSave = true;
+            }
+          }
+        }
+
+        // Ensure official payments are fully seeded
+        if (typeof OFFICIAL_PAYMENTS_DATA !== "undefined" && Array.isArray(OFFICIAL_PAYMENTS_DATA) && OFFICIAL_PAYMENTS_DATA.length > 0) {
+          if (!Array.isArray(dbData.payments) || dbData.payments.length === 0) {
+            dbData.payments = JSON.parse(JSON.stringify(OFFICIAL_PAYMENTS_DATA)).map(function(p) { p._pendingUpload = true; return p; });
+            needsSave = true;
+          } else {
+            const existingPayIds = new Set(dbData.payments.map(function(p) { return p.id; }));
+            for (var pi = 0; pi < OFFICIAL_PAYMENTS_DATA.length; pi++) {
+              var seedPay = OFFICIAL_PAYMENTS_DATA[pi];
+              if (!existingPayIds.has(seedPay.id)) {
+                var cloned = JSON.parse(JSON.stringify(seedPay));
+                cloned._pendingUpload = true;
+                dbData.payments.push(cloned);
+                needsSave = true;
               }
             }
           }
-          // Recalculate all student balances based on payment data
+        }
+
+        // Recalculate student balances
+        if (needsSave || !localStorage.getItem(this.SEED_PAYMENTS_KEY)) {
           if (Array.isArray(dbData.students) && Array.isArray(dbData.payments)) {
             var paysByStudent = {};
             dbData.payments.forEach(function(p) {
@@ -327,11 +345,11 @@ class OJSchoolsDB {
             });
           }
           localStorage.setItem(this.KEY, JSON.stringify(dbData));
+          localStorage.setItem(this.SEED_PAYMENTS_KEY, "true");
         }
-        localStorage.setItem(this.SEED_PAYMENTS_KEY, "true");
-      } catch (_err) {
-        localStorage.setItem(this.SEED_PAYMENTS_KEY, "true");
       }
+    } catch (_err) {
+      console.warn("[OJ Schools] Payment init notice:", _err);
     }
   }
 

@@ -2,6 +2,7 @@
 // OJ SCHOOLS — Official Learner Roster Seed (1st Term 2026/2027 Academic Session)
 // Auto-generated from official school payment schedules. Total: 444 students.
 // Includes updated totalPaid, balance, and clearanceStatus based on official payments.
+// _pendingUpload:true ensures Firebase sync pushes these to Firestore instead of purging them.
 // =============================================================================
 
 const OFFICIAL_STUDENTS_DATA = [
@@ -25,7 +26,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 36000
+    "balance": 36000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-CRECHE-002",
@@ -47,7 +49,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 30000
+    "balance": 30000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-CRECHE-003",
@@ -69,7 +72,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 19000
+    "balance": 19000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-CRECHE-004",
@@ -91,7 +95,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 36000
+    "balance": 36000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-CRECHE-005",
@@ -113,7 +118,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 36000
+    "balance": 36000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-CRECHE-006",
@@ -135,7 +141,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 41000
+    "balance": 41000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-CRECHE-007",
@@ -157,7 +164,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 16000
+    "balance": 16000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-CRECHE-008",
@@ -179,7 +187,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 36000
+    "balance": 36000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-CRECHE-009",
@@ -201,7 +210,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 36000
+    "balance": 36000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-CRECHE-010",
@@ -223,7 +233,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 36000
+    "balance": 36000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-CRECHE-011",
@@ -245,7 +256,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 27500
+    "balance": 27500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-CRECHE-012",
@@ -267,7 +279,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 27500
+    "balance": 27500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG1-013",
@@ -289,7 +302,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG1-014",
@@ -311,7 +325,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 36000
+    "balance": 36000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG1-015",
@@ -333,7 +348,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG1-016",
@@ -355,7 +371,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG1-017",
@@ -377,7 +394,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG1-018",
@@ -399,7 +417,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG1-019",
@@ -421,7 +440,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG1-020",
@@ -443,7 +463,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG1-021",
@@ -465,7 +486,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG1-022",
@@ -487,7 +509,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 17000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG1-023",
@@ -509,7 +532,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 21000
+    "balance": 21000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG1-024",
@@ -531,7 +555,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG1-025",
@@ -553,7 +578,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 36000
+    "balance": 36000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG1-026",
@@ -575,7 +601,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG1-027",
@@ -597,7 +624,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 14000,
-    "balance": 6000
+    "balance": 6000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-028",
@@ -619,7 +647,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 25000,
-    "balance": 6000
+    "balance": 6000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-029",
@@ -641,7 +670,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-030",
@@ -663,7 +693,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 25000,
-    "balance": 16000
+    "balance": 16000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-031",
@@ -685,7 +716,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-032",
@@ -707,7 +739,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-033",
@@ -729,7 +762,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 35000,
-    "balance": 6000
+    "balance": 6000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-034",
@@ -751,7 +785,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-035",
@@ -773,7 +808,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-036",
@@ -795,7 +831,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 21000,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-037",
@@ -817,7 +854,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 5000,
-    "balance": 15000
+    "balance": 15000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-038",
@@ -839,7 +877,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-039",
@@ -861,7 +900,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-040",
@@ -883,7 +923,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 5000
+    "balance": 5000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-041",
@@ -905,7 +946,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 26000
+    "balance": 26000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-042",
@@ -927,7 +969,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-043",
@@ -949,7 +992,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-044",
@@ -971,7 +1015,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 16000,
-    "balance": 15000
+    "balance": 15000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-045",
@@ -993,7 +1038,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 16000,
-    "balance": 4000
+    "balance": 4000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-046",
@@ -1015,7 +1061,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-047",
@@ -1037,7 +1084,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 5000,
-    "balance": 15000
+    "balance": 15000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-KG2-048",
@@ -1059,7 +1107,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-049",
@@ -1081,7 +1130,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 24000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-050",
@@ -1103,7 +1153,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 24000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-051",
@@ -1125,7 +1176,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 24000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-052",
@@ -1147,7 +1199,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 30000
+    "balance": 30000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-053",
@@ -1169,7 +1222,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 3000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-054",
@@ -1191,7 +1245,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 7000,
-    "balance": 17000
+    "balance": 17000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-055",
@@ -1213,7 +1268,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 35000
+    "balance": 35000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-056",
@@ -1235,7 +1291,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 18000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-057",
@@ -1257,7 +1314,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 31000,
-    "balance": 14000
+    "balance": 14000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-058",
@@ -1279,7 +1337,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 35000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-059",
@@ -1301,7 +1360,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 21000,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-060",
@@ -1323,7 +1383,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 21000,
-    "balance": 3000
+    "balance": 3000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-061",
@@ -1345,7 +1406,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 12000,
-    "balance": 12000
+    "balance": 12000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-062",
@@ -1367,7 +1429,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 16000,
-    "balance": 8000
+    "balance": 8000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-063",
@@ -1389,7 +1452,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 18000,
-    "balance": 9000
+    "balance": 9000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-064",
@@ -1411,7 +1475,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 4000
+    "balance": 4000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-065",
@@ -1433,7 +1498,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 11000,
-    "balance": 13000
+    "balance": 13000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-066",
@@ -1455,7 +1521,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 24000
+    "balance": 24000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-067",
@@ -1477,7 +1544,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 24000
+    "balance": 24000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-068",
@@ -1499,7 +1567,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 45000
+    "balance": 45000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-069",
@@ -1521,7 +1590,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 9000
+    "balance": 9000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-070",
@@ -1543,7 +1613,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 14000
+    "balance": 14000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY1-071",
@@ -1565,7 +1636,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 14000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-072",
@@ -1587,7 +1659,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 9000,
-    "balance": 16000
+    "balance": 16000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-073",
@@ -1609,7 +1682,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 25000
+    "balance": 25000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-074",
@@ -1631,7 +1705,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 15000
+    "balance": 15000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-075",
@@ -1653,7 +1728,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-076",
@@ -1675,7 +1751,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 25000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-077",
@@ -1697,7 +1774,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-078",
@@ -1719,7 +1797,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-079",
@@ -1741,7 +1820,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 25000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-080",
@@ -1763,7 +1843,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 16000
+    "balance": 16000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-081",
@@ -1785,7 +1866,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 9000,
-    "balance": 16000
+    "balance": 16000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-082",
@@ -1807,7 +1889,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 23000,
-    "balance": 23000
+    "balance": 23000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-083",
@@ -1829,7 +1912,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-084",
@@ -1851,7 +1935,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-085",
@@ -1873,7 +1958,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 43000
+    "balance": 43000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-086",
@@ -1895,7 +1981,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 25000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-087",
@@ -1917,7 +2004,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-088",
@@ -1939,7 +2027,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 21000,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-089",
@@ -1961,7 +2050,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 25000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-090",
@@ -1983,7 +2073,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 12000
+    "balance": 12000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-091",
@@ -2005,7 +2096,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 51000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-092",
@@ -2027,7 +2119,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 25000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-093",
@@ -2049,7 +2142,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 18000
+    "balance": 18000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-094",
@@ -2071,7 +2165,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 25000
+    "balance": 25000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-NURSERY2-095",
@@ -2093,7 +2188,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 25000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-096",
@@ -2115,7 +2211,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 38000,
-    "balance": 9000
+    "balance": 9000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-097",
@@ -2137,7 +2234,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 3000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-098",
@@ -2159,7 +2257,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 26000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-099",
@@ -2181,7 +2280,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 26000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-100",
@@ -2203,7 +2303,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-101",
@@ -2225,7 +2326,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 26000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-102",
@@ -2247,7 +2349,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 8000
+    "balance": 8000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-103",
@@ -2269,7 +2372,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 18000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-104",
@@ -2291,7 +2395,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 16000
+    "balance": 16000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-105",
@@ -2313,7 +2418,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 17000,
-    "balance": 9000
+    "balance": 9000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-106",
@@ -2335,7 +2441,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 16000
+    "balance": 16000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-107",
@@ -2357,7 +2464,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 11000
+    "balance": 11000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-108",
@@ -2379,7 +2487,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 12000,
-    "balance": 14000
+    "balance": 14000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-109",
@@ -2401,7 +2510,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 33000
+    "balance": 33000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-110",
@@ -2423,7 +2533,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 17000,
-    "balance": 9000
+    "balance": 9000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-111",
@@ -2445,7 +2556,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 21000
+    "balance": 21000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-112",
@@ -2467,7 +2579,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 32000
+    "balance": 32000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-113",
@@ -2489,7 +2602,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 3000
+    "balance": 3000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-114",
@@ -2511,7 +2625,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 14000,
-    "balance": 13000
+    "balance": 13000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-115",
@@ -2533,7 +2648,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 23000,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-116",
@@ -2555,7 +2671,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 22000
+    "balance": 22000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC1-117",
@@ -2577,7 +2694,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 26000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-118",
@@ -2599,7 +2717,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 17000
+    "balance": 17000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-119",
@@ -2621,7 +2740,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 27000
+    "balance": 27000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-120",
@@ -2643,7 +2763,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 27000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-121",
@@ -2665,7 +2786,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 27000
+    "balance": 27000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-122",
@@ -2687,7 +2809,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 48000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-123",
@@ -2709,7 +2832,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 27000
+    "balance": 27000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-124",
@@ -2731,7 +2855,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 7000
+    "balance": 7000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-125",
@@ -2753,7 +2878,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 31000,
-    "balance": 17000
+    "balance": 17000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-126",
@@ -2775,7 +2901,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 7000
+    "balance": 7000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-127",
@@ -2797,7 +2924,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 41500,
-    "balance": 6500
+    "balance": 6500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-128",
@@ -2819,7 +2947,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 41500,
-    "balance": 6500
+    "balance": 6500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-129",
@@ -2841,7 +2970,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 12000
+    "balance": 12000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-130",
@@ -2863,7 +2993,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 27000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-131",
@@ -2885,7 +3016,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 27000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-132",
@@ -2907,7 +3039,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 33000,
-    "balance": 15000
+    "balance": 15000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-133",
@@ -2929,7 +3062,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 48000
+    "balance": 48000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-134",
@@ -2951,7 +3085,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 27000
+    "balance": 27000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-135",
@@ -2973,7 +3108,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 33000
+    "balance": 33000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-136",
@@ -2995,7 +3131,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 14000,
-    "balance": 13000
+    "balance": 13000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-137",
@@ -3017,7 +3154,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 7000
+    "balance": 7000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC2-138",
@@ -3039,7 +3177,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 48000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-139",
@@ -3061,7 +3200,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 22000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-140",
@@ -3083,7 +3223,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 27000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-141",
@@ -3105,7 +3246,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 23000
+    "balance": 23000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-142",
@@ -3127,7 +3269,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 23000,
-    "balance": 4000
+    "balance": 4000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-143",
@@ -3149,7 +3292,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 18000
+    "balance": 18000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-144",
@@ -3171,7 +3315,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 12000
+    "balance": 12000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-145",
@@ -3193,7 +3338,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 28000
+    "balance": 28000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-146",
@@ -3215,7 +3361,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 48000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-147",
@@ -3237,7 +3384,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 23000
+    "balance": 23000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-148",
@@ -3259,7 +3407,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 17000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-149",
@@ -3281,7 +3430,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-150",
@@ -3303,7 +3453,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 22000,
-    "balance": 5000
+    "balance": 5000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-151",
@@ -3325,7 +3476,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 27000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-152",
@@ -3347,7 +3499,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 12000
+    "balance": 12000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-153",
@@ -3369,7 +3522,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 12000
+    "balance": 12000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-154",
@@ -3391,7 +3545,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 36000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-155",
@@ -3413,7 +3568,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 18000
+    "balance": 18000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-156",
@@ -3435,7 +3591,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 5000
+    "balance": 5000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC3-157",
@@ -3457,7 +3614,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 28000
+    "balance": 28000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-158",
@@ -3479,7 +3637,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 4000,
-    "balance": 29000
+    "balance": 29000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-159",
@@ -3501,7 +3660,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 28000
+    "balance": 28000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-160",
@@ -3523,7 +3683,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 18000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-161",
@@ -3545,7 +3706,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 28000
+    "balance": 28000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-162",
@@ -3567,7 +3729,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 13000
+    "balance": 13000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-163",
@@ -3589,7 +3752,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 28000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-164",
@@ -3611,7 +3775,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 45000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-165",
@@ -3633,7 +3798,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 42000,
-    "balance": 7000
+    "balance": 7000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-166",
@@ -3655,7 +3821,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 8000
+    "balance": 8000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-167",
@@ -3677,7 +3844,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 49000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-168",
@@ -3699,7 +3867,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 28000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-169",
@@ -3721,7 +3890,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 11000
+    "balance": 11000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-170",
@@ -3743,7 +3913,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 49000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-171",
@@ -3765,7 +3936,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 34000
+    "balance": 34000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-172",
@@ -3787,7 +3959,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 49000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-173",
@@ -3809,7 +3982,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 15000
+    "balance": 15000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-174",
@@ -3831,7 +4005,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 5000
+    "balance": 5000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC4-175",
@@ -3853,7 +4028,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 8000
+    "balance": 8000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-176",
@@ -3875,7 +4051,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 74000
+    "balance": 74000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-177",
@@ -3897,7 +4074,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 74000,
-    "balance": 57000
+    "balance": 57000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-178",
@@ -3919,7 +4097,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 28000,
-    "balance": 81000
+    "balance": 81000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-179",
@@ -3941,7 +4120,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 109000
+    "balance": 109000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-180",
@@ -3963,7 +4143,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 69000
+    "balance": 69000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-181",
@@ -3985,7 +4166,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 109000
+    "balance": 109000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-182",
@@ -4007,7 +4189,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 94000
+    "balance": 94000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-183",
@@ -4029,7 +4212,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 98000
+    "balance": 98000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-184",
@@ -4051,7 +4235,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 25000,
-    "balance": 86000
+    "balance": 86000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-185",
@@ -4073,7 +4258,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 109000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-186",
@@ -4095,7 +4281,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 50000,
-    "balance": 50000
+    "balance": 50000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-187",
@@ -4117,7 +4304,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 50000,
-    "balance": 81000
+    "balance": 81000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-188",
@@ -4139,7 +4327,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 114000
+    "balance": 114000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-189",
@@ -4161,7 +4350,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 17000,
-    "balance": 92000
+    "balance": 92000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-190",
@@ -4183,7 +4373,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 69000
+    "balance": 69000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-191",
@@ -4205,7 +4396,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 89000
+    "balance": 89000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-192",
@@ -4227,7 +4419,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 89000
+    "balance": 89000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-193",
@@ -4249,7 +4442,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 109000
+    "balance": 109000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-BASIC5-194",
@@ -4271,7 +4465,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 37000,
-    "balance": 72000
+    "balance": 72000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-195",
@@ -4293,7 +4488,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 50000
+    "balance": 50000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-196",
@@ -4315,7 +4511,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 60000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-197",
@@ -4337,7 +4534,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 45000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-198",
@@ -4359,7 +4557,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 60000
+    "balance": 60000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-199",
@@ -4381,7 +4580,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 60000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-200",
@@ -4403,7 +4603,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 15000
+    "balance": 15000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-201",
@@ -4425,7 +4626,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 52000,
-    "balance": 8000
+    "balance": 8000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-202",
@@ -4447,7 +4649,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 44000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-203",
@@ -4469,7 +4672,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 60000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-204",
@@ -4491,7 +4695,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 60000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-205",
@@ -4513,7 +4718,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 60000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-206",
@@ -4535,7 +4741,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 45000
+    "balance": 45000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-207",
@@ -4557,7 +4764,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 25000,
-    "balance": 35000
+    "balance": 35000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-208",
@@ -4579,7 +4787,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-209",
@@ -4601,7 +4810,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 18000
+    "balance": 18000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-210",
@@ -4623,7 +4833,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 55000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-211",
@@ -4645,7 +4856,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 40000
+    "balance": 40000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-212",
@@ -4667,7 +4879,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 60000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-213",
@@ -4689,7 +4902,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 55000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-214",
@@ -4711,7 +4925,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 60000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-215",
@@ -4733,7 +4948,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 60000
+    "balance": 60000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-216",
@@ -4755,7 +4971,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 55000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-217",
@@ -4777,7 +4994,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 28000,
-    "balance": 32000
+    "balance": 32000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-218",
@@ -4799,7 +5017,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 50000,
-    "balance": 36000
+    "balance": 36000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-219",
@@ -4821,7 +5040,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 60000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-220",
@@ -4843,7 +5063,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 24000,
-    "balance": 36000
+    "balance": 36000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-221",
@@ -4865,7 +5086,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 45000
+    "balance": 45000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-222",
@@ -4887,7 +5109,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 55000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-223",
@@ -4909,7 +5132,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 60000
+    "balance": 60000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-224",
@@ -4931,7 +5155,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 88000
+    "balance": 88000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-225",
@@ -4953,7 +5178,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 33000,
-    "balance": 27000
+    "balance": 27000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-226",
@@ -4975,7 +5201,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 60000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-227",
@@ -4997,7 +5224,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 60000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-228",
@@ -5019,7 +5247,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 25000
+    "balance": 25000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-229",
@@ -5041,7 +5270,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-230",
@@ -5063,7 +5293,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 55000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS1-231",
@@ -5085,7 +5316,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 40000
+    "balance": 40000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-232",
@@ -5107,7 +5339,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 21000
+    "balance": 21000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-233",
@@ -5129,7 +5362,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 38000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-234",
@@ -5151,7 +5385,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 19000
+    "balance": 19000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-235",
@@ -5173,7 +5408,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 18000
+    "balance": 18000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-236",
@@ -5195,7 +5431,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 8000
+    "balance": 8000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-237",
@@ -5217,7 +5454,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 33000,
-    "balance": 5000
+    "balance": 5000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-238",
@@ -5239,7 +5477,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 18000,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-239",
@@ -5261,7 +5500,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 38000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-240",
@@ -5283,7 +5523,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 38000
+    "balance": 38000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-241",
@@ -5305,7 +5546,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 38000
+    "balance": 38000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-242",
@@ -5327,7 +5569,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 40000
+    "balance": 40000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-243",
@@ -5349,7 +5592,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 38000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-244",
@@ -5371,7 +5615,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-245",
@@ -5393,7 +5638,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 8000
+    "balance": 8000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-246",
@@ -5415,7 +5661,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 38000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-247",
@@ -5437,7 +5684,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 27500
+    "balance": 27500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-248",
@@ -5459,7 +5707,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 23000
+    "balance": 23000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-249",
@@ -5481,7 +5730,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 60000
+    "balance": 60000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-250",
@@ -5503,7 +5753,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 35000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-251",
@@ -5525,7 +5776,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 45000,
-    "balance": 15000
+    "balance": 15000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-252",
@@ -5547,7 +5799,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 38000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-253",
@@ -5569,7 +5822,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 18000
+    "balance": 18000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-254",
@@ -5591,7 +5845,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 38000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-255",
@@ -5613,7 +5868,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 19500,
-    "balance": 18500
+    "balance": 18500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-256",
@@ -5635,7 +5891,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 18000
+    "balance": 18000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-257",
@@ -5657,7 +5914,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 38000
+    "balance": 38000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-258",
@@ -5679,7 +5937,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-259",
@@ -5701,7 +5960,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 38000
+    "balance": 38000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-260",
@@ -5723,7 +5983,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 13000,
-    "balance": 25000
+    "balance": 25000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-261",
@@ -5745,7 +6006,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 23000
+    "balance": 23000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-262",
@@ -5767,7 +6029,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 38000
+    "balance": 38000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-263",
@@ -5789,7 +6052,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 35000,
-    "balance": 25000
+    "balance": 25000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-264",
@@ -5811,7 +6075,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 8000
+    "balance": 8000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-265",
@@ -5833,7 +6098,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 18000
+    "balance": 18000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-266",
@@ -5855,7 +6121,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 10000,
-    "balance": 28000
+    "balance": 28000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-267",
@@ -5877,7 +6144,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 62000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS2-268",
@@ -5899,7 +6167,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 25000
+    "balance": 25000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-269",
@@ -5921,7 +6190,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 96000
+    "balance": 96000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-270",
@@ -5943,7 +6213,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 105000,
-    "balance": 71000
+    "balance": 71000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-271",
@@ -5965,7 +6236,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 16000,
-    "balance": 120000
+    "balance": 120000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-272",
@@ -5987,7 +6259,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 154000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-273",
@@ -6009,7 +6282,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 37500,
-    "balance": 116500
+    "balance": 116500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-274",
@@ -6031,7 +6305,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 37500,
-    "balance": 116500
+    "balance": 116500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-275",
@@ -6053,7 +6328,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 124000
+    "balance": 124000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-276",
@@ -6075,7 +6351,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 114000
+    "balance": 114000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-277",
@@ -6097,7 +6374,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 32000,
-    "balance": 104000
+    "balance": 104000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-278",
@@ -6119,7 +6397,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 172000
+    "balance": 172000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-279",
@@ -6141,7 +6420,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 134000
+    "balance": 134000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-280",
@@ -6163,7 +6443,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 154000
+    "balance": 154000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-281",
@@ -6185,7 +6466,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 54000,
-    "balance": 100000
+    "balance": 100000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-282",
@@ -6207,7 +6489,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 154000
+    "balance": 154000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-283",
@@ -6229,7 +6512,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 35000,
-    "balance": 119000
+    "balance": 119000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-284",
@@ -6251,7 +6535,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 9000,
-    "balance": 145000
+    "balance": 145000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-285",
@@ -6273,7 +6558,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 100000,
-    "balance": 76000
+    "balance": 76000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-286",
@@ -6295,7 +6581,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 64500,
-    "balance": 89500
+    "balance": 89500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-287",
@@ -6317,7 +6604,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 154000
+    "balance": 154000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-288",
@@ -6339,7 +6627,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 134000
+    "balance": 134000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-289",
@@ -6361,7 +6650,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 100000,
-    "balance": 54000
+    "balance": 54000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-290",
@@ -6383,7 +6673,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 136000
+    "balance": 136000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-291",
@@ -6405,7 +6696,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 50000,
-    "balance": 30000
+    "balance": 30000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-292",
@@ -6427,7 +6719,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 54000,
-    "balance": 100000
+    "balance": 100000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-293",
@@ -6449,7 +6742,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 156500
+    "balance": 156500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-294",
@@ -6471,7 +6765,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 168000
+    "balance": 168000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-295",
@@ -6493,7 +6788,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 100000,
-    "balance": 54000
+    "balance": 54000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-296",
@@ -6515,7 +6811,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 154000
+    "balance": 154000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-297",
@@ -6537,7 +6834,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 124000
+    "balance": 124000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-298",
@@ -6559,7 +6857,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 80000,
-    "balance": 74000
+    "balance": 74000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-299",
@@ -6581,7 +6880,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 172000
+    "balance": 172000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-300",
@@ -6603,7 +6903,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 187000
+    "balance": 187000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-301",
@@ -6625,7 +6926,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 110000,
-    "balance": 44000
+    "balance": 44000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-302",
@@ -6647,7 +6949,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 124000
+    "balance": 124000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-303",
@@ -6669,7 +6972,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 144000
+    "balance": 144000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-304",
@@ -6691,7 +6995,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 154000
+    "balance": 154000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-305",
@@ -6713,7 +7018,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 134000
+    "balance": 134000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-306",
@@ -6735,7 +7041,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 70000,
-    "balance": 84000
+    "balance": 84000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-307",
@@ -6757,7 +7064,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 96000
+    "balance": 96000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-308",
@@ -6779,7 +7087,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 136000
+    "balance": 136000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-JSS3-309",
@@ -6801,7 +7110,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 114000
+    "balance": 114000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-310",
@@ -6823,7 +7133,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 49000,
-    "balance": 17000
+    "balance": 17000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-311",
@@ -6845,7 +7156,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 36000
+    "balance": 36000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-312",
@@ -6867,7 +7179,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 34000,
-    "balance": 32000
+    "balance": 32000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-313",
@@ -6889,7 +7202,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 59000,
-    "balance": 7000
+    "balance": 7000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-314",
@@ -6911,7 +7225,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 32000,
-    "balance": 34000
+    "balance": 34000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-315",
@@ -6933,7 +7248,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-316",
@@ -6955,7 +7271,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 60000
+    "balance": 60000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-317",
@@ -6977,7 +7294,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 50000,
-    "balance": 16000
+    "balance": 16000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-318",
@@ -6999,7 +7317,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 26000
+    "balance": 26000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-319",
@@ -7021,7 +7340,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 49000,
-    "balance": 17000
+    "balance": 17000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-320",
@@ -7043,7 +7363,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 46000
+    "balance": 46000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-321",
@@ -7065,7 +7386,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 46000
+    "balance": 46000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-322",
@@ -7087,7 +7409,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 24000,
-    "balance": 29000
+    "balance": 29000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-323",
@@ -7109,7 +7432,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 79000,
-    "balance": 3000
+    "balance": 3000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-324",
@@ -7131,7 +7455,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 41000,
-    "balance": 25000
+    "balance": 25000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-325",
@@ -7153,7 +7478,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 156000
+    "balance": 156000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-326",
@@ -7175,7 +7501,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 68000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-327",
@@ -7197,7 +7524,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 61000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-328",
@@ -7219,7 +7547,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 60000,
-    "balance": 8000
+    "balance": 8000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-329",
@@ -7241,7 +7570,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-330",
@@ -7263,7 +7593,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 39000,
-    "balance": 27000
+    "balance": 27000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-331",
@@ -7285,7 +7616,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 39000,
-    "balance": 27000
+    "balance": 27000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-332",
@@ -7307,7 +7639,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 32000,
-    "balance": 34000
+    "balance": 34000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-333",
@@ -7329,7 +7662,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 36000,
-    "balance": 30000
+    "balance": 30000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-334",
@@ -7351,7 +7685,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 66000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-335",
@@ -7373,7 +7708,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 68000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-336",
@@ -7395,7 +7731,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 33000,
-    "balance": 33000
+    "balance": 33000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-337",
@@ -7417,7 +7754,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 31000
+    "balance": 31000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-338",
@@ -7439,7 +7777,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 36000,
-    "balance": 30000
+    "balance": 30000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-339",
@@ -7461,7 +7800,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 49000,
-    "balance": 17000
+    "balance": 17000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-340",
@@ -7483,7 +7823,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 55000,
-    "balance": 11000
+    "balance": 11000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-341",
@@ -7505,7 +7846,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 36000
+    "balance": 36000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-342",
@@ -7527,7 +7869,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 36000
+    "balance": 36000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-343",
@@ -7549,7 +7892,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 60000,
-    "balance": 6000
+    "balance": 6000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-344",
@@ -7571,7 +7915,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 66000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-345",
@@ -7593,7 +7938,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 26000
+    "balance": 26000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-346",
@@ -7615,7 +7961,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 54000
+    "balance": 54000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-347",
@@ -7637,7 +7984,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 54000
+    "balance": 54000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS1-348",
@@ -7659,7 +8007,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 50000,
-    "balance": 16000
+    "balance": 16000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-349",
@@ -7681,7 +8030,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-350",
@@ -7703,7 +8053,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 26000
+    "balance": 26000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-351",
@@ -7725,7 +8076,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-352",
@@ -7747,7 +8099,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-353",
@@ -7769,7 +8122,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 38000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-354",
@@ -7791,7 +8145,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 15000
+    "balance": 15000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-355",
@@ -7813,7 +8168,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 15000
+    "balance": 15000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-356",
@@ -7835,7 +8191,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 13000
+    "balance": 13000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-357",
@@ -7857,7 +8214,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 13000
+    "balance": 13000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-358",
@@ -7879,7 +8237,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-359",
@@ -7901,7 +8260,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-360",
@@ -7923,7 +8283,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-361",
@@ -7945,7 +8306,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 35000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-362",
@@ -7967,7 +8329,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 23000
+    "balance": 23000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-363",
@@ -7989,7 +8352,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 68000
+    "balance": 68000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-364",
@@ -8011,7 +8375,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-365",
@@ -8033,7 +8398,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 43000
+    "balance": 43000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-366",
@@ -8055,7 +8421,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 23000,
-    "balance": 37500
+    "balance": 37500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-367",
@@ -8077,7 +8444,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 23000
+    "balance": 23000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-368",
@@ -8099,7 +8467,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 13000
+    "balance": 13000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-369",
@@ -8121,7 +8490,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 23000
+    "balance": 23000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-370",
@@ -8143,7 +8513,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 13000
+    "balance": 13000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-371",
@@ -8165,7 +8536,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 13000
+    "balance": 13000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-372",
@@ -8187,7 +8559,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 28000
+    "balance": 28000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-373",
@@ -8209,7 +8582,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 14000,
-    "balance": 36000
+    "balance": 36000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-374",
@@ -8231,7 +8605,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 23000
+    "balance": 23000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-375",
@@ -8253,7 +8628,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-376",
@@ -8275,7 +8651,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 53500
+    "balance": 53500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-377",
@@ -8297,7 +8674,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 38500
+    "balance": 38500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-378",
@@ -8319,7 +8697,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 30000
+    "balance": 30000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-379",
@@ -8341,7 +8720,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-380",
@@ -8363,7 +8743,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-381",
@@ -8385,7 +8766,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-382",
@@ -8407,7 +8789,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 55000,
-    "balance": 11000
+    "balance": 11000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-383",
@@ -8429,7 +8812,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 13000
+    "balance": 13000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-384",
@@ -8451,7 +8835,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30000,
-    "balance": 36000
+    "balance": 36000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-385",
@@ -8473,7 +8858,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 23000,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-386",
@@ -8495,7 +8881,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 49000
+    "balance": 49000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-387",
@@ -8517,7 +8904,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-388",
@@ -8539,7 +8927,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-389",
@@ -8561,7 +8950,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-390",
@@ -8583,7 +8973,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 17000,
-    "balance": 26000
+    "balance": 26000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-391",
@@ -8605,7 +8996,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 17000,
-    "balance": 26000
+    "balance": 26000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-392",
@@ -8627,7 +9019,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 33000,
-    "balance": 10000
+    "balance": 10000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-393",
@@ -8649,7 +9042,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 46000,
-    "balance": 20000
+    "balance": 20000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-394",
@@ -8671,7 +9065,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-395",
@@ -8693,7 +9088,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 3000
+    "balance": 3000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-396",
@@ -8715,7 +9111,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-397",
@@ -8737,7 +9134,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 28000
+    "balance": 28000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-398",
@@ -8759,7 +9157,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 23000
+    "balance": 23000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-399",
@@ -8781,7 +9180,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 23000
+    "balance": 23000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-400",
@@ -8803,7 +9203,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 15000,
-    "balance": 28000
+    "balance": 28000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-401",
@@ -8825,7 +9226,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 43000,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS2-402",
@@ -8847,7 +9249,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 35000,
-    "balance": 8000
+    "balance": 8000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-403",
@@ -8869,7 +9272,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 90000,
-    "balance": 150500
+    "balance": 150500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-404",
@@ -8891,7 +9295,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 60000,
-    "balance": 199000
+    "balance": 199000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-405",
@@ -8913,7 +9318,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 228500,
-    "balance": 12000
+    "balance": 12000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-406",
@@ -8935,7 +9341,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 230000
+    "balance": 230000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-407",
@@ -8957,7 +9364,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 145500,
-    "balance": 95000
+    "balance": 95000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-408",
@@ -8979,7 +9387,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 113000,
-    "balance": 127500
+    "balance": 127500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-409",
@@ -9001,7 +9410,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 30500,
-    "balance": 210000
+    "balance": 210000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-410",
@@ -9023,7 +9433,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 237500,
-    "balance": 0
+    "balance": 0,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-411",
@@ -9045,7 +9456,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 80500,
-    "balance": 160000
+    "balance": 160000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-412",
@@ -9067,7 +9479,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 92000,
-    "balance": 156500
+    "balance": 156500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-413",
@@ -9089,7 +9502,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 200000,
-    "balance": 40500
+    "balance": 40500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-414",
@@ -9111,7 +9525,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 240500
+    "balance": 240500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-415",
@@ -9133,7 +9548,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 50000,
-    "balance": 190500
+    "balance": 190500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-416",
@@ -9155,7 +9571,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 200000
+    "balance": 200000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-417",
@@ -9177,7 +9594,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 125000,
-    "balance": 115500
+    "balance": 115500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-418",
@@ -9199,7 +9617,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 140000,
-    "balance": 119000
+    "balance": 119000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-419",
@@ -9221,7 +9640,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 40000,
-    "balance": 200500
+    "balance": 200500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-420",
@@ -9243,7 +9663,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 20000,
-    "balance": 220500
+    "balance": 220500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-421",
@@ -9265,7 +9686,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 112000,
-    "balance": 128500
+    "balance": 128500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-422",
@@ -9287,7 +9709,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 268500
+    "balance": 268500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-423",
@@ -9309,7 +9732,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 240500
+    "balance": 240500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-424",
@@ -9331,7 +9755,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 25000,
-    "balance": 215500
+    "balance": 215500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-425",
@@ -9353,7 +9778,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 100000,
-    "balance": 140500
+    "balance": 140500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-426",
@@ -9375,7 +9801,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 150000
+    "balance": 150000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-427",
@@ -9397,7 +9824,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 100000,
-    "balance": 140500
+    "balance": 140500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-428",
@@ -9419,7 +9847,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 150000
+    "balance": 150000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-429",
@@ -9441,7 +9870,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 210000
+    "balance": 210000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-430",
@@ -9463,7 +9893,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 85000,
-    "balance": 155500
+    "balance": 155500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-431",
@@ -9485,7 +9916,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 210500
+    "balance": 210500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-432",
@@ -9507,7 +9939,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 100000,
-    "balance": 130000
+    "balance": 130000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-433",
@@ -9529,7 +9962,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 100000,
-    "balance": 159000
+    "balance": 159000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-434",
@@ -9551,7 +9985,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 25000,
-    "balance": 185500
+    "balance": 185500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-435",
@@ -9573,7 +10008,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 240000,
-    "balance": 500
+    "balance": 500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-436",
@@ -9595,7 +10031,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 212500,
-    "balance": 13000
+    "balance": 13000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-437",
@@ -9617,7 +10054,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 240500
+    "balance": 240500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-438",
@@ -9639,7 +10077,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 240500
+    "balance": 240500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-439",
@@ -9661,7 +10100,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 240500
+    "balance": 240500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-440",
@@ -9683,7 +10123,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 50000,
-    "balance": 190500
+    "balance": 190500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-441",
@@ -9705,7 +10146,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 50000,
-    "balance": 190500
+    "balance": 190500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-442",
@@ -9727,7 +10169,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 115000,
-    "balance": 125500
+    "balance": 125500,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-443",
@@ -9749,7 +10192,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 210000
+    "balance": 210000,
+    "_pendingUpload": true
   },
   {
     "id": "STU-2026-SSS3-444",
@@ -9771,7 +10215,8 @@ const OFFICIAL_STUDENTS_DATA = [
     "parentEmail": "",
     "address": "",
     "totalPaid": 0,
-    "balance": 259000
+    "balance": 259000,
+    "_pendingUpload": true
   }
 ];
 

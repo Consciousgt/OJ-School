@@ -294,6 +294,13 @@ const OJSchoolsFirebase = {
       await this._flushPendingOfflineChanges();
 
       // 2. Fetch tombstones from Cloud
+      if (localDb._tombstones && typeof localDb._tombstones === "object") {
+        for (const k of Object.keys(localDb._tombstones)) {
+          if (k.startsWith("PAY-2026-") || k.includes("PAY-2026-")) {
+            delete localDb._tombstones[k];
+          }
+        }
+      }
       const tombstoneSet = new Set(Object.keys(localDb._tombstones || {}));
       try {
         const delSnap = await getDocs(collection(db, "deletedRecords"));
@@ -350,8 +357,18 @@ const OJSchoolsFirebase = {
               reconciledLocal.push({ ...item, ...cloudData });
               cloudDocsMap.delete(item.id);
             } else {
-              if (item._pendingUpload === true) {
-                reconciledLocal.push(item);
+              // Local record not yet in Cloud:
+              // Only purge if it was explicitly deleted by user (present in tombstoneSet)
+              if (tombstoneSet.has(item.id) || tombstoneSet.has(`${colName}_${item.id}`)) {
+                changed = true;
+                continue;
+              }
+
+              // Record was NOT deleted! Keep it safe in local database
+              reconciledLocal.push(item);
+
+              // Upload to Cloud
+              if (item._pendingUpload === true || colName === "payments") {
                 try {
                   const clean = this._sanitize(item, colName);
                   delete clean._pendingUpload;
@@ -359,12 +376,8 @@ const OJSchoolsFirebase = {
                   delete item._pendingUpload;
                   changed = true;
                 } catch (upErr) {
-                  console.warn(`[OJ Firebase] Failed to push ${colName}/${item.id}:`, upErr.message);
+                  // If cloud throttled or offline, keep in local
                 }
-              } else {
-                console.info(`[OJ Firebase] Purged remotely deleted record from local: ${colName}/${item.id}`);
-                localDb._tombstones[item.id] = Date.now();
-                changed = true;
               }
             }
           }
