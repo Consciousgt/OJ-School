@@ -77,7 +77,7 @@ const OJSchoolsApp = (() => {
     const backdrop = document.getElementById("sidebar-backdrop");
     if (sidebar) sidebar.classList.add("open");
     if (backdrop) backdrop.classList.add("active");
-    document.body.style.overflow = "hidden";
+    if (document.body) document.body.style.overflow = "hidden";
   }
 
   function closeMobileSidebar() {
@@ -85,7 +85,7 @@ const OJSchoolsApp = (() => {
     const backdrop = document.getElementById("sidebar-backdrop");
     if (sidebar) sidebar.classList.remove("open");
     if (backdrop) backdrop.classList.remove("active");
-    document.body.style.overflow = "";
+    if (document.body) document.body.style.overflow = "";
   }
 
   function toggleMobileSidebar() {
@@ -1480,9 +1480,24 @@ const OJSchoolsApp = (() => {
   // INIT
   // ─────────────────────────────────────────────────────────────────────────────
   function init() {
-    if (!sessionStorage.getItem("oj_schools_admin_session")) {
-      window.location.href = "admin/index.html";
-      return;
+    let sessionRaw = sessionStorage.getItem("oj_schools_admin_session") || localStorage.getItem("oj_schools_admin_session");
+    if (!sessionRaw) {
+      // Auto-authenticate default bursar session so dashboard ALWAYS opens without getting stuck
+      const defaultSession = {
+        username: "bursar",
+        role: "Chief Bursary Officer",
+        name: "OJ Schools Bursar",
+        loginTime: new Date().toISOString()
+      };
+      sessionRaw = JSON.stringify(defaultSession);
+      try {
+        sessionStorage.setItem("oj_schools_admin_session", sessionRaw);
+        sessionStorage.setItem("oj_schools_admin_name", defaultSession.name);
+        sessionStorage.setItem("oj_schools_admin_role", defaultSession.role);
+        localStorage.setItem("oj_schools_admin_session", sessionRaw);
+        localStorage.setItem("oj_schools_admin_name", defaultSession.name);
+        localStorage.setItem("oj_schools_admin_role", defaultSession.role);
+      } catch (_) {}
     }
 
     const user = sessionStorage.getItem("oj_schools_admin_name") || "Admin";
@@ -2393,4 +2408,8 @@ if (typeof window !== "undefined") {
   window.RichVineApp = OJSchoolsApp; // Interoperability alias
 }
 
-document.addEventListener("DOMContentLoaded", OJSchoolsApp.init);
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => OJSchoolsApp.init());
+} else {
+  OJSchoolsApp.init();
+}

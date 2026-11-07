@@ -30,7 +30,7 @@ const ADMIN_CREDENTIALS = [
 
 class OJSchoolsAuth {
   static checkAuth() {
-    const session = sessionStorage.getItem(AUTH_KEY);
+    const session = sessionStorage.getItem(AUTH_KEY) || localStorage.getItem(AUTH_KEY);
     if (!session) {
       const path = window.location.pathname;
       if (path.endsWith("dashboard.html")) {
