@@ -98,7 +98,7 @@ const OJSchoolsApp = (() => {
   }
 
   // ── Tab Navigation ───────────────────────────────────────────────────────────
-  function switchTab(tab) {
+  function switchTab(tab, options = {}) {
     currentTab = tab;
     document.querySelectorAll(".tab-section").forEach(s => s.classList.add("hidden"));
     const section = document.getElementById("view-" + tab);
@@ -135,6 +135,11 @@ const OJSchoolsApp = (() => {
 
     // Close mobile sidebar on tab switch
     closeMobileSidebar();
+
+    // Scroll back to top smoothly
+    window.scrollTo({ top: 0, behavior: "instant" });
+
+    if (options && options.skipLoad) return;
 
     // Load content
     if (tab === "dashboard")    loadDashboard();
@@ -392,21 +397,39 @@ const OJSchoolsApp = (() => {
   // ─────────────────────────────────────────────────────────────────────────────
   // LEARNERS
   // ─────────────────────────────────────────────────────────────────────────────
-  function loadLearners(filterSection = "", filterClass = "", searchQuery = "") {
-    let students = OJSchoolsDB.getStudents();
+  function loadLearners(filterSection, filterClass, searchQuery) {
+    const secEl = document.getElementById("filter-section");
+    const clsEl = document.getElementById("filter-class");
+    const qEl   = document.getElementById("search-student");
+
+    if (filterSection === undefined || filterSection === null) filterSection = secEl ? secEl.value : "";
+    if (filterClass === undefined || filterClass === null)     filterClass   = clsEl ? clsEl.value : "";
+    if (searchQuery === undefined || searchQuery === null)     searchQuery   = qEl ? qEl.value : "";
+
+    filterSection = (filterSection || "").trim();
+    filterClass   = (filterClass || "").trim();
+    searchQuery   = (searchQuery || "").trim();
+
+    if (secEl && secEl.value !== filterSection) secEl.value = filterSection;
+    if (clsEl && clsEl.value !== filterClass)   clsEl.value = filterClass;
+    if (qEl && qEl.value !== searchQuery)       qEl.value = searchQuery;
+
+    let students = OJSchoolsDB.getStudents() || [];
 
     if (filterSection) {
-      students = students.filter(s =>
-        (s.section || (getSectionByClass(s.currentClass) ? getSectionByClass(s.currentClass).id : "primary")) === filterSection
-      );
+      students = students.filter(s => {
+        const sSec = s.section || (getSectionByClass(s.currentClass) ? getSectionByClass(s.currentClass).id : "primary");
+        return sSec === filterSection;
+      });
     }
     if (filterClass) {
-      students = students.filter(s => s.currentClass === filterClass);
+      const targetCls = filterClass.toLowerCase();
+      students = students.filter(s => (s.currentClass || "").trim().toLowerCase() === targetCls);
     }
-    if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
       students = students.filter(s =>
-        `${s.firstName} ${s.lastName}`.toLowerCase().includes(q) ||
+        `${s.firstName || ""} ${s.lastName || ""}`.toLowerCase().includes(q) ||
         (s.regNo || "").toLowerCase().includes(q) ||
         (s.currentClass || "").toLowerCase().includes(q)
       );
@@ -564,16 +587,34 @@ const OJSchoolsApp = (() => {
   }
 
   function viewClassStudents(className) {
+    if (!className) return;
+    const sec = (typeof getSectionByClass === "function") ? getSectionByClass(className) : null;
+    const secId = sec ? sec.id : "";
+
+    const filterSection = document.getElementById("filter-section");
+    if (filterSection) filterSection.value = secId;
+
+    updateFilterClassOptions("filter-class", secId);
+
     const filterClassSel = document.getElementById("filter-class");
     if (filterClassSel) filterClassSel.value = className;
-    switchTab("learners");
-    loadLearners("", className, "");
+
+    const searchInput = document.getElementById("search-student");
+    if (searchInput) searchInput.value = "";
+
+    switchTab("learners", { skipLoad: true });
+    loadLearners(secId, className, "");
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
   // CLEARANCE
   // ─────────────────────────────────────────────────────────────────────────────
-  function loadClearance(filterSection = "") {
+  function loadClearance(filterSection) {
+    const clearEl = document.getElementById("clear-filter-section");
+    if (filterSection === undefined || filterSection === null) filterSection = clearEl ? clearEl.value : "";
+    filterSection = (filterSection || "").trim();
+    if (clearEl && clearEl.value !== filterSection) clearEl.value = filterSection;
+
     let students = OJSchoolsDB.getStudents();
 
     if (filterSection) {
@@ -653,21 +694,42 @@ const OJSchoolsApp = (() => {
   // ─────────────────────────────────────────────────────────────────────────────
   // PAYMENTS
   // ─────────────────────────────────────────────────────────────────────────────
-  function loadPayments(filterSection = "", filterClass = "", searchQuery = "") {
-    let payments = OJSchoolsDB.getPayments();
+  function loadPayments(filterSection, filterClass, searchQuery) {
+    const secEl = document.getElementById("pay-filter-section");
+    const clsEl = document.getElementById("pay-filter-class");
+    const qEl   = document.getElementById("pay-search");
+
+    if (filterSection === undefined || filterSection === null) filterSection = secEl ? secEl.value : "";
+    if (filterClass === undefined || filterClass === null)     filterClass   = clsEl ? clsEl.value : "";
+    if (searchQuery === undefined || searchQuery === null)     searchQuery   = qEl ? qEl.value : "";
+
+    filterSection = (filterSection || "").trim();
+    filterClass   = (filterClass || "").trim();
+    searchQuery   = (searchQuery || "").trim();
+
+    if (secEl && secEl.value !== filterSection) secEl.value = filterSection;
+    if (clsEl && clsEl.value !== filterClass)   clsEl.value = filterClass;
+    if (qEl && qEl.value !== searchQuery)       qEl.value = searchQuery;
+
+    let payments = OJSchoolsDB.getPayments() || [];
 
     if (filterSection) {
-      payments = payments.filter(p => p.section === filterSection);
+      payments = payments.filter(p => {
+        const sec = p.section || (getSectionByClass(p.studentClass) ? getSectionByClass(p.studentClass).id : "");
+        return sec === filterSection;
+      });
     }
     if (filterClass) {
-      payments = payments.filter(p => p.studentClass === filterClass);
+      const targetCls = filterClass.toLowerCase();
+      payments = payments.filter(p => (p.studentClass || "").trim().toLowerCase() === targetCls);
     }
-    if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
       payments = payments.filter(p =>
         (p.studentName || "").toLowerCase().includes(q) ||
         (p.receiptNumber || "").toLowerCase().includes(q) ||
-        (p.studentRegNo || "").toLowerCase().includes(q)
+        (p.studentRegNo || "").toLowerCase().includes(q) ||
+        (p.studentClass || "").toLowerCase().includes(q)
       );
     }
 
@@ -726,11 +788,31 @@ const OJSchoolsApp = (() => {
   // ─────────────────────────────────────────────────────────────────────────────
   // DEBTORS
   // ─────────────────────────────────────────────────────────────────────────────
-  function loadDebtors(filterSection = "", searchQuery = "") {
+  function loadDebtors(filterSection, searchQuery, filterClass) {
+    const secEl = document.getElementById("debtors-filter-section");
+    const clsEl = document.getElementById("debtors-filter-class");
+    const qEl   = document.getElementById("debtors-search");
+
+    if (filterSection === undefined || filterSection === null) filterSection = secEl ? secEl.value : "";
+    if (searchQuery === undefined || searchQuery === null)     searchQuery   = qEl ? qEl.value : "";
+    if (filterClass === undefined || filterClass === null)     filterClass   = clsEl ? clsEl.value : "";
+
+    filterSection = (filterSection || "").trim();
+    filterClass   = (filterClass || "").trim();
+    searchQuery   = (searchQuery || "").trim();
+
+    if (secEl && secEl.value !== filterSection) secEl.value = filterSection;
+    if (clsEl && clsEl.value !== filterClass)   clsEl.value = filterClass;
+    if (qEl && qEl.value !== searchQuery)       qEl.value = searchQuery;
+
     let debtors = OJSchoolsDB.getDebtors(filterSection || "all");
 
-    if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
+    if (filterClass) {
+      const targetCls = filterClass.toLowerCase();
+      debtors = debtors.filter(d => (d.student.currentClass || "").trim().toLowerCase() === targetCls);
+    }
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
       debtors = debtors.filter(d =>
         `${d.student.firstName} ${d.student.lastName}`.toLowerCase().includes(q) ||
         (d.student.regNo || "").toLowerCase().includes(q) ||
@@ -1507,6 +1589,108 @@ const OJSchoolsApp = (() => {
   // ─────────────────────────────────────────────────────────────────────────────
   // INIT
   // ─────────────────────────────────────────────────────────────────────────────
+
+  // ── Mobile Swipe & Touch Gestures ───────────────────────────────────────────
+  function setupMobileGestures() {
+    let startX = 0;
+    let startY = 0;
+    let startTime = 0;
+    let isTracking = false;
+
+    const TAB_ORDER = [
+      "dashboard",
+      "learners",
+      "class-hub",
+      "payments",
+      "clearance",
+      "debtors",
+      "overview",
+      "expenses",
+      "stocks",
+      "salary",
+      "reports",
+      "audit-logs",
+      "settings"
+    ];
+
+    document.addEventListener("touchstart", function(e) {
+      if (!e.touches || e.touches.length !== 1) return;
+
+      var target = e.target;
+      while (target && target !== document.body) {
+        if (target.classList && (target.classList.contains("modal-overlay") || target.classList.contains("modal-box"))) {
+          return;
+        }
+        if (target.tagName === "INPUT" || target.tagName === "SELECT" || target.tagName === "TEXTAREA" || target.tagName === "BUTTON") {
+          return;
+        }
+        if (target.classList && target.classList.contains("table-wrap")) {
+          if (target.scrollWidth > target.clientWidth + 10) {
+            return;
+          }
+        }
+        target = target.parentElement;
+      }
+
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      startTime = Date.now();
+      isTracking = true;
+    }, { passive: true });
+
+    document.addEventListener("touchend", function(e) {
+      if (!isTracking || !e.changedTouches || e.changedTouches.length !== 1) return;
+      isTracking = false;
+
+      var endX = e.changedTouches[0].clientX;
+      var endY = e.changedTouches[0].clientY;
+      var deltaX = endX - startX;
+      var deltaY = endY - startY;
+      var deltaTime = Date.now() - startTime;
+
+      if (deltaTime > 600) return;
+      if (Math.abs(deltaX) < 45) return;
+      if (Math.abs(deltaX) < Math.abs(deltaY) * 1.3) return;
+
+      var sidebar = document.getElementById("sidebar");
+      var isSidebarOpen = sidebar && sidebar.classList.contains("open");
+
+      // Swipe left on open sidebar closes drawer
+      if (isSidebarOpen && deltaX < -35) {
+        closeMobileSidebar();
+        if (navigator.vibrate) navigator.vibrate(8);
+        return;
+      }
+
+      // Edge swipe right from left border opens sidebar
+      if (!isSidebarOpen && startX <= 40 && deltaX > 45) {
+        openMobileSidebar();
+        if (navigator.vibrate) navigator.vibrate(10);
+        return;
+      }
+
+      // Tab navigation swipe
+      var currentIndex = TAB_ORDER.indexOf(currentTab);
+      if (currentIndex === -1) return;
+
+      if (deltaX < -45) {
+        // Swiped Left -> Next Tab
+        if (currentIndex < TAB_ORDER.length - 1) {
+          var nextTab = TAB_ORDER[currentIndex + 1];
+          if (navigator.vibrate) navigator.vibrate(8);
+          switchTab(nextTab);
+        }
+      } else if (deltaX > 45) {
+        // Swiped Right -> Previous Tab
+        if (currentIndex > 0) {
+          var prevTab = TAB_ORDER[currentIndex - 1];
+          if (navigator.vibrate) navigator.vibrate(8);
+          switchTab(prevTab);
+        }
+      }
+    }, { passive: true });
+  }
+
   function init() {
     let sessionRaw = sessionStorage.getItem("oj_schools_admin_session") || localStorage.getItem("oj_schools_admin_session");
     if (!sessionRaw) {
@@ -1556,12 +1740,7 @@ const OJSchoolsApp = (() => {
     if (sidebarCloseBtn) sidebarCloseBtn.addEventListener("click", () => closeMobileSidebar());
     if (sidebarBackdrop) sidebarBackdrop.addEventListener("click", () => closeMobileSidebar());
 
-    const mainEl = document.getElementById("main");
-    if (mainEl) {
-      mainEl.addEventListener("click", () => {
-        if (window.innerWidth < 768) closeMobileSidebar();
-      });
-    }
+    // Mobile sidebar dismissed via backdrop or close button
 
     // Modal close bindings
     document.querySelectorAll(".modal-overlay").forEach(overlay => {
@@ -1640,21 +1819,114 @@ const OJSchoolsApp = (() => {
 
     _startLiveClock();
     populateClassDropdowns();
+    updateFilterClassOptions("debtors-filter-class");
+    setupMobileGestures();
     loadDashboard();
     switchTab("dashboard");
   }
 
+  function onLearnerClassFilterChange(cls) {
+    const secEl = document.getElementById("filter-section");
+    if (cls && typeof getSectionByClass === "function") {
+      const sec = getSectionByClass(cls);
+      if (sec && secEl && secEl.value !== sec.id) {
+        secEl.value = sec.id;
+      }
+    }
+    applyLearnerFilters();
+  }
+
+  function onLearnerSectionFilterChange(secId) {
+    const classEl = document.getElementById("filter-class");
+    const prevClass = classEl ? classEl.value : "";
+    updateFilterClassOptions("filter-class", secId);
+    if (classEl && prevClass) {
+      const secOfPrev = typeof getSectionByClass === "function" ? getSectionByClass(prevClass) : null;
+      if (secOfPrev && (!secId || secOfPrev.id === secId)) {
+        classEl.value = prevClass;
+      } else {
+        classEl.value = "";
+      }
+    }
+    applyLearnerFilters();
+  }
+
+  function onPaymentClassFilterChange(cls) {
+    const secEl = document.getElementById("pay-filter-section");
+    if (cls && typeof getSectionByClass === "function") {
+      const sec = getSectionByClass(cls);
+      if (sec && secEl && secEl.value !== sec.id) {
+        secEl.value = sec.id;
+      }
+    }
+    applyPaymentFilters();
+  }
+
+  function onPaymentSectionFilterChange(secId) {
+    const classEl = document.getElementById("pay-filter-class");
+    const prevClass = classEl ? classEl.value : "";
+    updateFilterClassOptions("pay-filter-class", secId);
+    if (classEl && prevClass) {
+      const secOfPrev = typeof getSectionByClass === "function" ? getSectionByClass(prevClass) : null;
+      if (secOfPrev && (!secId || secOfPrev.id === secId)) {
+        classEl.value = prevClass;
+      } else {
+        classEl.value = "";
+      }
+    }
+    applyPaymentFilters();
+  }
+
+  function onDebtorClassFilterChange(cls) {
+    const secEl = document.getElementById("debtors-filter-section");
+    if (cls && typeof getSectionByClass === "function") {
+      const sec = getSectionByClass(cls);
+      if (sec && secEl && secEl.value !== sec.id) {
+        secEl.value = sec.id;
+      }
+    }
+    const secVal = secEl ? secEl.value : "";
+    const qVal = document.getElementById("debtors-search")?.value || "";
+    loadDebtors(secVal, qVal, cls);
+  }
+
   function applyLearnerFilters() {
-    const section = document.getElementById("filter-section")?.value || "";
-    const cls     = document.getElementById("filter-class")?.value   || "";
-    const query   = document.getElementById("search-student")?.value || "";
+    const sectionEl = document.getElementById("filter-section");
+    const classEl   = document.getElementById("filter-class");
+    const searchEl  = document.getElementById("search-student");
+
+    let section = sectionEl ? sectionEl.value.trim() : "";
+    let cls     = classEl ? classEl.value.trim() : "";
+    const query = searchEl ? searchEl.value.trim() : "";
+
+    if (cls && typeof getSectionByClass === "function") {
+      const sec = getSectionByClass(cls);
+      if (sec && section && section !== sec.id) {
+        section = sec.id;
+        if (sectionEl) sectionEl.value = section;
+      }
+    }
+
     loadLearners(section, cls, query);
   }
 
   function applyPaymentFilters() {
-    const section = document.getElementById("pay-filter-section")?.value || "";
-    const cls     = document.getElementById("pay-filter-class")?.value   || "";
-    const query   = document.getElementById("pay-search")?.value         || "";
+    const sectionEl = document.getElementById("pay-filter-section");
+    const classEl   = document.getElementById("pay-filter-class");
+    const searchEl  = document.getElementById("pay-search");
+
+    let section = sectionEl ? sectionEl.value.trim() : "";
+    let cls     = classEl ? classEl.value.trim() : "";
+    const query = searchEl ? searchEl.value.trim() : "";
+
+    if (cls && typeof getSectionByClass === "function") {
+      const sec = getSectionByClass(cls);
+      if (sec && section && section !== sec.id) {
+        section = sec.id;
+        if (sectionEl) sectionEl.value = section;
+      }
+    }
+
     loadPayments(section, cls, query);
   }
 
@@ -2400,6 +2672,16 @@ return {
     saveSettings,
     viewClassStudents,
     selectClass: viewClassStudents,
+    applyLearnerFilters,
+    applyPaymentFilters,
+    applyExpenseFilters,
+    onLearnerClassFilterChange,
+    onLearnerSectionFilterChange,
+    onPaymentClassFilterChange,
+    onPaymentSectionFilterChange,
+    onDebtorClassFilterChange,
+    updateFilterClassOptions,
+    populateClassDropdowns,
     openEnrollModal,
     onEnrollClassChange,
     saveEnrollment,
