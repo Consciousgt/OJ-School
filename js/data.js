@@ -206,7 +206,7 @@ const DEFAULT_DATA = {
   classes:       ALL_CLASSES,
   feeCategories: FEE_CATEGORIES,
   students:      typeof OFFICIAL_STUDENTS_DATA !== "undefined" ? OFFICIAL_STUDENTS_DATA : [],
-  payments:      [],
+  payments:      typeof OFFICIAL_PAYMENTS_DATA !== "undefined" ? OFFICIAL_PAYMENTS_DATA : [],
   expenses:      [],
   staff:         [],
   salaries:      [],
@@ -231,6 +231,7 @@ const DEFAULT_DATA = {
 class OJSchoolsDB {
   static KEY = "OJ_SCHOOLS_DB_V2_LIVE";
   static SEED_KEY = "OJ_STUDENTS_SEEDED_2026_V1";
+  static SEED_PAYMENTS_KEY = "OJ_PAYMENTS_SEEDED_2026_V1";
 
   static init() {
     const raw = localStorage.getItem(this.KEY);
@@ -461,7 +462,7 @@ class OJSchoolsDB {
     });
 
     const arrearsRemaining = Math.max(0, openingArrears - arrearsPaid);
-    const termFeeRemaining = Math.max(0, termFee - termFeePaid);
+    const termFeeRemaining = Math.max(0, termFee - (termFeePaid + otherFeesPaid));
     const totalOutstanding = arrearsRemaining + termFeeRemaining;
 
     return {
