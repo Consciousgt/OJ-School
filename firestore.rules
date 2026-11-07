@@ -269,10 +269,10 @@ service cloud.firestore {
     // --- Payments Validator ---
     function isValidPayment(data) {
       let allowedFields = [
-        'id', 'receiptNumber', 'studentId', 'studentName', 'studentClass',
+        'id', 'receiptNumber', 'receiptNo', 'studentId', 'studentName', 'studentClass',
         'studentRegNo', 'section', 'amount', 'arrearsDeducted', 'termFeePaid',
-        'otherFeesPaid', 'method', 'date', 'category', 'recordedBy', 'notes',
-        'academicSession', 'term', 'items', 'description', 'createdAt', 'updatedAt'
+        'otherFeesPaid', 'method', 'date', 'category', 'categoryName', 'recordedBy', 'notes',
+        'academicSession', 'term', 'items', 'description', 'createdAt', 'updatedAt', 'timestamp'
       ];
       let requiredFields = [
         'receiptNumber', 'studentId', 'studentName', 'amount',
@@ -282,6 +282,7 @@ service cloud.firestore {
       return hasOnlyAllowedFields(data, allowedFields) &&
              hasRequiredFields(data, requiredFields) &&
              isValidString(data.receiptNumber, 1, 50) &&
+             isValidOptionalString(data, 'receiptNo', 1, 50) &&
              isValidString(data.studentId, 1, 50) &&
              isValidString(data.studentName, 1, 100) &&
              (data.amount is number && data.amount > 0 && data.amount <= 100000000) &&
@@ -295,12 +296,14 @@ service cloud.firestore {
              isValidOptionalNumber(data, 'termFeePaid', 0, 100000000) &&
              isValidOptionalNumber(data, 'otherFeesPaid', 0, 100000000) &&
              isValidOptionalString(data, 'category', 1, 50) &&
+             isValidOptionalString(data, 'categoryName', 1, 150) &&
              isValidOptionalString(data, 'description', 0, 500) &&
              isValidOptionalString(data, 'notes', 0, 500) &&
              isValidOptionalString(data, 'academicSession', 1, 20) &&
              isValidOptionalString(data, 'term', 1, 20) &&
              isValidOptionalString(data, 'id', 1, 50) &&
              (!('items' in data) || data.items is list) &&
+             (!('timestamp' in data) || data.timestamp is number) &&
              (!('createdAt' in data) || isValidTimestampOrString(data.createdAt, 50)) &&
              (!('updatedAt' in data) || isValidTimestampOrString(data.updatedAt, 50));
     }

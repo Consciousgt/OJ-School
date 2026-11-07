@@ -87,6 +87,7 @@ const OJSchoolsFirebase = {
     if (!obj || typeof obj !== "object") return obj;
     const clean = {};
     for (const [k, v] of Object.entries(obj)) {
+      if (k === "_pendingUpload") continue; // Never write internal sync flag to Firestore
       if (v === undefined || v === null) {
         continue;
       } else if (Array.isArray(v)) {
@@ -113,10 +114,13 @@ const OJSchoolsFirebase = {
       }
       if (!clean.enrolledDate) clean.enrolledDate = new Date().toISOString().split("T")[0];
     } else if (colName === "payments") {
-      clean.amount     = Number(clean.amount) || 0;
-      clean.method     = clean.method || "Cash";
-      clean.recordedBy = clean.recordedBy || "Bursar";
-      clean.date       = clean.date || new Date().toISOString().split("T")[0];
+      clean.amount        = Number(clean.amount) || 0;
+      clean.method        = clean.method || "Cash";
+      clean.recordedBy    = clean.recordedBy || "Bursar";
+      clean.date          = clean.date || new Date().toISOString().split("T")[0];
+      clean.receiptNumber = clean.receiptNumber || clean.receiptNo || ("REC-" + Date.now());
+      if (clean.receiptNo && !clean.receiptNumber) clean.receiptNumber = clean.receiptNo;
+      if (clean.receiptNumber && !clean.receiptNo) clean.receiptNo = clean.receiptNumber;
     } else if (colName === "expenses") {
       clean.amount     = Number(clean.amount) || 0;
       clean.period     = clean.period || "monthly";
@@ -136,6 +140,7 @@ const OJSchoolsFirebase = {
       clean.unitPrice  = Number(clean.unitPrice) || 0;
     }
 
+    delete clean._pendingUpload;
     return clean;
   },
 
@@ -221,21 +226,37 @@ const OJSchoolsFirebase = {
       localDb._pendingDeletes = remaining;
     }
 
-    // 2. Process pending offline uploads across all collections
+    // 2. Process pending offline uploads across all collections (Batched for speed & quota efficiency)
     const collections = ["students", "payments", "expenses", "stocks", "stockSales", "stockRestocks", "staff", "salaries"];
     for (const colName of collections) {
       const list = Array.isArray(localDb[colName]) ? localDb[colName] : [];
-      for (const item of list) {
-        if (item && item._pendingUpload === true) {
+      const pendingItems = list.filter(item => item && item._pendingUpload === true);
+      if (pendingItems.length > 0) {
+        for (let b = 0; b < pendingItems.length; b += 400) {
+          const chunk = pendingItems.slice(b, b + 400);
           try {
-            const clean = this._sanitize(item, colName);
-            delete clean._pendingUpload;
-            await setDoc(doc(db, colName, item.id), clean, { merge: true });
-            delete item._pendingUpload;
+            const batch = writeBatch(db);
+            for (const item of chunk) {
+              const clean = this._sanitize(item, colName);
+              batch.set(doc(db, colName, item.id), clean, { merge: true });
+            }
+            await batch.commit();
+            for (const item of chunk) {
+              delete item._pendingUpload;
+            }
             changed = true;
-            console.info(`[OJ Firebase] Flushed offline item to Cloud: ${colName}/${item.id}`);
+            console.info(`[OJ Firebase] Flushed ${chunk.length} pending items to ${colName} ✓`);
           } catch (err) {
-            console.warn(`[OJ Firebase] Pending upload skipped for ${colName}/${item.id}:`, err.message);
+            console.warn(`[OJ Firebase] Batch flush note for ${colName}:`, err.message);
+            // Single retry fallback if batch failed
+            for (const item of chunk) {
+              try {
+                const clean = this._sanitize(item, colName);
+                await setDoc(doc(db, colName, item.id), clean, { merge: true });
+                delete item._pendingUpload;
+                changed = true;
+              } catch (_) {}
+            }
           }
         }
       }
@@ -342,6 +363,7 @@ const OJSchoolsFirebase = {
           const seenIds = new Set();
 
           // Process existing local records
+          const itemsToUpload = [];
           for (const item of currentLocal) {
             if (!item || !item.id || seenIds.has(item.id)) continue;
 
@@ -367,16 +389,38 @@ const OJSchoolsFirebase = {
               // Record was NOT deleted! Keep it safe in local database
               reconciledLocal.push(item);
 
-              // Upload to Cloud
+              // Queue for Cloud upload
               if (item._pendingUpload === true || colName === "payments") {
-                try {
-                  const clean = this._sanitize(item, colName);
-                  delete clean._pendingUpload;
-                  await setDoc(doc(db, colName, item.id), clean, { merge: true });
-                  delete item._pendingUpload;
-                  changed = true;
-                } catch (upErr) {
-                  // If cloud throttled or offline, keep in local
+                const clean = this._sanitize(item, colName);
+                itemsToUpload.push({ item, clean });
+              }
+            }
+          }
+
+          // Batch upload local items to Cloud (up to 400 per commit for speed and quota efficiency)
+          if (itemsToUpload.length > 0) {
+            for (let b = 0; b < itemsToUpload.length; b += 400) {
+              const chunk = itemsToUpload.slice(b, b + 400);
+              try {
+                const batch = writeBatch(db);
+                for (const entry of chunk) {
+                  batch.set(doc(db, colName, entry.item.id), entry.clean, { merge: true });
+                }
+                await batch.commit();
+                for (const entry of chunk) {
+                  delete entry.item._pendingUpload;
+                }
+                changed = true;
+                console.info(`[OJ Firebase] Batch synced ${chunk.length} items to ${colName} ✓`);
+              } catch (batchErr) {
+                console.warn(`[OJ Firebase] Batch upload note for ${colName}:`, batchErr.message);
+                // Fall back to single item write attempt or keep in local
+                for (const entry of chunk) {
+                  try {
+                    await setDoc(doc(db, colName, entry.item.id), entry.clean, { merge: true });
+                    delete entry.item._pendingUpload;
+                    changed = true;
+                  } catch (_) {}
                 }
               }
             }
@@ -390,7 +434,12 @@ const OJSchoolsFirebase = {
             changed = true;
           }
 
-          localDb[colName] = reconciledLocal;
+          // Safety Guard: if remote payments were empty, NEVER replace a populated local payments array with empty
+          if (colName === "payments" && reconciledLocal.length === 0 && currentLocal.length > 0) {
+            console.warn("[OJ Firebase] Safety Guard: Retaining local payments rather than clearing.");
+          } else {
+            localDb[colName] = reconciledLocal;
+          }
         } catch (colErr) {
           console.warn(`[OJ Firebase] Notice syncing ${colName}:`, colErr.message);
         }
