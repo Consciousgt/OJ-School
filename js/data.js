@@ -288,6 +288,51 @@ class OJSchoolsDB {
         localStorage.setItem(this.SEED_KEY, "true");
       }
     }
+
+    // ── Auto-seed official payments (runs once per device) ──────────────────
+    if (!localStorage.getItem(this.SEED_PAYMENTS_KEY)) {
+      try {
+        const rawDb2 = localStorage.getItem(this.KEY);
+        if (rawDb2) {
+          const dbData = JSON.parse(rawDb2);
+          if (typeof OFFICIAL_PAYMENTS_DATA !== "undefined" && Array.isArray(OFFICIAL_PAYMENTS_DATA) && OFFICIAL_PAYMENTS_DATA.length > 0) {
+            if (!Array.isArray(dbData.payments) || dbData.payments.length === 0) {
+              dbData.payments = JSON.parse(JSON.stringify(OFFICIAL_PAYMENTS_DATA));
+            } else {
+              const existingPayIds = new Set(dbData.payments.map(function(p) { return p.id; }));
+              for (var pi = 0; pi < OFFICIAL_PAYMENTS_DATA.length; pi++) {
+                var seedPay = OFFICIAL_PAYMENTS_DATA[pi];
+                if (!existingPayIds.has(seedPay.id)) {
+                  dbData.payments.push(JSON.parse(JSON.stringify(seedPay)));
+                }
+              }
+            }
+          }
+          // Recalculate all student balances based on payment data
+          if (Array.isArray(dbData.students) && Array.isArray(dbData.payments)) {
+            var paysByStudent = {};
+            dbData.payments.forEach(function(p) {
+              if (!paysByStudent[p.studentId]) paysByStudent[p.studentId] = [];
+              paysByStudent[p.studentId].push(p);
+            });
+            dbData.students.forEach(function(s) {
+              var stuPays = paysByStudent[s.id] || [];
+              var totalPaid = stuPays.reduce(function(sum, p) { return sum + (Number(p.amount) || 0); }, 0);
+              var termFee = Number(s.termFee) || 0;
+              var arrears = Number(s.arrears) || 0;
+              var totalExpected = termFee + arrears;
+              s.totalPaid = totalPaid;
+              s.balance = Math.max(0, totalExpected - totalPaid);
+              s.clearanceStatus = (s.balance === 0 && totalExpected > 0) ? "Cleared" : "Pending";
+            });
+          }
+          localStorage.setItem(this.KEY, JSON.stringify(dbData));
+        }
+        localStorage.setItem(this.SEED_PAYMENTS_KEY, "true");
+      } catch (_err) {
+        localStorage.setItem(this.SEED_PAYMENTS_KEY, "true");
+      }
+    }
   }
 
   static get() {
