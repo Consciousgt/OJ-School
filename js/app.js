@@ -426,10 +426,38 @@ const OJSchoolsApp = (() => {
       return;
     }
 
+// Pre-index student payments for blazing fast O(1) row generation
+    const dbData = OJSchoolsDB.get();
+    const paysByStu = new Map();
+    (dbData.payments || []).forEach(p => {
+      if (!p.studentId) return;
+      if (!paysByStu.has(p.studentId)) paysByStu.set(p.studentId, []);
+      paysByStu.get(p.studentId).push(p);
+    });
+
     tbody.innerHTML = students.map(s => {
       const sec  = getSectionByClass(s.currentClass) || SCHOOL_SECTIONS.primary;
-      const bal  = OJSchoolsDB.getStudentBalance(s.id);
-      const outstanding = bal ? bal.totalOutstanding : 0;
+      const pays = paysByStu.get(s.id) || [];
+      let totalPaid = 0, arrearsPaid = 0, termFeePaid = 0, otherFeesPaid = 0;
+      for (let pi = 0; pi < pays.length; pi++) {
+        const p = pays[pi];
+        totalPaid     += Number(p.amount)          || 0;
+        arrearsPaid   += Number(p.arrearsDeducted) || 0;
+        termFeePaid   += Number(p.termFeePaid)     || 0;
+        otherFeesPaid += Number(p.otherFeesPaid)   || 0;
+      }
+      const openingArrears = Number(s.arrears) || 0;
+      const termFee        = Number(s.termFee) || 0;
+      const arrearsRemaining = Math.max(0, openingArrears - arrearsPaid);
+      const termFeeRemaining = Math.max(0, termFee - (termFeePaid + otherFeesPaid));
+      const outstanding      = arrearsRemaining + termFeeRemaining;
+      const bal = {
+        student: s, termFee, openingArrears,
+        arrearsPaid, arrearsRemaining,
+        termFeePaid, termFeeRemaining,
+        otherFeesPaid, totalPaid, totalOutstanding: outstanding,
+        isCleared: outstanding <= 0 || s.clearanceStatus === "Cleared"
+      };
       const statusBadge = s.status === "Active"
         ? `<span class="badge badge-active">Active</span>`
         : `<span class="badge badge-inactive">${s.status || "Unknown"}</span>`;

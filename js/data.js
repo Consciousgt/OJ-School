@@ -229,6 +229,7 @@ const DEFAULT_DATA = {
 
 // ─── LocalStorage & Persistence Engine ───────────────────────────────────────
 class OJSchoolsDB {
+  static _cache = null;
   static KEY = "OJ_SCHOOLS_DB_V2_LIVE";
   static SEED_KEY = "OJ_STUDENTS_SEEDED_2026_V1";
   static SEED_PAYMENTS_KEY = "OJ_PAYMENTS_SEEDED_2026_V3";
@@ -344,6 +345,7 @@ class OJSchoolsDB {
               s.clearanceStatus = (s.balance === 0 && totalExpected > 0) ? "Cleared" : "Pending";
             });
           }
+          this._cache = dbData;
           localStorage.setItem(this.KEY, JSON.stringify(dbData));
           localStorage.setItem(this.SEED_PAYMENTS_KEY, "true");
         }
@@ -354,6 +356,7 @@ class OJSchoolsDB {
   }
 
   static get() {
+    if (this._cache) return this._cache;
     this.init();
     try {
       const data = JSON.parse(localStorage.getItem(this.KEY));
@@ -371,6 +374,7 @@ class OJSchoolsDB {
         data.payments = data.payments.filter(p => !p.studentId || validIds.has(p.studentId));
         this.save(data, false);
       }
+      this._cache = data;
       return data;
     } catch (e) {
       localStorage.setItem(this.KEY, JSON.stringify(DEFAULT_DATA));
@@ -379,6 +383,7 @@ class OJSchoolsDB {
   }
 
   static save(data, triggerCloudSync = true) {
+    this._cache = data;
     localStorage.setItem(this.KEY, JSON.stringify(data));
     if (triggerCloudSync && window.OJSchoolsFirebase &&
         typeof window.OJSchoolsFirebase.syncWithCloud === "function") {
@@ -509,20 +514,25 @@ class OJSchoolsDB {
 
   // ── Balance Calculation ──
   static getStudentBalance(studentId) {
-    const student = this.getStudentById(studentId);
+    const db = this.get();
+    if (!db) return null;
+    const student = (db.students || []).find(s => s.id === studentId);
     if (!student) return null;
 
     const termFee        = Number(student.termFee) || 0;
     const openingArrears = Number(student.arrears) || 0;
-    const pays           = this.get().payments.filter(p => p.studentId === studentId);
+    const allPays        = db.payments || [];
 
     let totalPaid = 0, arrearsPaid = 0, termFeePaid = 0, otherFeesPaid = 0;
-    pays.forEach(p => {
-      totalPaid     += Number(p.amount)          || 0;
-      arrearsPaid   += Number(p.arrearsDeducted) || 0;
-      termFeePaid   += Number(p.termFeePaid)     || 0;
-      otherFeesPaid += Number(p.otherFeesPaid)   || 0;
-    });
+    for (let i = 0; i < allPays.length; i++) {
+      const p = allPays[i];
+      if (p.studentId === studentId) {
+        totalPaid     += Number(p.amount)          || 0;
+        arrearsPaid   += Number(p.arrearsDeducted) || 0;
+        termFeePaid   += Number(p.termFeePaid)     || 0;
+        otherFeesPaid += Number(p.otherFeesPaid)   || 0;
+      }
+    }
 
     const arrearsRemaining = Math.max(0, openingArrears - arrearsPaid);
     const termFeeRemaining = Math.max(0, termFee - (termFeePaid + otherFeesPaid));
@@ -696,45 +706,116 @@ class OJSchoolsDB {
 
   // ── Debtors ──
   static getDebtors(filterSection = "all") {
-    const students = this.getStudents();
-    const filtered = filterSection === "all" ? students : students.filter(s =>
-      (s.section || (getSectionByClass(s.currentClass)||{id:"primary"}).id) === filterSection
-    );
-    return filtered
-      .map(s => ({ student: s, balance: this.getStudentBalance(s.id) }))
-      .filter(({ balance }) => balance && balance.totalOutstanding > 0)
-      .sort((a, b) => b.balance.totalOutstanding - a.balance.totalOutstanding);
+    const { students, payments } = this.get();
+    const secOf = s => s.section || (getSectionByClass(s.currentClass)||{id:"primary"}).id;
+    const filtered = filterSection === "all" ? students : students.filter(s => secOf(s) === filterSection);
+
+    // Pre-index payments in O(P)
+    const paysByStudent = new Map();
+    const allPays = payments || [];
+    for (let i = 0; i < allPays.length; i++) {
+      const p = allPays[i];
+      if (!p.studentId) continue;
+      if (!paysByStudent.has(p.studentId)) paysByStudent.set(p.studentId, []);
+      paysByStudent.get(p.studentId).push(p);
+    }
+
+    const debtors = [];
+    for (let i = 0; i < filtered.length; i++) {
+      const student = filtered[i];
+      const termFee = Number(student.termFee) || 0;
+      const openingArrears = Number(student.arrears) || 0;
+      const pays = paysByStudent.get(student.id) || [];
+
+      let totalPaid = 0, arrearsPaid = 0, termFeePaid = 0, otherFeesPaid = 0;
+      for (let j = 0; j < pays.length; j++) {
+        const p = pays[j];
+        totalPaid     += Number(p.amount)          || 0;
+        arrearsPaid   += Number(p.arrearsDeducted) || 0;
+        termFeePaid   += Number(p.termFeePaid)     || 0;
+        otherFeesPaid += Number(p.otherFeesPaid)   || 0;
+      }
+
+      const arrearsRemaining = Math.max(0, openingArrears - arrearsPaid);
+      const termFeeRemaining = Math.max(0, termFee - (termFeePaid + otherFeesPaid));
+      const totalOutstanding = arrearsRemaining + termFeeRemaining;
+
+      if (totalOutstanding > 0 && student.clearanceStatus !== "Cleared") {
+        debtors.push({
+          student,
+          balance: {
+            student, termFee, openingArrears,
+            arrearsPaid, arrearsRemaining,
+            termFeePaid, termFeeRemaining,
+            otherFeesPaid, totalPaid, totalOutstanding,
+            isCleared: false
+          }
+        });
+      }
+    }
+
+    return debtors.sort((a, b) => b.balance.totalOutstanding - a.balance.totalOutstanding);
   }
 
-  // ── Financial Summary ──
+  // ── Financial Summary (Blazing Fast O(N+P) Computation) ──
   static getFinancialSummary(filterSection = "all") {
     const { students, payments, expenses } = this.get();
 
     const secOf = s => s.section || (getSectionByClass(s.currentClass)||{id:"primary"}).id;
-    const filteredStudents = filterSection === "all" ? students : students.filter(s => secOf(s) === filterSection);
-    const filteredPayments = filterSection === "all" ? payments : payments.filter(p => p.section === filterSection);
-    const filteredExpenses = filterSection === "all" ? expenses : expenses.filter(e => e.account === filterSection || e.account === "general");
+    const filteredStudents = filterSection === "all" ? (students || []) : (students || []).filter(s => secOf(s) === filterSection);
+    const filteredPayments = filterSection === "all" ? (payments || []) : (payments || []).filter(p => p.section === filterSection);
+    const filteredExpenses = filterSection === "all" ? (expenses || []) : (expenses || []).filter(e => e.account === filterSection || e.account === "general");
 
     let totalRevenue = 0, totalTermFeesPaid = 0, totalArrearsRecovered = 0, totalOtherFeesPaid = 0;
-    filteredPayments.forEach(p => {
+    for (let i = 0; i < filteredPayments.length; i++) {
+      const p = filteredPayments[i];
       totalRevenue          += Number(p.amount)          || 0;
       totalArrearsRecovered += Number(p.arrearsDeducted) || 0;
       totalTermFeesPaid     += Number(p.termFeePaid)     || 0;
       totalOtherFeesPaid    += Number(p.otherFeesPaid)   || 0;
-    });
+    }
 
     let totalExpenses = 0;
-    filteredExpenses.forEach(e => { totalExpenses += Number(e.amount) || 0; });
+    for (let i = 0; i < filteredExpenses.length; i++) {
+      totalExpenses += Number(filteredExpenses[i].amount) || 0;
+    }
+
+    // Pre-index payments by studentId in O(P)
+    const paysByStudent = new Map();
+    for (let i = 0; i < filteredPayments.length; i++) {
+      const p = filteredPayments[i];
+      if (!p.studentId) continue;
+      if (!paysByStudent.has(p.studentId)) paysByStudent.set(p.studentId, []);
+      paysByStudent.get(p.studentId).push(p);
+    }
 
     let totalOutstandingArrears = 0, totalUnpaidTermFees = 0, totalDebtorsCount = 0;
-    filteredStudents.forEach(stu => {
-      const bal = this.getStudentBalance(stu.id);
-      if (bal) {
-        totalOutstandingArrears += bal.arrearsRemaining;
-        totalUnpaidTermFees     += bal.termFeeRemaining;
-        if (bal.totalOutstanding > 0) totalDebtorsCount++;
+    for (let i = 0; i < filteredStudents.length; i++) {
+      const stu = filteredStudents[i];
+      const termFee = Number(stu.termFee) || 0;
+      const openingArrears = Number(stu.arrears) || 0;
+      const pays = paysByStudent.get(stu.id);
+
+      let arrearsPaid = 0, termFeePaid = 0, otherFeesPaid = 0;
+      if (pays) {
+        for (let j = 0; j < pays.length; j++) {
+          const p = pays[j];
+          arrearsPaid   += Number(p.arrearsDeducted) || 0;
+          termFeePaid   += Number(p.termFeePaid)     || 0;
+          otherFeesPaid += Number(p.otherFeesPaid)   || 0;
+        }
       }
-    });
+
+      const arrearsRemaining = Math.max(0, openingArrears - arrearsPaid);
+      const termFeeRemaining = Math.max(0, termFee - (termFeePaid + otherFeesPaid));
+      const totalOutstanding = arrearsRemaining + termFeeRemaining;
+
+      totalOutstandingArrears += arrearsRemaining;
+      totalUnpaidTermFees     += termFeeRemaining;
+      if (totalOutstanding > 0 && stu.clearanceStatus !== "Cleared") {
+        totalDebtorsCount++;
+      }
+    }
 
     return {
       totalStudents: filteredStudents.length,
