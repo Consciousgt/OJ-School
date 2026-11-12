@@ -1659,37 +1659,22 @@ const OJSchoolsApp = (() => {
     let startTime = 0;
     let isTracking = false;
 
-    const TAB_ORDER = [
-      "dashboard",
-      "learners",
-      "class-hub",
-      "payments",
-      "clearance",
-      "debtors",
-      "overview",
-      "expenses",
-      "stocks",
-      "salary",
-      "reports",
-      "audit-logs",
-      "settings"
-    ];
-
     document.addEventListener("touchstart", function(e) {
       if (!e.touches || e.touches.length !== 1) return;
 
       var target = e.target;
       while (target && target !== document.body) {
+        if (target.id === "sidebar" || (target.classList && target.classList.contains("sidebar-brand"))) {
+          return;
+        }
         if (target.classList && (target.classList.contains("modal-overlay") || target.classList.contains("modal-box"))) {
           return;
         }
         if (target.tagName === "INPUT" || target.tagName === "SELECT" || target.tagName === "TEXTAREA" || target.tagName === "BUTTON") {
           return;
         }
-        if (target.classList && target.classList.contains("table-wrap")) {
-          if (target.scrollWidth > target.clientWidth + 10) {
-            return;
-          }
+        if (target.classList && (target.classList.contains("table-wrap") || target.classList.contains("table-responsive"))) {
+          return;
         }
         target = target.parentElement;
       }
@@ -1710,45 +1695,25 @@ const OJSchoolsApp = (() => {
       var deltaY = endY - startY;
       var deltaTime = Date.now() - startTime;
 
-      if (deltaTime > 600) return;
-      if (Math.abs(deltaX) < 45) return;
-      if (Math.abs(deltaX) < Math.abs(deltaY) * 1.3) return;
+      if (deltaTime > 500) return;
+      if (Math.abs(deltaX) < 40) return;
+      if (Math.abs(deltaX) < Math.abs(deltaY) * 1.5) return;
 
       var sidebar = document.getElementById("sidebar");
       var isSidebarOpen = sidebar && sidebar.classList.contains("open");
 
-      // Swipe left on open sidebar closes drawer
-      if (isSidebarOpen && deltaX < -35) {
+      // Swipe left when sidebar drawer is open -> close drawer
+      if (isSidebarOpen && deltaX < -30) {
         closeMobileSidebar();
         if (navigator.vibrate) navigator.vibrate(8);
         return;
       }
 
-      // Edge swipe right from left border opens sidebar
-      if (!isSidebarOpen && startX <= 40 && deltaX > 45) {
+      // Edge swipe right from screen left edge (<30px) -> open sidebar
+      if (!isSidebarOpen && startX <= 30 && deltaX > 40) {
         openMobileSidebar();
         if (navigator.vibrate) navigator.vibrate(10);
         return;
-      }
-
-      // Tab navigation swipe
-      var currentIndex = TAB_ORDER.indexOf(currentTab);
-      if (currentIndex === -1) return;
-
-      if (deltaX < -45) {
-        // Swiped Left -> Next Tab
-        if (currentIndex < TAB_ORDER.length - 1) {
-          var nextTab = TAB_ORDER[currentIndex + 1];
-          if (navigator.vibrate) navigator.vibrate(8);
-          switchTab(nextTab);
-        }
-      } else if (deltaX > 45) {
-        // Swiped Right -> Previous Tab
-        if (currentIndex > 0) {
-          var prevTab = TAB_ORDER[currentIndex - 1];
-          if (navigator.vibrate) navigator.vibrate(8);
-          switchTab(prevTab);
-        }
       }
     }, { passive: true });
   }
@@ -1807,12 +1772,14 @@ const OJSchoolsApp = (() => {
     // Modal close bindings
     document.querySelectorAll(".modal-overlay").forEach(overlay => {
       overlay.addEventListener("click", e => {
-        if (e.target === overlay) overlay.classList.add("hidden");
+        if (e.target === overlay) {
+          closeModal(overlay.id);
+        }
       });
     });
     window.addEventListener("keydown", e => {
       if (e.key === "Escape") {
-        document.querySelectorAll(".modal-overlay").forEach(m => m.classList.add("hidden"));
+        document.querySelectorAll(".modal-overlay:not(.hidden)").forEach(m => closeModal(m.id));
       }
     });
 
