@@ -1163,9 +1163,6 @@ const OJSchoolsApp = (() => {
   // MODALS — ENROLL STUDENT
   // ─────────────────────────────────────────────────────────────────────────────
   function openEnrollModal(studentId = null) {
-    const modal = document.getElementById("modal-enroll");
-    if (!modal) return;
-
     const form   = document.getElementById("enroll-form");
     const title  = document.getElementById("enroll-modal-title");
     const editId = document.getElementById("enroll-edit-id");
@@ -1209,7 +1206,7 @@ const OJSchoolsApp = (() => {
       if (regEl) regEl.value = "OJS-" + Date.now().toString().slice(-6);
     }
 
-    modal.classList.remove("hidden");
+    openModal("modal-enroll");
   }
 
   function onEnrollClassChange() {
@@ -1297,9 +1294,6 @@ const OJSchoolsApp = (() => {
   // MODALS — MULTI-ITEM PAYMENT
   // ─────────────────────────────────────────────────────────────────────────────
   function openAddPaymentModal(studentId = null) {
-    const modal = document.getElementById("modal-payment");
-    if (!modal) return;
-
     const form = document.getElementById("payment-form");
     if (form) form.reset();
 
@@ -1326,7 +1320,7 @@ const OJSchoolsApp = (() => {
     if (dateEl) dateEl.value = new Date().toISOString().split("T")[0];
 
     onPaymentStudentChange();
-    modal.classList.remove("hidden");
+    openModal("modal-payment");
   }
 
   function onPaymentStudentChange() {
@@ -1556,13 +1550,11 @@ const OJSchoolsApp = (() => {
   // MODALS — EXPENSE
   // ─────────────────────────────────────────────────────────────────────────────
   function openExpenseModal() {
-    const modal = document.getElementById("modal-expense");
-    if (!modal) return;
     const form = document.getElementById("expense-form");
     if (form) form.reset();
     const dateEl = document.getElementById("exp-date");
     if (dateEl) dateEl.value = new Date().toISOString().split("T")[0];
-    modal.classList.remove("hidden");
+    openModal("modal-expense");
   }
 
   function saveExpense(e) {
@@ -1579,8 +1571,7 @@ const OJSchoolsApp = (() => {
     if (amount <= 0) { showToast("Amount must be greater than zero.", "error"); return; }
 
     OJSchoolsDB.saveExpense({ title, amount, account, period, method, date, notes });
-    const modal = document.getElementById("modal-expense");
-    if (modal) modal.classList.add("hidden");
+    closeModal("modal-expense");
     showToast(`Expense "${title}" (${currency(amount)}) logged.`, "success");
     loadExpenses();
     loadDashboard();
@@ -1590,9 +1581,6 @@ const OJSchoolsApp = (() => {
   // STUDENT PROFILE MODAL
   // ─────────────────────────────────────────────────────────────────────────────
   function openStudentProfile(studentId) {
-    const modal = document.getElementById("modal-profile");
-    if (!modal) return;
-
     const stu = OJSchoolsDB.getStudentById(studentId);
     if (!stu) return;
 
@@ -1647,7 +1635,7 @@ const OJSchoolsApp = (() => {
       avatarEl.style.background = sec.color;
     }
 
-    modal.classList.remove("hidden");
+    openModal("modal-profile");
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -2888,6 +2876,8 @@ return {
     parseAmount,
     formatAmount,
     currency,
+    openModal,
+    closeModal,
     // ── BursarIQ additions ──
     loadSalaryTab,
     openAddStaffModal,

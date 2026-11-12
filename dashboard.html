@@ -49,7 +49,16 @@
       --shadow:     0 1px 4px rgba(0,0,0,.06), 0 4px 20px rgba(10,25,47,.05);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--gray-100); color: var(--gray-800); min-height: 100vh; display: flex; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-800);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
 
     /* ── Sidebar ── */
     #sidebar {
@@ -137,7 +146,17 @@
     .btn-logout:hover { background: #fee2e2; color: var(--red); border-color: #fecaca; }
 
     /* ── Main ── */
-    #main { margin-left: var(--sidebar-w); margin-top: var(--header-h); padding: 26px; min-height: calc(100vh - var(--header-h)); flex: 1; }
+    #main {
+      margin-left: var(--sidebar-w);
+      margin-top: var(--header-h);
+      padding: 26px;
+      min-height: calc(100vh - var(--header-h));
+      flex: 1;
+      width: calc(100% - var(--sidebar-w));
+      max-width: calc(100% - var(--sidebar-w));
+      overflow-x: hidden;
+      overflow-y: visible;
+    }
     .tab-section { display: block; }
     .tab-section.hidden { display: none; }
 
@@ -411,6 +430,7 @@
         width: 100%;
         max-width: 100vw;
         overflow-x: hidden;
+        overflow-y: visible;
       }
       #header {
         left: 0;
@@ -1533,7 +1553,7 @@
     <div class="bottom-sheet-handle"></div>
     <div class="modal-header">
       <h3 id="enroll-modal-title">Enrol New Learner</h3>
-      <button class="modal-close" onclick="document.getElementById('modal-enroll').classList.add('hidden')">✕</button>
+      <button class="modal-close" onclick="OJSchoolsApp.closeModal('modal-enroll')">✕</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="enroll-edit-id">
@@ -1610,7 +1630,7 @@
       </form>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" onclick="document.getElementById('modal-enroll').classList.add('hidden')">Cancel</button>
+      <button class="btn-secondary" onclick="OJSchoolsApp.closeModal('modal-enroll')">Cancel</button>
       <button class="btn-primary btn-emerald" onclick="OJSchoolsApp.saveEnrollment()">
         <i class="fas fa-save"></i> Save Learner
       </button>
@@ -1627,7 +1647,7 @@
         <h3>Record Fee Payment</h3>
         <p style="font-size:11px;color:var(--gray-400);margin-top:2px">Multi-item payment recording with automatic arrears priority deduction</p>
       </div>
-      <button class="modal-close" onclick="document.getElementById('modal-payment').classList.add('hidden')">✕</button>
+      <button class="modal-close" onclick="OJSchoolsApp.closeModal('modal-payment')">✕</button>
     </div>
     <div class="modal-body">
       <form id="payment-form" onsubmit="event.preventDefault(); OJSchoolsApp.savePayment();">
@@ -1721,7 +1741,7 @@
       </form>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn-secondary" onclick="document.getElementById('modal-payment').classList.add('hidden')">Cancel</button>
+      <button type="button" class="btn-secondary" onclick="OJSchoolsApp.closeModal('modal-payment')">Cancel</button>
       <button type="button" class="btn-primary btn-emerald" onclick="OJSchoolsApp.savePayment()">
         <i class="fas fa-receipt"></i> Save &amp; Generate Receipt
       </button>
@@ -1735,7 +1755,7 @@
     <div class="bottom-sheet-handle"></div>
     <div class="modal-header">
       <h3>Log School Expense</h3>
-      <button class="modal-close" onclick="document.getElementById('modal-expense').classList.add('hidden')">✕</button>
+      <button class="modal-close" onclick="OJSchoolsApp.closeModal('modal-expense')">✕</button>
     </div>
     <div class="modal-body">
       <form id="expense-form" onsubmit="event.preventDefault(); OJSchoolsApp.saveExpense();">
@@ -1790,7 +1810,7 @@
       </form>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" onclick="document.getElementById('modal-expense').classList.add('hidden')">Cancel</button>
+      <button class="btn-secondary" onclick="OJSchoolsApp.closeModal('modal-expense')">Cancel</button>
       <button class="btn-primary" onclick="OJSchoolsApp.saveExpense()">
         <i class="fas fa-save"></i> Save Expense
       </button>
@@ -1804,7 +1824,7 @@
     <div class="bottom-sheet-handle"></div>
     <div class="modal-header">
       <h3>Learner Profile</h3>
-      <button class="modal-close" onclick="document.getElementById('modal-profile').classList.add('hidden')">✕</button>
+      <button class="modal-close" onclick="OJSchoolsApp.closeModal('modal-profile')">✕</button>
     </div>
     <div class="modal-body">
       <div class="profile-header">
@@ -1845,7 +1865,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" onclick="document.getElementById('modal-profile').classList.add('hidden')">Close</button>
+      <button class="btn-secondary" onclick="OJSchoolsApp.closeModal('modal-profile')">Close</button>
     </div>
   </div>
 </div>
