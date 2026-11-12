@@ -153,6 +153,8 @@ const OJSchoolsApp = (() => {
     if (tab === "debtors")      loadDebtors();
     if (tab === "audit-logs")   loadAuditLogs();
     if (tab === "settings")     loadSettings();
+    if (tab === "salary")       loadSalaryTab();
+    if (tab === "stocks")       loadStocksTab();
   }
 
   function refreshCurrentTab() {
@@ -392,6 +394,73 @@ const OJSchoolsApp = (() => {
         </div>
       `;
     }).join("");
+
+    // ── Double-Entry Income & Expenditure Statement ───────────────
+    const incExpContainer = document.getElementById("ov-income-expenditure-container");
+    if (incExpContainer) {
+      const fs = OJSchoolsDB.getFinancialSummary();
+      const tuitionRev = fs.totalRevenue || 0;
+      const stockRev   = fs.totalStockSalesRevenue || 0;
+      const totalIncome = tuitionRev + stockRev;
+      const totalExp    = fs.totalExpenses || 0;
+      const netSurplus  = totalIncome - totalExp;
+      const margin      = totalIncome > 0 ? ((netSurplus / totalIncome) * 100).toFixed(1) : "0.0";
+      const surplusColor = netSurplus >= 0 ? "#059669" : "#dc2626";
+      const surplusLabel = netSurplus >= 0 ? "Net Operating Surplus" : "Net Operating Deficit";
+
+      incExpContainer.innerHTML = `
+        <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:24px">
+          <div style="background:#0a192f;color:#fff;padding:12px 20px;font-weight:800;font-size:13px;letter-spacing:0.5px">
+            <i class="fas fa-file-invoice-dollar" style="color:#f59e0b;margin-right:8px"></i>
+            OJ Schools College — Statement of Income &amp; Expenditure (All-Time)
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="background:#f8fafc">
+                <th style="padding:10px 20px;text-align:left;color:#334155;font-weight:700;border-bottom:1px solid #e2e8f0">Account</th>
+                <th style="padding:10px 20px;text-align:right;color:#334155;font-weight:700;border-bottom:1px solid #e2e8f0">Amount (₦)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background:#ecfdf5">
+                <td style="padding:8px 20px;font-weight:700;color:#065f46" colspan="2">I. OPERATING REVENUE</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 20px 6px 36px;color:#334155">School Fees &amp; Tuition Income</td>
+                <td style="padding:6px 20px;text-align:right;color:#059669;font-weight:700">${currency(tuitionRev)}</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 20px 6px 36px;color:#334155">Stock / POS Sales Revenue</td>
+                <td style="padding:6px 20px;text-align:right;color:#059669;font-weight:700">${currency(stockRev)}</td>
+              </tr>
+              <tr style="background:#f1faf5;font-weight:800">
+                <td style="padding:10px 20px;color:#065f46;border-top:2px solid #059669">Total Operating Revenue</td>
+                <td style="padding:10px 20px;text-align:right;color:#059669;border-top:2px solid #059669">${currency(totalIncome)}</td>
+              </tr>
+              <tr style="background:#fef2f2">
+                <td style="padding:8px 20px;font-weight:700;color:#991b1b" colspan="2">II. OPERATING EXPENDITURE</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 20px 6px 36px;color:#334155">Total Recorded Expenses</td>
+                <td style="padding:6px 20px;text-align:right;color:#dc2626;font-weight:700">${currency(totalExp)}</td>
+              </tr>
+              <tr style="background:#fef2f2;font-weight:800">
+                <td style="padding:10px 20px;color:#991b1b;border-top:2px solid #dc2626">Total Operating Expenditure</td>
+                <td style="padding:10px 20px;text-align:right;color:#dc2626;border-top:2px solid #dc2626">${currency(totalExp)}</td>
+              </tr>
+              <tr style="background:#f8fafc">
+                <td style="padding:14px 20px;font-weight:900;font-size:14px;color:${surplusColor};border-top:3px solid ${surplusColor}">${surplusLabel}</td>
+                <td style="padding:14px 20px;text-align:right;font-weight:900;font-size:16px;color:${surplusColor};border-top:3px solid ${surplusColor}">${currency(netSurplus)}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 20px;color:#64748b;font-size:12px">Surplus Margin</td>
+                <td style="padding:8px 20px;text-align:right;font-weight:700;color:${surplusColor};font-size:12px">${margin}%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -830,7 +899,7 @@ const OJSchoolsApp = (() => {
     if (totalEl) totalEl.textContent = currency(summary.totalOutstandingDebt);
 
     if (debtors.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" class="empty-cell" style="color:#059669"><i class="fas fa-circle-check" style="margin-right:8px"></i>No debtors found in this category. Excellent!</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" class="empty-cell" style="color:#059669"><i class="fas fa-circle-check" style="margin-right:8px"></i>No debtors found in this category. Excellent!</td></tr>`;
       return;
     }
 
@@ -862,6 +931,11 @@ const OJSchoolsApp = (() => {
             </button>
             <button class="btn-icon" title="View Profile" onclick="OJSchoolsApp.openStudentProfile('${s.id}')">
               <i class="fas fa-eye"></i>
+            </button>
+          </td>
+          <td>
+            <button class="btn-icon" style="background:#fef3c7;color:#92400e" title="Print Demand Notice" onclick="OJSchoolsReports.printReminderNotice('${s.id}')">
+              <i class="fas fa-envelope-open-text"></i>
             </button>
           </td>
         </tr>
@@ -2360,11 +2434,15 @@ function loadSalaryTab() {
     const staffTbody = document.getElementById("sal-staff-body");
     if (staffTbody) {
       if (!allStaff.length) {
-        staffTbody.innerHTML = '<tr><td colspan="8" class="empty-cell">No staff enrolled yet. Click &ldquo;Add Staff&rdquo; to register teachers and personnel.</td></tr>';
+        staffTbody.innerHTML = '<tr><td colspan="9" class="empty-cell">No staff enrolled yet. Click &ldquo;Add Staff&rdquo; to register teachers and personnel.</td></tr>';
       } else {
         staffTbody.innerHTML = allStaff.map((s, idx) => {
           const badgeStyle = SALARY_SECTION_BADGES[s.section] || "background:#f1f5f9;color:#334155";
           const secName = SALARY_SECTION_NAMES[s.section] || s.section;
+          const loanBal = Number(s.loanBalance || 0);
+          const loanBadge = loanBal > 0
+            ? `<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:12px;font-size:10.5px;font-weight:700">₦${loanBal.toLocaleString()}</span>`
+            : `<span style="color:#059669;font-size:11px">None</span>`;
           return `
             <tr>
               <td style="color:var(--gray-400);font-size:11px">${idx + 1}</td>
@@ -2372,6 +2450,7 @@ function loadSalaryTab() {
               <td><span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:10.5px;font-weight:700;${badgeStyle}">${secName}</span></td>
               <td style="color:var(--gray-700);font-size:12px">${s.role || "&mdash;"}</td>
               <td style="text-align:right;font-weight:700;color:var(--gray-800);font-size:12.5px">&#8358;${Number(s.baseSalary || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+              <td style="text-align:right">${loanBadge}</td>
               <td style="font-size:11.5px;color:var(--gray-600)">
                 ${s.bank ? `<b>${s.bank}</b> &bull; <span style="font-family:monospace">${s.accountNo || ''}</span>` : '&mdash;'}
               </td>
@@ -2379,6 +2458,9 @@ function loadSalaryTab() {
               <td style="text-align:center;white-space:nowrap">
                 <button class="btn-icon" style="background:#eff6ff;color:#0284c7" title="Quick Pay Salary" onclick="OJSchoolsApp.openPaySalaryModal('${s.id}')">
                   <i class="fas fa-hand-holding-usd"></i>
+                </button>
+                <button class="btn-icon" style="background:#fff7ed;color:#ea580c" title="Disburse Loan" onclick="OJSchoolsApp.openDisburseLoanModal('${s.id}')">
+                  <i class="fas fa-hand-holding-dollar"></i>
                 </button>
                 <button class="btn-icon" style="background:#f1f5f9;color:#334155" title="Edit Staff Profile" onclick="OJSchoolsApp.openEditStaffModal('${s.id}')">
                   <i class="fas fa-edit"></i>
@@ -2546,7 +2628,7 @@ function loadSalaryTab() {
     selectEl.innerHTML = '<option value="">-- Select Staff Member --</option>' +
       staffList.map(s => {
         const secLabel = SALARY_SECTION_NAMES[s.section] || s.section;
-        return `<option value="${s.id}" data-section="${s.section}" data-role="${s.role || ''}" data-salary="${s.baseSalary || 0}">${s.name} (${secLabel} &bull; ${s.role || 'Staff'})</option>`;
+        return `<option value="${s.id}" data-section="${s.section}" data-role="${s.role || ''}" data-salary="${s.baseSalary || 0}" data-loan="${s.loanBalance || 0}">${s.name} (${secLabel} &bull; ${s.role || 'Staff'})</option>`;
       }).join("");
 
     if (preselectedStaffId) {
@@ -2565,6 +2647,14 @@ function loadSalaryTab() {
     document.getElementById("sal-pay-date").value = now.toISOString().split("T")[0];
     document.getElementById("sal-pay-notes").value = "";
 
+    // Reset loan UI
+    const banner = document.getElementById("sal-loan-banner");
+    const loanRow = document.getElementById("sal-loan-deduction-row");
+    const deductEl = document.getElementById("sal-pay-loan-deduction");
+    if (banner) banner.style.display = "none";
+    if (loanRow) loanRow.style.display = "none";
+    if (deductEl) deductEl.value = "0";
+
     openModal("modal-pay-salary");
   }
 
@@ -2576,6 +2666,7 @@ function loadSalaryTab() {
     const sec = opt.getAttribute("data-section") || "general";
     const role = opt.getAttribute("data-role") || "";
     const salary = opt.getAttribute("data-salary") || "";
+    const loanBal = parseFloat(opt.getAttribute("data-loan") || "0") || 0;
 
     const secEl = document.getElementById("sal-pay-section");
     if (secEl) secEl.value = sec;
@@ -2585,6 +2676,39 @@ function loadSalaryTab() {
 
     const amtEl = document.getElementById("sal-pay-amount");
     if (amtEl && salary && Number(salary) > 0) amtEl.value = salary;
+
+    // Show/hide loan banner
+    const banner = document.getElementById("sal-loan-banner");
+    const bannerText = document.getElementById("sal-loan-banner-text");
+    const loanRow = document.getElementById("sal-loan-deduction-row");
+    const deductEl = document.getElementById("sal-pay-loan-deduction");
+
+    if (loanBal > 0) {
+      if (banner) banner.style.display = "block";
+      if (bannerText) bannerText.textContent = `Outstanding loan balance: ₦${loanBal.toLocaleString("en-NG", { minimumFractionDigits: 2 })}. Enter a deduction amount below to begin repayment.`;
+      if (loanRow) loanRow.style.display = "flex";
+      if (deductEl) deductEl.value = "";
+    } else {
+      if (banner) banner.style.display = "none";
+      if (loanRow) loanRow.style.display = "none";
+      if (deductEl) deductEl.value = "0";
+    }
+
+    _updateSalaryNetPreview();
+  }
+
+  function _updateSalaryNetPreview() {
+    const amount = parseFloat(document.getElementById("sal-pay-amount")?.value) || 0;
+    const deduction = parseFloat(document.getElementById("sal-pay-loan-deduction")?.value) || 0;
+    const net = Math.max(0, amount - deduction);
+    const previewEl = document.getElementById("sal-net-pay-value");
+    if (previewEl) previewEl.textContent = `₦${net.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`;
+    // Show net pay preview if loan deduction row is visible
+    const loanRow = document.getElementById("sal-loan-deduction-row");
+    if (loanRow && loanRow.style.display !== "none") {
+      const netPreview = document.getElementById("sal-net-pay-preview");
+      if (netPreview) netPreview.style.display = "block";
+    }
   }
 
   function saveSalaryPayment() {
@@ -2615,6 +2739,8 @@ function loadSalaryTab() {
       }
     }
 
+    const loanDeduction = parseFloat(document.getElementById("sal-pay-loan-deduction")?.value) || 0;
+
     const payment = OJSchoolsDB.addSalaryPayment({
       staffId,
       staffName,
@@ -2625,11 +2751,13 @@ function loadSalaryTab() {
       amount,
       method,
       date,
-      notes
+      notes,
+      loanDeduction
     });
 
     const monthName = SALARY_MONTH_NAMES[month] || month;
-    showToast(`Salary payment of ₦${amount.toLocaleString()} recorded for ${staffName} (${monthName} ${year}) & deducted from ${SALARY_SECTION_NAMES[section] || section} revenue.`, "success");
+    const loanMsg = loanDeduction > 0 ? ` | Loan repayment: ₦${loanDeduction.toLocaleString()}` : "";
+    showToast(`Salary payment of ₦${amount.toLocaleString()} recorded for ${staffName} (${monthName} ${year}) & deducted from ${SALARY_SECTION_NAMES[section] || section} revenue.${loanMsg}`, "success");
     closeModal("modal-pay-salary");
     loadSalaryTab();
   }
@@ -2640,6 +2768,56 @@ function loadSalaryTab() {
       showToast("Salary payment record deleted and expense reversed.", "info");
       loadSalaryTab();
     });
+  }
+
+  function openDisburseLoanModal(preselectedStaffId = null) {
+    const staffList = OJSchoolsDB.getStaff();
+    const selectEl = document.getElementById("loan-staff");
+    if (!selectEl) return;
+
+    selectEl.innerHTML = '<option value="">-- Select Staff Member --</option>' +
+      staffList.map(s => {
+        const secLabel = SALARY_SECTION_NAMES[s.section] || s.section;
+        const loanBal = s.loanBalance || 0;
+        const loanInfo = loanBal > 0 ? ` | Current Balance: ₦${Number(loanBal).toLocaleString()}` : "";
+        return `<option value="${s.id}">${s.name} (${secLabel} · ${s.role || "Staff"}${loanInfo})</option>`;
+      }).join("");
+
+    if (preselectedStaffId) selectEl.value = preselectedStaffId;
+
+    const dateEl = document.getElementById("loan-date");
+    if (dateEl) dateEl.value = new Date().toISOString().split("T")[0];
+
+    const amtEl = document.getElementById("loan-amount");
+    if (amtEl) amtEl.value = "";
+
+    const notesEl = document.getElementById("loan-notes");
+    if (notesEl) notesEl.value = "";
+
+    openModal("modal-disburse-loan");
+  }
+
+  function saveStaffLoanDisbursement() {
+    const staffId = document.getElementById("loan-staff")?.value;
+    if (!staffId) return showAlert("Please select a staff member.", "warning");
+
+    const amount = parseFloat(document.getElementById("loan-amount")?.value);
+    if (!amount || amount <= 0) return showAlert("Please enter a valid loan amount greater than zero.", "warning");
+
+    const date = document.getElementById("loan-date")?.value;
+    if (!date) return showAlert("Please select the disbursement date.", "warning");
+
+    const notes = (document.getElementById("loan-notes")?.value || "").trim();
+    const disbursedBy = "Admin";
+
+    try {
+      OJSchoolsDB.disburseStaffLoan({ staffId, amount, date, notes, disbursedBy });
+      showToast(`Loan of ₦${amount.toLocaleString()} disbursed successfully & logged as school expense.`, "success");
+      closeModal("modal-disburse-loan");
+      loadSalaryTab();
+    } catch (err) {
+      showAlert("Error disbursing loan: " + (err.message || err), "error");
+    }
   }
 
   function printSalaryReport() {
@@ -2709,7 +2887,33 @@ return {
     toggleMobileSidebar,
     parseAmount,
     formatAmount,
-    currency
+    currency,
+    // ── BursarIQ additions ──
+    loadSalaryTab,
+    openAddStaffModal,
+    openEditStaffModal,
+    saveStaff,
+    deleteStaff,
+    openPaySalaryModal,
+    onSalaryStaffSelect,
+    _updateSalaryNetPreview,
+    saveSalaryPayment,
+    deleteSalaryPayment,
+    printSalaryReport,
+    openDisburseLoanModal,
+    saveStaffLoanDisbursement,
+    resetSalaryFilters,
+    loadStocksTab,
+    openAddStockModal,
+    handleAddStockSubmit,
+    openEditStockModal,
+    handleEditStockSubmit,
+    openSellStockModal,
+    handleSellStockSubmit,
+    openRestockModal,
+    handleRestockSubmit,
+    confirmDeleteStock,
+    _updateSellTotal
   };
 })();
 

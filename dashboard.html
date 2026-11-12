@@ -837,6 +837,12 @@
 
     <h3 style="font-size:15px;font-weight:800;margin-bottom:14px;font-family:'Outfit',sans-serif">Section Breakdown</h3>
     <div id="ov-sections-container"></div>
+
+    <!-- Double-Entry Income & Expenditure Statement -->
+    <h3 style="font-size:15px;font-weight:800;margin:28px 0 14px;font-family:'Outfit',sans-serif;display:flex;align-items:center;gap:8px">
+      <i class="fas fa-balance-scale" style="color:#0284c7"></i> Statement of Income &amp; Expenditure
+    </h3>
+    <div id="ov-income-expenditure-container"></div>
   </section>
 
   <!-- ─── LEARNERS ─── -->
@@ -911,6 +917,9 @@
             <option value="senior">Senior Secondary</option>
             <option value="tutorial">Tutorial Section</option>
           </select>
+          <button class="btn-primary" style="background:#059669" onclick="OJSchoolsReports.print5PerA4ClearancePasses(document.getElementById('clear-filter-section')?.value)">
+            <i class="fas fa-print"></i> Print 5-Per-A4 Passes
+          </button>
         </div>
       </div>
       <div class="panel-body table-wrap">
@@ -1112,6 +1121,9 @@
           <button class="btn-primary" style="background:#059669" onclick="OJSchoolsApp.openAddStaffModal()">
             <i class="fas fa-user-plus"></i> Add Staff
           </button>
+          <button class="btn-primary" style="background:#ea580c" onclick="OJSchoolsApp.openDisburseLoanModal()">
+            <i class="fas fa-hand-holding-dollar"></i> Disburse Loan
+          </button>
           <button class="btn-primary" style="background:#0284c7" onclick="OJSchoolsApp.openPaySalaryModal()">
             <i class="fas fa-hand-holding-usd"></i> Pay Salary
           </button>
@@ -1214,13 +1226,14 @@
                 <th>Section</th>
                 <th>Role / Subject</th>
                 <th style="text-align:right">Base Salary (&#8358;)</th>
+                <th style="text-align:right">Loan Balance</th>
                 <th>Bank &amp; Account</th>
                 <th>Phone</th>
-                <th style="width:110px;text-align:center">Actions</th>
+                <th style="width:120px;text-align:center">Actions</th>
               </tr>
             </thead>
             <tbody id="sal-staff-body">
-              <tr><td colspan="8" class="empty-cell">No staff enrolled yet. Click &ldquo;Add Staff&rdquo; to begin.</td></tr>
+              <tr><td colspan="9" class="empty-cell">No staff enrolled yet. Click &ldquo;Add Staff&rdquo; to begin.</td></tr>
             </tbody>
           </table>
         </div>
@@ -1382,6 +1395,9 @@
           <button class="btn-primary" style="background:var(--red)" onclick="OJSchoolsReports.printDebtorsReport(document.getElementById('debtors-filter-section').value)">
             <i class="fas fa-print"></i> Print Debtors
           </button>
+          <button class="btn-secondary" onclick="OJSchoolsReports.printBatchReminderNotices(document.getElementById('debtors-filter-class')?.value)">
+            <i class="fas fa-envelope-open-text"></i> Print Demand Notices
+          </button>
           <button class="btn-secondary" onclick="OJSchoolsReports.exportDebtorsCSV(document.getElementById('debtors-filter-section').value)">
             <i class="fas fa-download"></i> Export CSV
           </button>
@@ -1399,10 +1415,11 @@
               <th style="text-align:right">Paid So Far</th>
               <th style="text-align:right">Total Outstanding</th>
               <th>Action</th>
+              <th>Notice</th>
             </tr>
           </thead>
           <tbody id="debtors-tbody">
-            <tr><td colspan="8" class="empty-cell">Loading debtors…</td></tr>
+            <tr><td colspan="9" class="empty-cell">Loading debtors…</td></tr>
           </tbody>
         </table>
       </div>
@@ -2226,7 +2243,7 @@
       <div class="form-row">
         <div class="form-group" style="flex:1">
           <label class="form-label">Amount Paid (&#8358;) *</label>
-          <input type="number" id="sal-pay-amount" class="form-control" placeholder="e.g. 75000" min="0" step="500" required>
+          <input type="number" id="sal-pay-amount" class="form-control" placeholder="e.g. 75000" min="0" step="500" required oninput="OJSchoolsApp._updateSalaryNetPreview && OJSchoolsApp._updateSalaryNetPreview()">
         </div>
         <div class="form-group" style="flex:1">
           <label class="form-label">Payment Method *</label>
@@ -2236,6 +2253,25 @@
             <option value="Cheque">Cheque</option>
             <option value="POS">POS</option>
           </select>
+        </div>
+      </div>
+
+      <!-- Loan Banner (shown when staff has active loan) -->
+      <div id="sal-loan-banner" style="display:none;margin:4px 0 10px;padding:10px 14px;border-radius:8px;background:#fef3c7;border:1.5px solid #f59e0b;color:#78350f">
+        <div style="font-weight:800;font-size:13px;margin-bottom:4px"><i class="fas fa-exclamation-triangle" style="color:#f59e0b;margin-right:6px"></i>Active Loan Balance Detected</div>
+        <div id="sal-loan-banner-text" style="font-size:12px;color:#92400e"></div>
+      </div>
+
+      <div class="form-row" id="sal-loan-deduction-row" style="display:none">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Loan Repayment Deduction (&#8358;)</label>
+          <input type="number" id="sal-pay-loan-deduction" class="form-control" placeholder="e.g. 10000" min="0" step="500" value="0" oninput="OJSchoolsApp._updateSalaryNetPreview && OJSchoolsApp._updateSalaryNetPreview()">
+          <small style="color:#92400e;font-size:11px">Will be auto-deducted from cash payout &amp; logged against loan balance</small>
+        </div>
+        <div class="form-group" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end">
+          <div id="sal-net-pay-preview" style="background:#ecfdf5;border:1.5px solid #059669;border-radius:8px;padding:10px 14px;font-weight:800;font-size:14px;color:#065f46;text-align:center">
+            Net Pay: <span id="sal-net-pay-value">₦0.00</span>
+          </div>
         </div>
       </div>
 
@@ -2254,6 +2290,48 @@
       <button type="button" class="btn-secondary" onclick="OJSchoolsApp.closeModal('modal-pay-salary')">Cancel</button>
       <button type="button" class="btn-primary" style="background:#0284c7" onclick="OJSchoolsApp.saveSalaryPayment()">
         <i class="fas fa-check-circle"></i> Confirm &amp; Deduct from Revenue
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- modal-disburse-loan -->
+<div class="modal-overlay hidden" id="modal-disburse-loan">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3><i class="fas fa-hand-holding-dollar" style="color:#ea580c"></i> Disburse Staff Loan</h3>
+      <button class="modal-close" onclick="OJSchoolsApp.closeModal('modal-disburse-loan')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Staff Member *</label>
+        <select id="loan-staff" class="form-control" required>
+          <option value="">-- Select Staff Member --</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Loan Amount (&#8358;) *</label>
+          <input type="number" id="loan-amount" class="form-control" placeholder="e.g. 50000" min="1" step="500" required>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Date Disbursed *</label>
+          <input type="date" id="loan-date" class="form-control" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes / Purpose</label>
+        <input type="text" id="loan-notes" class="form-control" placeholder="e.g. Emergency medical loan, school fees advance…">
+      </div>
+      <div style="padding:10px 14px;background:#fff7ed;border:1.5px solid #f59e0b;border-radius:8px;font-size:12px;color:#78350f;margin-top:4px">
+        <i class="fas fa-info-circle" style="color:#f59e0b;margin-right:6px"></i>
+        Disbursed amount will be <b>logged as a school expense</b> (Staff Loan account) and added to the staff member's loan balance for future salary deductions.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" onclick="OJSchoolsApp.closeModal('modal-disburse-loan')">Cancel</button>
+      <button type="button" class="btn-primary" style="background:#ea580c" onclick="OJSchoolsApp.saveStaffLoanDisbursement()">
+        <i class="fas fa-check-circle"></i> Confirm Disbursement
       </button>
     </div>
   </div>

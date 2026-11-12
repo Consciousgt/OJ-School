@@ -414,6 +414,453 @@ const OJSchoolsReports = (() => {
     printHtmlDocument(html, `Clearance Pass - ${stu.firstName} ${stu.lastName}`);
   }
 
+  // ── Print 5-Per-A4 Examination Clearance Passes (BursarIQ) ─────────────────
+  function print5PerA4ClearancePasses(filterSection = "", filterClass = "") {
+    const cfg = getCfg();
+    let students = OJSchoolsDB.getStudents().filter(s => s.clearanceStatus === "Cleared");
+
+    if (filterSection && filterSection !== "all" && filterSection !== "") {
+      students = students.filter(s => {
+        const sec = s.section || (getSectionByClass(s.currentClass) || { id: "primary" }).id;
+        return sec === filterSection;
+      });
+    }
+
+    if (filterClass && filterClass !== "All" && filterClass !== "") {
+      students = students.filter(s => s.currentClass === filterClass);
+    }
+
+    if (students.length === 0) {
+      return alert("No cleared students found matching the selected filter criteria.");
+    }
+
+    // Sort by class then last name
+    students.sort((a, b) => (a.currentClass || "").localeCompare(b.currentClass || "") || (a.lastName || "").localeCompare(b.lastName || ""));
+
+    // Group into pages of 5 slips per page
+    const pageSize = 5;
+    const pages = [];
+    for (let i = 0; i < students.length; i += pageSize) {
+      pages.push(students.slice(i, i + pageSize));
+    }
+
+    let pagesHtml = "";
+    pages.forEach((pageStudents, pageIdx) => {
+      const slipsHtml = pageStudents.map((stu) => {
+        const sec = getSectionByClass(stu.currentClass) || SCHOOL_SECTIONS.primary;
+        return `
+          <div class="a4-pass-slip">
+            <div class="a4-slip-left">
+              <div class="a4-slip-logo">OJ</div>
+              <div class="a4-slip-brand">
+                <div class="a4-slip-title">${cfg.schoolName}</div>
+                <div class="a4-slip-subtitle">EXAMINATION ADMISSION PASS</div>
+                <div class="a4-slip-motto">"${cfg.motto}"</div>
+              </div>
+            </div>
+
+            <div class="a4-slip-mid">
+              <div class="a4-student-name">${stu.firstName} ${stu.lastName}</div>
+              <div class="a4-details-grid">
+                <div><span>Reg No:</span> <strong>${stu.regNo}</strong></div>
+                <div><span>Class:</span> <strong>${stu.currentClass}</strong></div>
+                <div><span>Section:</span> <strong>${sec.name}</strong></div>
+                <div><span>Session:</span> <strong>${cfg.currentSession} (${cfg.currentTerm})</strong></div>
+              </div>
+              <div class="a4-status-tag">STATUS: 100% CLEARED FOR ALL EXAMINATIONS</div>
+            </div>
+
+            <div class="a4-slip-right">
+              <div class="a4-passport-box">AFFIX<br>PHOTO</div>
+              <div class="a4-stamp-seal">
+                <div class="a4-seal-text">VERIFIED</div>
+                <div class="a4-seal-sub">BURSARY CLEARED</div>
+              </div>
+              <div class="a4-sign-line">Bursar Sign &bull; Date</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      pagesHtml += `
+        <div class="a4-page ${pageIdx < pages.length - 1 ? 'page-break' : ''}">
+          <div class="a4-page-header">
+            <span>${cfg.schoolName} &bull; Official Examination Clearance Sheets (5 Passes Per A4)</span>
+            <span>Page ${pageIdx + 1} of ${pages.length} &bull; Generated: ${new Date().toLocaleDateString("en-GB")}</span>
+          </div>
+          ${slipsHtml}
+        </div>
+      `;
+    });
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>5-Per-A4 Examination Clearance Passes - ${cfg.schoolName}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Outfit:wght@700;800;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #e2e8f0; color: #0f172a; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .a4-page { width: 210mm; min-height: 297mm; padding: 8mm 10mm; margin: 15mm auto; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+    .a4-page-header { font-size: 8px; color: #64748b; display: flex; justify-content: space-between; padding-bottom: 4px; margin-bottom: 6px; border-bottom: 1px solid #e2e8f0; text-transform: uppercase; font-weight: 700; }
+    .a4-pass-slip { height: 53mm; border: 1.5px dashed #94a3b8; border-radius: 8px; padding: 6px 10px; margin-bottom: 5mm; display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #ffffff; position: relative; }
+    .a4-pass-slip:last-child { margin-bottom: 0; }
+    .a4-slip-left { display: flex; align-items: center; gap: 8px; width: 32%; border-right: 1px solid #e2e8f0; padding-right: 8px; }
+    .a4-slip-logo { width: 38px; height: 38px; border-radius: 10px; background: #0a192f; color: #fbbf24; font-family: 'Outfit'; font-size: 16px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .a4-slip-brand { overflow: hidden; }
+    .a4-slip-title { font-size: 11px; font-weight: 900; font-family: 'Outfit'; color: #0a192f; line-height: 1.1; white-space: nowrap; }
+    .a4-slip-subtitle { font-size: 8px; font-weight: 800; color: #059669; letter-spacing: .5px; margin-top: 2px; }
+    .a4-slip-motto { font-size: 7px; color: #64748b; font-style: italic; margin-top: 2px; }
+    .a4-slip-mid { flex: 1; padding: 0 8px; }
+    .a4-student-name { font-size: 13px; font-weight: 800; color: #0f172a; font-family: 'Outfit'; }
+    .a4-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 8px; font-size: 9px; margin-top: 3px; color: #334155; }
+    .a4-details-grid span { color: #64748b; }
+    .a4-status-tag { display: inline-block; font-size: 8px; font-weight: 800; color: #047857; background: #d1fae5; border: 1px solid #a7f3d0; padding: 2px 6px; border-radius: 4px; margin-top: 4px; }
+    .a4-slip-right { width: 22%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border-left: 1px solid #e2e8f0; padding-left: 8px; }
+    .a4-passport-box { width: 34px; height: 38px; border: 1px dashed #cbd5e1; background: #f8fafc; font-size: 7px; text-align: center; color: #94a3b8; display: flex; align-items: center; justify-content: center; font-weight: 700; line-height: 1.1; }
+    .a4-stamp-seal { border: 1.5px solid #059669; border-radius: 4px; padding: 1px 6px; text-align: center; }
+    .a4-seal-text { font-size: 8px; font-weight: 900; color: #059669; letter-spacing: 1px; }
+    .a4-seal-sub { font-size: 6px; font-weight: 800; color: #065f46; }
+    .a4-sign-line { font-size: 7px; color: #64748b; border-top: 1px solid #cbd5e1; width: 100%; text-align: center; margin-top: 2px; padding-top: 1px; }
+    @media print {
+      body { background: white; }
+      .a4-page { width: 100%; height: auto; box-shadow: none; margin: 0; padding: 6mm 8mm; }
+      .page-break { page-break-after: always; }
+      @page { size: A4 portrait; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+  ${pagesHtml}
+  <script>window.onload = () => { window.print(); };<\/script>
+</body>
+</html>`;
+
+    printHtmlDocument(html, `5-Per-A4 Clearance Passes - ${cfg.schoolName}`);
+  }
+
+  // ── Print Individual School Fees Reminder Notice (BursarIQ) ────────────────
+  function printReminderNotice(studentId) {
+    const stu = OJSchoolsDB.getStudentById(studentId);
+    if (!stu) return alert("Student not found.");
+    const bal = OJSchoolsDB.getStudentBalance(studentId);
+    if (!bal || bal.totalOutstanding <= 0) {
+      return alert("This student has no outstanding balance.");
+    }
+    const cfg = getCfg();
+    const curr = cfg.currency || "₦";
+    const sec = getSectionByClass(stu.currentClass) || SCHOOL_SECTIONS.primary;
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>School Fees Reminder Notice - ${stu.firstName} ${stu.lastName}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@700;800;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #0f172a; padding: 30px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .notice-container { max-width: 720px; margin: 0 auto; background: white; border: 2px solid #0a192f; border-radius: 16px; padding: 32px 38px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); position: relative; }
+    .notice-header { border-bottom: 2px solid #0a192f; padding-bottom: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+    .brand-box { display: flex; align-items: center; gap: 12px; }
+    .brand-logo { width: 50px; height: 50px; border-radius: 14px; background: #0a192f; color: #fbbf24; font-family: 'Outfit'; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+    .brand-text h1 { font-size: 20px; font-weight: 900; font-family: 'Outfit'; color: #0a192f; }
+    .brand-text p { font-size: 10px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    .notice-meta { text-align: right; font-size: 11px; color: #64748b; }
+    .notice-badge { display: inline-block; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px; margin-top: 4px; text-transform: uppercase; }
+    .notice-title-bar { text-align: center; margin: 20px 0; }
+    .notice-title-bar h2 { font-size: 17px; font-weight: 900; color: #dc2626; font-family: 'Outfit'; letter-spacing: .5px; text-transform: uppercase; text-decoration: underline; }
+    .notice-body { font-size: 13px; line-height: 1.6; color: #334155; }
+    .salutation { font-weight: 700; margin-bottom: 14px; color: #0f172a; }
+    .student-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 18px; margin: 16px 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 16px; font-size: 12px; }
+    .student-card div span { color: #64748b; font-size: 11px; text-transform: uppercase; display: block; font-weight: 700; }
+    .student-card div strong { color: #0f172a; font-size: 13px; }
+    .bill-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 12px; }
+    .bill-table th { background: #0a192f; color: white; padding: 10px 14px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+    .bill-table td { padding: 10px 14px; border-bottom: 1px solid #e2e8f0; }
+    .bill-table tfoot td { font-weight: 900; background: #fff1f2; color: #dc2626; font-size: 13px; border-top: 2px solid #dc2626; }
+    .bank-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 14px 18px; margin: 20px 0; }
+    .bank-box h4 { font-size: 12px; font-weight: 800; color: #1e40af; margin-bottom: 6px; text-transform: uppercase; }
+    .bank-box p { font-size: 12px; color: #1e3a8a; margin: 2px 0; }
+    .notice-footer { margin-top: 30px; display: flex; justify-content: space-between; align-items: flex-end; padding-top: 20px; border-top: 1px solid #e2e8f0; }
+    .sign-box { text-align: center; font-size: 11px; color: #64748b; }
+    .sign-line { width: 180px; border-bottom: 1.5px solid #0a192f; margin-bottom: 6px; }
+    .stamp-box { border: 2px dashed #059669; border-radius: 8px; padding: 8px 16px; text-align: center; color: #059669; font-weight: 800; font-size: 10px; text-transform: uppercase; }
+    @media print {
+      body { background: white; padding: 0; }
+      .notice-container { box-shadow: none; border: 1.5px solid #0a192f; max-width: 100%; border-radius: 0; }
+      @page { size: A4 portrait; margin: 12mm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="notice-container">
+    <div class="notice-header">
+      <div class="brand-box">
+        <div class="brand-logo">OJ</div>
+        <div class="brand-text">
+          <h1>${cfg.schoolName}</h1>
+          <p>${cfg.motto} &bull; ${cfg.address}</p>
+        </div>
+      </div>
+      <div class="notice-meta">
+        <div>Date: <strong>${new Date().toLocaleDateString("en-GB")}</strong></div>
+        <div>Session: <strong>${cfg.currentSession}</strong></div>
+        <div class="notice-badge">URGENT REMINDER</div>
+      </div>
+    </div>
+
+    <div class="notice-title-bar">
+      <h2>OFFICIAL NOTICE OF OUTSTANDING SCHOOL FEES</h2>
+    </div>
+
+    <div class="notice-body">
+      <div class="salutation">
+        Dear Parent / Guardian of <strong>${stu.firstName} ${stu.lastName}</strong>,
+      </div>
+      <p>
+        This is a formal communication from the Bursary Department of <strong>${cfg.schoolName}</strong> to kindly remind you of the outstanding financial obligations for your child/ward for the <strong>${cfg.currentTerm} (${cfg.currentSession} Session)</strong>.
+      </p>
+
+      <div class="student-card">
+        <div><span>Learner Full Name</span><strong>${stu.firstName} ${stu.lastName}</strong></div>
+        <div><span>Admission / Reg. No</span><strong>${stu.regNo}</strong></div>
+        <div><span>Current Class</span><strong>${stu.currentClass}</strong></div>
+        <div><span>Academic Section</span><strong>${sec.name}</strong></div>
+      </div>
+
+      <table class="bill-table">
+        <thead>
+          <tr>
+            <th>Description of Financial Obligation</th>
+            <th style="text-align:right">Total Billed</th>
+            <th style="text-align:right">Amount Settled</th>
+            <th style="text-align:right">Outstanding Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${bal.arrears > 0 ? `
+          <tr>
+            <td><strong>Previous Unpaid Arrears Brought Forward</strong></td>
+            <td style="text-align:right">${curr}${fmt(bal.arrears)}</td>
+            <td style="text-align:right;color:#059669">${curr}${fmt(bal.arrearsPaid)}</td>
+            <td style="text-align:right;font-weight:700;color:#dc2626">${curr}${fmt(bal.arrearsRemaining)}</td>
+          </tr>` : ""}
+          <tr>
+            <td><strong>Current Term Tuition / School Fees (${cfg.currentTerm})</strong></td>
+            <td style="text-align:right">${curr}${fmt(bal.termFee)}</td>
+            <td style="text-align:right;color:#059669">${curr}${fmt(bal.termFeePaid)}</td>
+            <td style="text-align:right;font-weight:700;color:#dc2626">${curr}${fmt(bal.termFeeRemaining)}</td>
+          </tr>
+          ${bal.otherFeesPaid > 0 ? `
+          <tr>
+            <td>Other Incidental Levies &amp; Materials</td>
+            <td style="text-align:right">${curr}${fmt(bal.otherFeesPaid)}</td>
+            <td style="text-align:right;color:#059669">${curr}${fmt(bal.otherFeesPaid)}</td>
+            <td style="text-align:right;color:#059669">${curr}0.00</td>
+          </tr>` : ""}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3" style="text-align:right">TOTAL BALANCE DUE &amp; PAYABLE:</td>
+            <td style="text-align:right">${curr}${fmt(bal.totalOutstanding)}</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="bank-box">
+        <h4><i class="fas fa-university"></i> Official School Remittance Bank Accounts:</h4>
+        <p><strong>Bank:</strong> Zenith Bank Plc &nbsp;|&nbsp; <strong>Account Name:</strong> ${cfg.schoolName} Operations</p>
+        <p><strong>Account Number:</strong> 1012345678 &nbsp;|&nbsp; <strong>Reference:</strong> ${stu.regNo} (${stu.lastName})</p>
+      </div>
+
+      <p style="font-size:11px;color:#64748b">
+        Please ensure payment is effected promptly or evidence of transfer forwarded to the Bursary Office to secure your child's continuous examination clearance and access to learning resources.
+      </p>
+    </div>
+
+    <div class="notice-footer">
+      <div class="stamp-box">
+        <div>BURSARY DEPARTMENT</div>
+        <div style="font-size:8px;margin-top:2px">OFFICIAL DEMAND NOTICE</div>
+      </div>
+      <div class="sign-box">
+        <div class="sign-line"></div>
+        <div><strong>Chief Bursary Officer</strong></div>
+        <div style="font-size:9px">${cfg.schoolName}</div>
+      </div>
+    </div>
+  </div>
+  <script>window.onload = () => { window.print(); };<\/script>
+</body>
+</html>`;
+
+    printHtmlDocument(html, `Fees Reminder Notice - ${stu.firstName} ${stu.lastName}`);
+  }
+
+  // ── Print Batch School Fees Reminder Notices ──────────────────────────────
+  function printBatchReminderNotices(filterClass = "") {
+    const debtors = OJSchoolsDB.getDebtors();
+    let target = debtors.filter(d => d.balance && d.balance.totalOutstanding > 0);
+    if (filterClass && filterClass !== "All" && filterClass !== "") {
+      target = target.filter(d => d.student.currentClass === filterClass);
+    }
+
+    if (target.length === 0) {
+      return alert("No debtors found matching the selected class filter.");
+    }
+
+    const cfg = getCfg();
+    const curr = cfg.currency || "₦";
+
+    const noticesHtml = target.map((d, i) => {
+      const stu = d.student;
+      const bal = d.balance;
+      const sec = getSectionByClass(stu.currentClass) || SCHOOL_SECTIONS.primary;
+
+      return `
+        <div class="notice-container ${i < target.length - 1 ? 'page-break' : ''}">
+          <div class="notice-header">
+            <div class="brand-box">
+              <div class="brand-logo">OJ</div>
+              <div class="brand-text">
+                <h1>${cfg.schoolName}</h1>
+                <p>${cfg.motto} &bull; ${cfg.address}</p>
+              </div>
+            </div>
+            <div class="notice-meta">
+              <div>Date: <strong>${new Date().toLocaleDateString("en-GB")}</strong></div>
+              <div>Session: <strong>${cfg.currentSession}</strong></div>
+              <div class="notice-badge">URGENT REMINDER</div>
+            </div>
+          </div>
+
+          <div class="notice-title-bar">
+            <h2>OFFICIAL NOTICE OF OUTSTANDING SCHOOL FEES</h2>
+          </div>
+
+          <div class="notice-body">
+            <div class="salutation">
+              Dear Parent / Guardian of <strong>${stu.firstName} ${stu.lastName}</strong>,
+            </div>
+            <p>
+              This is a formal communication from the Bursary Department of <strong>${cfg.schoolName}</strong> to kindly remind you of the outstanding financial obligations for your child/ward for the <strong>${cfg.currentTerm} (${cfg.currentSession} Session)</strong>.
+            </p>
+
+            <div class="student-card">
+              <div><span>Learner Full Name</span><strong>${stu.firstName} ${stu.lastName}</strong></div>
+              <div><span>Admission / Reg. No</span><strong>${stu.regNo}</strong></div>
+              <div><span>Current Class</span><strong>${stu.currentClass}</strong></div>
+              <div><span>Academic Section</span><strong>${sec.name}</strong></div>
+            </div>
+
+            <table class="bill-table">
+              <thead>
+                <tr>
+                  <th>Description of Financial Obligation</th>
+                  <th style="text-align:right">Total Billed</th>
+                  <th style="text-align:right">Amount Settled</th>
+                  <th style="text-align:right">Outstanding Due</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${bal.arrears > 0 ? `
+                <tr>
+                  <td><strong>Previous Unpaid Arrears Brought Forward</strong></td>
+                  <td style="text-align:right">${curr}${fmt(bal.arrears)}</td>
+                  <td style="text-align:right;color:#059669">${curr}${fmt(bal.arrearsPaid)}</td>
+                  <td style="text-align:right;font-weight:700;color:#dc2626">${curr}${fmt(bal.arrearsRemaining)}</td>
+                </tr>` : ""}
+                <tr>
+                  <td><strong>Current Term Tuition / School Fees (${cfg.currentTerm})</strong></td>
+                  <td style="text-align:right">${curr}${fmt(bal.termFee)}</td>
+                  <td style="text-align:right;color:#059669">${curr}${fmt(bal.termFeePaid)}</td>
+                  <td style="text-align:right;font-weight:700;color:#dc2626">${curr}${fmt(bal.termFeeRemaining)}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3" style="text-align:right">TOTAL BALANCE DUE &amp; PAYABLE:</td>
+                  <td style="text-align:right">${curr}${fmt(bal.totalOutstanding)}</td>
+                </tr>
+              </tfoot>
+            </table>
+
+            <div class="bank-box">
+              <h4>Official School Remittance Bank Accounts:</h4>
+              <p><strong>Bank:</strong> Zenith Bank Plc &nbsp;|&nbsp; <strong>Account Name:</strong> ${cfg.schoolName} Operations</p>
+              <p><strong>Account Number:</strong> 1012345678 &nbsp;|&nbsp; <strong>Reference:</strong> ${stu.regNo} (${stu.lastName})</p>
+            </div>
+          </div>
+
+          <div class="notice-footer">
+            <div class="stamp-box">
+              <div>BURSARY DEPARTMENT</div>
+              <div style="font-size:8px;margin-top:2px">OFFICIAL DEMAND NOTICE</div>
+            </div>
+            <div class="sign-box">
+              <div class="sign-line"></div>
+              <div><strong>Chief Bursary Officer</strong></div>
+              <div style="font-size:9px">${cfg.schoolName}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Batch Fees Reminder Notices - ${cfg.schoolName}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@700;800;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #e2e8f0; color: #0f172a; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .notice-container { width: 210mm; min-height: 297mm; margin: 15mm auto; background: white; border: 2px solid #0a192f; border-radius: 12px; padding: 18mm 20mm; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+    .notice-header { border-bottom: 2px solid #0a192f; padding-bottom: 14px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; }
+    .brand-box { display: flex; align-items: center; gap: 10px; }
+    .brand-logo { width: 44px; height: 44px; border-radius: 12px; background: #0a192f; color: #fbbf24; font-family: 'Outfit'; font-size: 18px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+    .brand-text h1 { font-size: 18px; font-weight: 900; font-family: 'Outfit'; color: #0a192f; }
+    .brand-text p { font-size: 9px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+    .notice-meta { text-align: right; font-size: 10px; color: #64748b; }
+    .notice-badge { display: inline-block; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 4px; margin-top: 2px; text-transform: uppercase; }
+    .notice-title-bar { text-align: center; margin: 14px 0; }
+    .notice-title-bar h2 { font-size: 15px; font-weight: 900; color: #dc2626; font-family: 'Outfit'; letter-spacing: .5px; text-transform: uppercase; text-decoration: underline; }
+    .notice-body { font-size: 11.5px; line-height: 1.5; color: #334155; }
+    .salutation { font-weight: 700; margin-bottom: 10px; color: #0f172a; }
+    .student-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; margin: 12px 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 14px; font-size: 11px; }
+    .student-card div span { color: #64748b; font-size: 9px; text-transform: uppercase; display: block; font-weight: 700; }
+    .student-card div strong { color: #0f172a; font-size: 12px; }
+    .bill-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 11px; }
+    .bill-table th { background: #0a192f; color: white; padding: 8px 12px; text-align: left; font-size: 10px; text-transform: uppercase; }
+    .bill-table td { padding: 8px 12px; border-bottom: 1px solid #e2e8f0; }
+    .bill-table tfoot td { font-weight: 900; background: #fff1f2; color: #dc2626; font-size: 11.5px; border-top: 2px solid #dc2626; }
+    .bank-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; margin: 14px 0; }
+    .bank-box h4 { font-size: 11px; font-weight: 800; color: #1e40af; margin-bottom: 4px; text-transform: uppercase; }
+    .bank-box p { font-size: 11px; color: #1e3a8a; margin: 2px 0; }
+    .notice-footer { margin-top: 24px; display: flex; justify-content: space-between; align-items: flex-end; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+    .sign-box { text-align: center; font-size: 10px; color: #64748b; }
+    .sign-line { width: 150px; border-bottom: 1.5px solid #0a192f; margin-bottom: 4px; }
+    .stamp-box { border: 2px dashed #059669; border-radius: 6px; padding: 6px 12px; text-align: center; color: #059669; font-weight: 800; font-size: 9px; }
+    @media print {
+      body { background: white; padding: 0; }
+      .notice-container { box-shadow: none; border: 1.5px solid #0a192f; width: 100%; height: auto; margin: 0; padding: 14mm 16mm; border-radius: 0; }
+      .page-break { page-break-after: always; }
+      @page { size: A4 portrait; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+  ${noticesHtml}
+  <script>window.onload = () => { window.print(); };<\/script>
+</body>
+</html>`;
+
+    printHtmlDocument(html, `Batch Reminder Notices - ${cfg.schoolName}`);
+  }
+
   // ── Print Debtors Report ─────────────────────────────────────────────────────
   function printDebtorsReport(filterSection = "all") {
     const cfg     = getCfg();
@@ -1258,12 +1705,16 @@ const OJSchoolsReports = (() => {
 return {
     printReceipt,
     printClearancePass,
+    print5PerA4ClearancePasses,
+    printReminderNotice,
+    printBatchReminderNotices,
     printDebtorsReport,
     exportDebtorsCSV,
     exportLearnersCSV,
     exportPaymentsCSV,
     exportExpensesCSV,
-    printPLStatement
+    printPLStatement,
+    printSalaryReport
   };
 })();
 
