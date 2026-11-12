@@ -97,8 +97,33 @@ const OJSchoolsApp = (() => {
     }
   }
 
-  // ── Tab Navigation ───────────────────────────────────────────────────────────
+  // ── Tab Navigation & Scroll Memory Engine ─────────────────────────────────────
+  const tabScrollPositions = {};
+
+  function reloadTabContent(tab) {
+    if (tab === "dashboard")    loadDashboard();
+    else if (tab === "overview")     loadOverview();
+    else if (tab === "learners")     loadLearners();
+    else if (tab === "class-hub")    loadClassHub();
+    else if (tab === "clearance")    loadClearance();
+    else if (tab === "payments")     loadPayments();
+    else if (tab === "expenses")     loadExpenses();
+    else if (tab === "reports")      loadReports();
+    else if (tab === "debtors")      loadDebtors();
+    else if (tab === "audit-logs")   loadAuditLogs();
+    else if (tab === "settings")     loadSettings();
+    else if (tab === "salary")       loadSalaryTab();
+    else if (tab === "stocks")       loadStocksTab();
+  }
+
   function switchTab(tab, options = {}) {
+    const isTabChange = tab !== currentTab;
+
+    // Save previous tab scroll position before switching out
+    if (isTabChange && currentTab) {
+      tabScrollPositions[currentTab] = window.scrollY || document.documentElement.scrollTop || 0;
+    }
+
     currentTab = tab;
     document.querySelectorAll(".tab-section").forEach(s => s.classList.add("hidden"));
     const section = document.getElementById("view-" + tab);
@@ -133,32 +158,27 @@ const OJSchoolsApp = (() => {
       moreBtn.classList.toggle("active", !bottomTabs.includes(tab));
     }
 
-    // Close mobile sidebar on tab switch
-    closeMobileSidebar();
+    // Only close mobile sidebar if it's currently open
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar && sidebar.classList.contains("open")) {
+      closeMobileSidebar();
+    }
 
-    // Scroll back to top smoothly
-    window.scrollTo({ top: 0, behavior: "instant" });
+    // Restore or reset scroll position ONLY when switching between different tabs
+    if (isTabChange && !options.preserveScroll) {
+      const targetY = tabScrollPositions[tab] !== undefined ? tabScrollPositions[tab] : 0;
+      window.scrollTo({ top: targetY, behavior: "instant" });
+    }
 
     if (options && options.skipLoad) return;
 
-    // Load content
-    if (tab === "dashboard")    loadDashboard();
-    if (tab === "overview")     loadOverview();
-    if (tab === "learners")     loadLearners();
-    if (tab === "class-hub")    loadClassHub();
-    if (tab === "clearance")    loadClearance();
-    if (tab === "payments")     loadPayments();
-    if (tab === "expenses")     loadExpenses();
-    if (tab === "reports")      loadReports();
-    if (tab === "debtors")      loadDebtors();
-    if (tab === "audit-logs")   loadAuditLogs();
-    if (tab === "settings")     loadSettings();
-    if (tab === "salary")       loadSalaryTab();
-    if (tab === "stocks")       loadStocksTab();
+    // Load content for the active tab
+    reloadTabContent(tab);
   }
 
   function refreshCurrentTab() {
-    switchTab(currentTab);
+    // Reload data in-place without resetting scroll or altering navigation
+    reloadTabContent(currentTab);
   }
 
   // ── Live Clock ──────────────────────────────────────────────────────────────
@@ -1652,6 +1672,21 @@ const OJSchoolsApp = (() => {
   // INIT
   // ─────────────────────────────────────────────────────────────────────────────
 
+  // ── Sidebar & Menu Scroll Engine ────────────────────────────────────────────
+  function setupSidebarScrollEngine() {
+    const sidebar = document.getElementById("sidebar");
+    if (!sidebar) return;
+    const nav = sidebar.querySelector("nav");
+    if (!nav) return;
+
+    // Forward mouse wheel over brand/empty/footer directly into nav scroll
+    sidebar.addEventListener("wheel", (e) => {
+      if (!nav.contains(e.target)) {
+        nav.scrollTop += e.deltaY;
+      }
+    }, { passive: true });
+  }
+
   // ── Mobile Swipe & Touch Gestures ───────────────────────────────────────────
   function setupMobileGestures() {
     let startX = 0;
@@ -1685,6 +1720,16 @@ const OJSchoolsApp = (() => {
       isTracking = true;
     }, { passive: true });
 
+    document.addEventListener("touchmove", function(e) {
+      if (!isTracking || !e.touches || e.touches.length !== 1) return;
+      var curY = e.touches[0].clientY;
+      var curX = e.touches[0].clientX;
+      // If user is scrolling vertically, immediately release tracking so page scrolling is 100% natural
+      if (Math.abs(curY - startY) > Math.abs(curX - startX) * 1.2) {
+        isTracking = false;
+      }
+    }, { passive: true });
+
     document.addEventListener("touchend", function(e) {
       if (!isTracking || !e.changedTouches || e.changedTouches.length !== 1) return;
       isTracking = false;
@@ -1695,22 +1740,22 @@ const OJSchoolsApp = (() => {
       var deltaY = endY - startY;
       var deltaTime = Date.now() - startTime;
 
-      if (deltaTime > 500) return;
-      if (Math.abs(deltaX) < 40) return;
-      if (Math.abs(deltaX) < Math.abs(deltaY) * 1.5) return;
+      if (deltaTime > 400) return;
+      if (Math.abs(deltaX) < 45) return;
+      if (Math.abs(deltaX) < Math.abs(deltaY) * 2.0) return;
 
       var sidebar = document.getElementById("sidebar");
       var isSidebarOpen = sidebar && sidebar.classList.contains("open");
 
       // Swipe left when sidebar drawer is open -> close drawer
-      if (isSidebarOpen && deltaX < -30) {
+      if (isSidebarOpen && deltaX < -35) {
         closeMobileSidebar();
         if (navigator.vibrate) navigator.vibrate(8);
         return;
       }
 
-      // Edge swipe right from screen left edge (<30px) -> open sidebar
-      if (!isSidebarOpen && startX <= 30 && deltaX > 40) {
+      // Edge swipe right from screen left edge (<25px) -> open sidebar
+      if (!isSidebarOpen && startX <= 25 && deltaX > 45) {
         openMobileSidebar();
         if (navigator.vibrate) navigator.vibrate(10);
         return;
@@ -1849,6 +1894,7 @@ const OJSchoolsApp = (() => {
     _startLiveClock();
     populateClassDropdowns();
     updateFilterClassOptions("debtors-filter-class");
+    setupSidebarScrollEngine();
     setupMobileGestures();
     loadDashboard();
     switchTab("dashboard");
@@ -1973,11 +2019,12 @@ const OJSchoolsApp = (() => {
     if (!el) return;
     el.classList.remove("hidden");
     if (!document.body.classList.contains("modal-open")) {
-      _modalScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+      _modalScrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
       document.body.classList.add("modal-open");
       document.body.style.top = `-${_modalScrollY}px`;
       document.body.style.position = "fixed";
       document.body.style.width = "100%";
+      document.body.style.overflow = "hidden";
     }
   }
 
@@ -1986,11 +2033,16 @@ const OJSchoolsApp = (() => {
     if (el) el.classList.add("hidden");
     const openModals = document.querySelectorAll(".modal-overlay:not(.hidden)");
     if (!openModals || openModals.length === 0) {
+      const restoreY = _modalScrollY;
       document.body.classList.remove("modal-open");
       document.body.style.position = "";
       document.body.style.top = "";
       document.body.style.width = "";
-      window.scrollTo({ top: _modalScrollY, behavior: "instant" });
+      document.body.style.overflow = "";
+      window.scrollTo({ top: restoreY, behavior: "instant" });
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: restoreY, behavior: "instant" });
+      });
     }
   }
 
