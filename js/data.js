@@ -210,6 +210,7 @@ const DEFAULT_DATA = {
   expenses:      [],
   staff:         [],
   salaries:      [],
+  staffLoans:    [],
   stocks:        [],
   stockSales:    [],
   stockRestocks: [],
@@ -360,11 +361,17 @@ class OJSchoolsDB {
     this.init();
     try {
       const data = JSON.parse(localStorage.getItem(this.KEY));
-      if (!data.students)   data.students   = [];
-      if (!data.payments)   data.payments   = [];
-      if (!data.expenses)   data.expenses   = [];
-      if (!data.auditLogs)  data.auditLogs  = [];
-      if (!data.config)     data.config     = DEFAULT_DATA.config;
+      if (!data.students)      data.students      = [];
+      if (!data.payments)      data.payments      = [];
+      if (!data.expenses)      data.expenses      = [];
+      if (!data.staff)         data.staff         = [];
+      if (!data.salaries)      data.salaries      = [];
+      if (!data.staffLoans)    data.staffLoans    = [];
+      if (!data.stocks)        data.stocks        = [];
+      if (!data.stockSales)    data.stockSales    = [];
+      if (!data.stockRestocks) data.stockRestocks = [];
+      if (!data.auditLogs)     data.auditLogs     = [];
+      if (!data.config)        data.config        = DEFAULT_DATA.config;
       data.feeCategories = FEE_CATEGORIES;
       data.classes       = ALL_CLASSES;
 
@@ -780,6 +787,18 @@ class OJSchoolsDB {
       totalExpenses += Number(filteredExpenses[i].amount) || 0;
     }
 
+    // Stock Sales Revenue
+    const allStockSales = this.get().stockSales || [];
+    const filteredStockSales = filterSection === "all" ? allStockSales : allStockSales.filter(s => s.section === filterSection || !s.section);
+    let totalStockSalesRevenue = 0;
+    for (let i = 0; i < filteredStockSales.length; i++) {
+      totalStockSalesRevenue += Number(filteredStockSales[i].totalAmount) || 0;
+    }
+
+    const totalOperatingIncome = totalRevenue + totalStockSalesRevenue;
+    const netSurplus = totalOperatingIncome - totalExpenses;
+    const surplusMarginPct = totalOperatingIncome > 0 ? (netSurplus / totalOperatingIncome) * 100 : 0;
+
     // Pre-index payments by studentId in O(P)
     const paysByStudent = new Map();
     for (let i = 0; i < filteredPayments.length; i++) {
@@ -819,8 +838,13 @@ class OJSchoolsDB {
 
     return {
       totalStudents: filteredStudents.length,
-      totalRevenue, totalExpenses,
-      netProfit: totalRevenue - totalExpenses,
+      totalRevenue,
+      totalStockSalesRevenue,
+      totalOperatingIncome,
+      totalExpenses,
+      netProfit: netSurplus,
+      netSurplus,
+      surplusMarginPct: Math.round(surplusMarginPct * 10) / 10,
       totalTermFeesPaid, totalArrearsRecovered, totalOtherFeesPaid,
       totalOutstandingArrears, totalUnpaidTermFees,
       totalOutstandingDebt: totalOutstandingArrears + totalUnpaidTermFees,
@@ -939,6 +963,9 @@ class OJSchoolsDB {
       bank: (fields.bank || "").trim(),
       accountNo: (fields.accountNo || "").trim(),
       phone: (fields.phone || "").trim(),
+      loanBalance: Math.round((Number(fields.loanBalance) || 0) * 100) / 100,
+      totalLoanTaken: Math.round((Number(fields.totalLoanTaken) || 0) * 100) / 100,
+      totalLoanRepaid: Math.round((Number(fields.totalLoanRepaid) || 0) * 100) / 100,
       createdAt: new Date().toISOString()
     };
     db.staff.push(staff);
@@ -967,6 +994,9 @@ class OJSchoolsDB {
       bank: fields.bank !== undefined ? fields.bank.trim() : db.staff[idx].bank,
       accountNo: fields.accountNo !== undefined ? fields.accountNo.trim() : db.staff[idx].accountNo,
       phone: fields.phone !== undefined ? fields.phone.trim() : db.staff[idx].phone,
+      loanBalance: fields.loanBalance !== undefined ? Math.round(Number(fields.loanBalance) * 100) / 100 : (db.staff[idx].loanBalance || 0),
+      totalLoanTaken: fields.totalLoanTaken !== undefined ? Math.round(Number(fields.totalLoanTaken) * 100) / 100 : (db.staff[idx].totalLoanTaken || 0),
+      totalLoanRepaid: fields.totalLoanRepaid !== undefined ? Math.round(Number(fields.totalLoanRepaid) * 100) / 100 : (db.staff[idx].totalLoanRepaid || 0),
       updatedAt: new Date().toISOString()
     };
 
@@ -1040,7 +1070,8 @@ class OJSchoolsDB {
     const amount = Math.round((Number(fields.amount) || 0) * 100) / 100;
     const bonus = Math.round((Number(fields.bonus) || 0) * 100) / 100;
     const deductions = Math.round((Number(fields.deductions) || 0) * 100) / 100;
-    const netAmount = Math.max(0, amount + bonus - deductions);
+    const loanDeduction = Math.round((Number(fields.loanDeduction) || 0) * 100) / 100;
+    const netAmount = Math.max(0, amount + bonus - deductions - loanDeduction);
     const dateStr = fields.date || new Date().toISOString().split("T")[0];
 
     const monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -1085,6 +1116,7 @@ class OJSchoolsDB {
       baseAmount: amount,
       bonus,
       deductions,
+      loanDeduction,
       amount: netAmount,
       method: fields.method || "Bank Transfer",
       bank: fields.bank || (staff ? staff.bank : ""),
@@ -1096,10 +1128,27 @@ class OJSchoolsDB {
     };
     db.salaries.unshift(salary);
 
-    const log = this._buildLog("SALARY_PAID", `Paid salary to ${staffName} for ${monthName} ${year}: ₦${netAmount.toLocaleString()}`);
+    const log = this._buildLog("SALARY_PAID", `Paid salary to ${staffName} for ${monthName} ${year}: ₦${netAmount.toLocaleString()}${loanDeduction > 0 ? ` (Loan deduction: ₦${loanDeduction.toLocaleString()})` : ""}`);
     if (!db.auditLogs) db.auditLogs = [];
     db.auditLogs.unshift(log);
     this.save(db);
+
+    // 3. Automatically record loan repayment if loan deduction was applied
+    if (loanDeduction > 0 && fields.staffId) {
+      try {
+        this.logStaffLoanRepayment({
+          staffId: fields.staffId,
+          amount: loanDeduction,
+          date: dateStr,
+          method: "Salary Auto-Deduction",
+          notes: `Auto-deducted from ${monthName} ${year} salary (${paymentRef})`,
+          recordedBy: fields.paidBy || "Bursar",
+          salaryRef: paymentRef
+        });
+      } catch (err) {
+        console.warn("[BursarIQ] Error auto-recording loan repayment:", err);
+      }
+    }
 
     const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
     if (fb) {
@@ -1138,6 +1187,168 @@ class OJSchoolsDB {
       if (typeof fb.deleteSalary === "function") fb.deleteSalary(id);
       if (sal.expenseId && typeof fb.deleteExpense === "function") fb.deleteExpense(sal.expenseId);
     }
+    return true;
+  }
+
+  // ─── Staff Loans & Advances Subsystem (BursarIQ) ───────────────────────────
+  static getStaffLoans(staffId = null) {
+    const db = this.get();
+    let loans = [...(db.staffLoans || [])];
+    if (staffId) {
+      loans = loans.filter(l => l.staffId === staffId);
+    }
+    return loans.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+  }
+
+  static disburseStaffLoan({ staffId, amount, date, notes, disbursedBy }) {
+    const db = this.get();
+    if (!db.staffLoans) db.staffLoans = [];
+    if (!db.expenses) db.expenses = [];
+
+    const staff = this.getStaffById(staffId);
+    if (!staff) throw new Error("Staff member not found.");
+
+    const loanAmount = Math.round(Number(amount) * 100) / 100;
+    if (loanAmount <= 0) throw new Error("Loan amount must be greater than zero.");
+
+    const dateStr = date || new Date().toISOString().split("T")[0];
+    const now = Date.now();
+
+    // 1. Update Staff loan balance
+    staff.loanBalance = Math.round(((staff.loanBalance || 0) + loanAmount) * 100) / 100;
+    staff.totalLoanTaken = Math.round(((staff.totalLoanTaken || 0) + loanAmount) * 100) / 100;
+    staff.updatedAt = new Date().toISOString();
+
+    // 2. Create staffLoans record
+    const loanRecord = {
+      id: `LOAN-DISB-${now}-${Math.floor(Math.random() * 9000 + 1000)}`,
+      type: "disbursement",
+      staffId: staff.id,
+      staffName: staff.name,
+      section: staff.section || "general",
+      amount: loanAmount,
+      balanceAfter: staff.loanBalance,
+      date: dateStr,
+      notes: (notes || "").trim(),
+      recordedBy: disbursedBy || "Bursar",
+      createdAt: new Date().toISOString()
+    };
+    db.staffLoans.unshift(loanRecord);
+
+    // 3. Post an expense entry so cash outflow is reflected in Income & Expenditure statement
+    const expenseEntry = {
+      id: `EXP-LOAN-${now}-${Math.floor(Math.random() * 9999)}`,
+      title: `Staff Loan: ${staff.name}`,
+      description: `Staff Loan Disbursement: ${staff.name} (${notes || "Staff Advance"})`,
+      amount: loanAmount,
+      category: "Staff Loan",
+      account: "general",
+      section: staff.section || "general",
+      period: "one_time",
+      date: dateStr,
+      recordedBy: disbursedBy || "Bursar",
+      paymentMethod: "Bank Transfer",
+      loanRef: loanRecord.id,
+      createdAt: new Date().toISOString()
+    };
+    db.expenses.unshift(expenseEntry);
+
+    const log = this._buildLog("STAFF_LOAN_DISBURSED", `Disbursed loan of ₦${loanAmount.toLocaleString()} to ${staff.name}. New loan balance: ₦${staff.loanBalance.toLocaleString()}`);
+    if (!db.auditLogs) db.auditLogs = [];
+    db.auditLogs.unshift(log);
+
+    this.save(db);
+
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb) {
+      if (typeof fb.saveStaff === "function") fb.saveStaff(staff);
+      if (typeof fb.saveExpense === "function") fb.saveExpense(expenseEntry);
+      if (typeof fb.saveStaffLoan === "function") fb.saveStaffLoan(loanRecord);
+    }
+    return loanRecord;
+  }
+
+  static logStaffLoanRepayment({ staffId, amount, date, method, notes, recordedBy, salaryRef = null }) {
+    const db = this.get();
+    if (!db.staffLoans) db.staffLoans = [];
+
+    const staff = this.getStaffById(staffId);
+    if (!staff) throw new Error("Staff member not found.");
+
+    const repayAmount = Math.round(Number(amount) * 100) / 100;
+    if (repayAmount <= 0) return null;
+
+    const dateStr = date || new Date().toISOString().split("T")[0];
+    const now = Date.now();
+
+    // 1. Decrement Staff loan balance
+    staff.loanBalance = Math.max(0, Math.round(((staff.loanBalance || 0) - repayAmount) * 100) / 100);
+    staff.totalLoanRepaid = Math.round(((staff.totalLoanRepaid || 0) + repayAmount) * 100) / 100;
+    staff.updatedAt = new Date().toISOString();
+
+    // 2. Create staffLoans repayment transaction
+    const repayRecord = {
+      id: `LOAN-REPAY-${now}-${Math.floor(Math.random() * 9000 + 1000)}`,
+      type: "repayment",
+      staffId: staff.id,
+      staffName: staff.name,
+      section: staff.section || "general",
+      amount: repayAmount,
+      balanceAfter: staff.loanBalance,
+      method: method || "Salary Deduction",
+      salaryRef: salaryRef || null,
+      date: dateStr,
+      notes: (notes || "").trim(),
+      recordedBy: recordedBy || "Bursar",
+      createdAt: new Date().toISOString()
+    };
+    db.staffLoans.unshift(repayRecord);
+
+    const log = this._buildLog("STAFF_LOAN_REPAID", `Loan repayment of ₦${repayAmount.toLocaleString()} recorded for ${staff.name}. Remaining balance: ₦${staff.loanBalance.toLocaleString()}`);
+    if (!db.auditLogs) db.auditLogs = [];
+    db.auditLogs.unshift(log);
+
+    this.save(db);
+
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb) {
+      if (typeof fb.saveStaff === "function") fb.saveStaff(staff);
+      if (typeof fb.saveStaffLoan === "function") fb.saveStaffLoan(repayRecord);
+    }
+    return repayRecord;
+  }
+
+  static deleteStaffLoan(id) {
+    const db = this.get();
+    const loan = (db.staffLoans || []).find(l => l.id === id);
+    if (!loan) return false;
+
+    db.staffLoans = db.staffLoans.filter(l => l.id !== id);
+
+    if (!db._pendingDeletes) db._pendingDeletes = [];
+    if (!db._tombstones) db._tombstones = {};
+    db._pendingDeletes.push({ col: "staffLoans", id });
+    db._tombstones[id] = Date.now();
+
+    // Revert staff balance
+    const staff = this.getStaffById(loan.staffId);
+    if (staff) {
+      if (loan.type === "disbursement") {
+        staff.loanBalance = Math.max(0, Math.round(((staff.loanBalance || 0) - loan.amount) * 100) / 100);
+        staff.totalLoanTaken = Math.max(0, Math.round(((staff.totalLoanTaken || 0) - loan.amount) * 100) / 100);
+      } else if (loan.type === "repayment") {
+        staff.loanBalance = Math.round(((staff.loanBalance || 0) + loan.amount) * 100) / 100;
+        staff.totalLoanRepaid = Math.max(0, Math.round(((staff.totalLoanRepaid || 0) - loan.amount) * 100) / 100);
+      }
+    }
+
+    const log = this._buildLog("STAFF_LOAN_DELETED", `Deleted staff loan transaction: ${loan.staffName} (${loan.type}) — ₦${Number(loan.amount).toLocaleString()}`);
+    if (!db.auditLogs) db.auditLogs = [];
+    db.auditLogs.unshift(log);
+    this.save(db);
+
+    const fb = (typeof window !== "undefined") ? (window.OJSchoolsFirebase || window.RichVineFirebase) : null;
+    if (fb && typeof fb.deleteStaffLoan === "function") fb.deleteStaffLoan(id);
     return true;
   }
 

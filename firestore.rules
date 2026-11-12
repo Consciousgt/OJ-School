@@ -498,7 +498,14 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // 12. PERMANENT DELETED RECORDS (TOMBSTONES)
+    // 12. STAFF LOANS & ADVANCES
+    match /staffLoans/{loanId} {
+      allow read: if isStaff();
+      allow create, update: if isBursar();
+      allow delete: if isAdmin();
+    }
+
+    // 13. PERMANENT DELETED RECORDS (TOMBSTONES)
     // Supports physical Firestore backend deletion and prevents deleted record resurrection
     match /deletedRecords/{recordId} {
       allow read: if isStaff();

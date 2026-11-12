@@ -227,7 +227,7 @@ const OJSchoolsFirebase = {
     }
 
     // 2. Process pending offline uploads across all collections (Batched for speed & quota efficiency)
-    const collections = ["students", "payments", "expenses", "stocks", "stockSales", "stockRestocks", "staff", "salaries"];
+    const collections = ["students", "payments", "expenses", "stocks", "stockSales", "stockRestocks", "staff", "salaries", "staffLoans"];
     for (const colName of collections) {
       const list = Array.isArray(localDb[colName]) ? localDb[colName] : [];
       const pendingItems = list.filter(item => item && item._pendingUpload === true);
@@ -304,7 +304,7 @@ const OJSchoolsFirebase = {
     this._setSyncStatus("syncing", "Syncing Cloud...");
 
     try {
-      const collections = ["students", "payments", "expenses", "stocks", "stockSales", "stockRestocks", "staff", "salaries"];
+      const collections = ["students", "payments", "expenses", "stocks", "stockSales", "stockRestocks", "staff", "salaries", "staffLoans"];
       const dbRef = window.OJSchoolsDB || window.RichVineDB;
       const localDb = dbRef ? dbRef.get() : {};
       let changed = false;
@@ -673,6 +673,33 @@ const OJSchoolsFirebase = {
     }
   },
 
+  async saveStaffLoan(loan) {
+    if (!loan || !loan.id || !db) return;
+    try {
+      const clean = this._sanitize(loan, "staffLoans");
+      await setDoc(doc(db, "staffLoans", loan.id), clean, { merge: true });
+      console.info("[OJ Firebase] Staff loan synced to cloud:", loan.id);
+    } catch (e) {
+      console.warn("[OJ Firebase] saveStaffLoan failed:", e.message);
+    }
+  },
+
+  async deleteStaffLoan(id) {
+    if (!id || !db) return;
+    try {
+      await deleteDoc(doc(db, "staffLoans", id));
+      await this.recordCloudDeletion("staffLoans", id);
+      console.info("[OJ Firebase] Staff loan permanently deleted from cloud backend:", id);
+    } catch (e) {
+      console.warn("[OJ Firebase] deleteStaffLoan offline:", e.message);
+      const dbRef = window.OJSchoolsDB || window.RichVineDB;
+      const localDb = dbRef ? dbRef.get() : {};
+      if (!localDb._pendingDeletes) localDb._pendingDeletes = [];
+      localDb._pendingDeletes.push({ col: "staffLoans", id });
+      if (dbRef) dbRef.save(localDb, false);
+    }
+  },
+
   async saveLog(log) {
     if (!log || !log.id || !db) return;
     try {
@@ -689,7 +716,7 @@ const OJSchoolsFirebase = {
     this._realtimeActive = true;
     console.info("[OJ Firebase] Multi-device realtime listeners starting...");
 
-    const collections = ["students", "payments", "expenses", "staff", "salaries", "stocks"];
+    const collections = ["students", "payments", "expenses", "staff", "salaries", "staffLoans", "stocks", "stockSales"];
     collections.forEach(colName => {
       try {
         onSnapshot(collection(db, colName), snap => {
